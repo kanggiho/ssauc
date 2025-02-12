@@ -1,0 +1,182 @@
+plugins {
+    id 'java'
+    id 'war'
+    id 'org.springframework.boot' version '3.0.2'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+tasks.withType(ProcessResources) {
+    filteringCharset = 'UTF-8'
+}
+
+
+tasks.withType(Test) {
+    systemProperty 'file.encoding', 'UTF-8'
+}
+
+tasks.withType(JavaExec) {
+    systemProperty 'file.encoding', 'UTF-8'
+}
+
+tasks.withType(JavaExec) {
+    jvmArgs '-Dfile.encoding=UTF-8'
+}
+
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    //************************************************************************
+    //  template engine-thymeleaf
+    //************************************************************************
+    // thymeleaf - http body에 결과를 넣어주기 위한 라이브러리
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.2.0'
+
+
+    //************************************************************************
+    //  spring boot core
+    //************************************************************************
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+    // 개발시에만 내장된 tomcat을 사용하고
+    // 배포시에는 외부 tomcat이 있어 배포파일은 war파일에는 포함시키지 않겠다는 의미
+    // 배포파일 war파일에 포함하고자 하는 경우 implementation으로 변경
+
+    // spring-boot-starter는
+    // implementation 'org.springframework.boot:spring-boot-starter-logging'를 포함함.
+    // slf4j의 구현체인 log-back을 사용함.
+    implementation 'org.springframework.boot:spring-boot-starter'
+
+
+    //************************************************************************
+    //  lombok-vo-log
+    //************************************************************************
+    // Lombok
+    // vo(dto) 자동 생성 기능 + log를 위한 Log4J, Slf4j를 사용할 수 있게 함.
+    implementation 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+
+    //************************************************************************
+    //  spring security
+    //************************************************************************
+    // password암호화
+    // Spring Security의 Crypto 모듈
+    implementation 'org.springframework.security:spring-security-crypto:6.0.0'
+
+
+    //************************************************************************
+    //  db-jpa-mysql-hikari
+    //************************************************************************
+    // db연결
+    runtimeOnly 'mysql:mysql-connector-java:8.0.33' // 최신 버전 사용
+
+    // jpa (based jakarta ee)
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+
+    // Jackson Databind 라이브러리 추가
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.0'
+
+    // (필요한 경우) Jackson Core 및 Annotations 라이브러리 추가
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.14.0'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.14.0'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.2'
+
+    // JSON 라이브러리
+    implementation 'org.json:json:20231013'
+
+
+    // 필요한 의존성 추가, 예를 들어 XML 파싱 라이브러리
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+
+//    // Querydsl JPA
+//    implementation 'com.querydsl:querydsl-jpa:5.0.0' // 최신 버전 확인 후 사용
+//
+//    // Querydsl Annotation Processor
+//    annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jpa'
+
+    // vo <--> dto
+    implementation 'org.modelmapper:modelmapper:3.1.0'
+    // validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // 불필요한 javax.persistence 제거
+//    configurations.all {
+//        exclude group: 'javax.persistence', module: 'javax.persistence-api'
+//    }
+
+    //************************************************************************
+    //  chatbot
+    //************************************************************************
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    ////////////////////////////////////////////////////////////////////////////
+    //************************************************************************
+    // Spring Boot Test
+    //************************************************************************
+    ////////////////////////////////////////////////////////////////////////////
+
+
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+    // JUnit, Mockito, AssertJ 등 기본적인 테스트 라이브러리를 포함됨.
+    // 생략 가능
+    // testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // lombok을 이용해 Junit 테스트를 진행하는 경우 추가
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+
+//def generated = "${buildDir}/generated/sources/annotationProcessor/java/main"
+//
+//tasks.withType(JavaCompile) {
+//    options.annotationProcessorGeneratedSourcesDirectory = file(generated)
+//}
+//
+//sourceSets {
+//    main {
+//        java {
+//            srcDirs += generated
+//        }
+//    }
+//}
+
+
+
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

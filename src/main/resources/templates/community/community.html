@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout.html">
+<head>
+  <style>
+    .sidebar {
+      background: #222;
+      color: white;
+      padding: 15px;
+      height: 20em;
+    }
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      display: block;
+      padding: 10px;
+    }
+    .sidebar a:hover {
+      background: #444;
+    }
+    .table th, .table td {
+      vertical-align: middle;
+    }
+  </style>
+</head>
+  <div layout:fragment="content">
+    <div class="container-fluid">
+      <div class="row">
+        <nav class="col-md-3 sidebar">
+          <h4 class="mb-3">커뮤니티</h4>
+          <a href="#" class="bg-light text-dark p-2">공지사항</a>
+          <a href="#">SSAUC 뉴스</a>
+          <a href="#">언론보도</a>
+          <a href="#">회사소개</a>
+        </nav>
+        <main class="col-md-9 p-4">
+          <h2>공지사항</h2>
+          <div class="d-flex justify-content-between my-3">
+            <select class="form-select w-auto">
+              <option>전체</option>
+              <option>공지</option>
+              <option>일반</option>
+            </select>
+            <div class="input-group w-50">
+              <input type="text" class="form-control" placeholder="Search">
+              <button class="btn btn-dark">검색</button>
+            </div>
+          </div>
+          <table class="table table-bordered">
+            <thead class="table-light">
+            <tr>
+              <th>번호</th>
+              <th>제목</th>
+              <th>조회</th>
+              <th>등록일</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td><span class="badge bg-dark">공지</span></td>
+              <td>혼·포장 매매 금지 안내</td>
+              <td>793</td>
+              <td>23/04/13</td>
+            </tr>
+            <tr>
+              <td><span class="badge bg-dark">공지</span></td>
+              <td>코베이옥션 이용방법 안내</td>
+              <td>11411</td>
+              <td>22/08/03</td>
+            </tr>
+            <tr>
+              <td>1092</td>
+              <td>농협은행 전산시스템 장애로 인한 입금 오류 안내</td>
+              <td>612</td>
+              <td>25/02/03</td>
+            </tr>
+            <tr>
+              <td>1091</td>
+              <td>2025 설 연휴 업무 안내</td>
+              <td>5277</td>
+              <td>25/01/15</td>
+            </tr>
+            </tbody>
+          </table>
+        </main>
+      </div>
+    </div>
+  </div>
+</html>

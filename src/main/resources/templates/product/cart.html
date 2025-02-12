@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout.html">
+<head>
+    <style>
+        .order-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 10px;
+            background: #fff;
+        }
+        .total-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .order-btn {
+            background-color: #ff4d4f;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<div layout:fragment="content">
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="order-card">
+                <div class="d-flex align-items-center mb-3">
+                    <input type="checkbox" checked class="me-2">
+                    <h5 class="m-0">Nike Air Force 1 '07 Low White</h5>
+                    <button class="btn btn-light ms-auto">삭제</button>
+                </div>
+                <div class="d-flex">
+                    <img src="https://via.placeholder.com/100" alt="상품 이미지" class="me-3">
+                    <div>
+                        <p class="text-muted">나이키 에어포스 1 '07 문 로우 화이트</p>
+                        <p class="fw-bold">270 / 빠른배송</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <span>상품금액</span>
+                    <span>128,000원</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>배송비</span>
+                    <span>5,000원</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between total-price">
+                    <span>예상 결제금액</span>
+                    <span>135,100원</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="order-card">
+                <h5>선택 주문정보</h5>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <span>총 상품금액</span>
+                    <span>128,000원</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>총 검수비</span>
+                    <span>무료</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>총 수수료</span>
+                    <span>2,100원</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>총 배송비</span>
+                    <span>5,000원</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between total-price">
+                    <span>총 예상 결제금액</span>
+                    <span>135,100원</span>
+                </div>
+            </div>
+            <button class="btn order-btn w-100 mt-3">135,100원 - 총 1건 주문하기</button>
+        </div>
+    </div>
+</div>
+</div>
+</html>
