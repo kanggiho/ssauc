@@ -1,3 +1,0 @@
-pull_request_templates:
-  - name: Feature Request
-    path: PULL_REQUEST_TEMPLATE/feature.md
