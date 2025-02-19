@@ -157,6 +157,7 @@ dependencies {
     // lombok을 이용해 Junit 테스트를 진행하는 경우 추가
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
+
 }
 
 

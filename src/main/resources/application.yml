@@ -38,11 +38,14 @@ spring:
   #  --> 필드명(exampleField)은 기본적으로 "필드 이름을 그대로" 사용하며, 언더스코어 _로 변경되지 않음.
   # memberId --> member_id로 하려면 안써주면 됨.
 
+
+
   jpa:
     hibernate:
       ddl-auto: update  # JPA를 통해 테이블 자동 생성
       naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+#        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
       properties:
         hibernate:
