@@ -2,7 +2,9 @@ package com.example.ssauc;
 
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.repository.UsersRepository;
+import com.example.ssauc.user.product.entity.Category;
 import com.example.ssauc.user.product.entity.Product;
+import com.example.ssauc.user.product.repository.CategoryRepository;
 import com.example.ssauc.user.product.repository.ProductRepository;
 import com.example.ssauc.user.main.entity.RecentlyViewed;
 import com.example.ssauc.user.main.repository.RecentlyViewedRepository;
@@ -29,6 +31,9 @@ public class RecentlyViewedRepositoryTest {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     @Test
     void testSaveAndFindRecentlyViewed() {
         // 1. 판매자(Users) 엔티티 생성 및 저장
@@ -40,10 +45,16 @@ public class RecentlyViewedRepositoryTest {
         user.setUpdatedAt(LocalDateTime.now());
         Users savedUser = usersRepository.save(user);
 
+        // 카테고리(Category) 엔티티 생성 및 저장
+        Category category = new Category();
+        category.setName("categoryTest");
+        category.setUser(savedUser);
+        Category savedCategory = categoryRepository.save(category);
+
         // 2. 상품(Product) 엔티티 생성 및 저장
         Product product = new Product();
         product.setSeller(savedUser);
-        product.setCategoryId(1L);
+        product.setCategory(savedCategory);
         product.setName("Sample Product");
         product.setDescription("This is a sample product.");
         product.setPrice(5000L);

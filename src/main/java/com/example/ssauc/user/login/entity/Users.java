@@ -1,7 +1,10 @@
 package com.example.ssauc.user.login.entity;
 
+import com.example.ssauc.user.bid.entity.Bid;
 import com.example.ssauc.user.main.entity.ProductLike;
 import com.example.ssauc.user.main.entity.RecentlyViewed;
+import com.example.ssauc.user.product.entity.Category;
+import com.example.ssauc.user.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -42,9 +45,20 @@ public class Users {
     private LocalDateTime lastLogin;
 
     // 연관 관계 설정
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Category> categories;
+
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Product> products;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bid> bids;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecentlyViewed> recentlyViewedProducts;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductLike> likedProducts;
+
 }

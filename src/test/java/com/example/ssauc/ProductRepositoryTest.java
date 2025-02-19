@@ -2,7 +2,9 @@ package com.example.ssauc;
 
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.repository.UsersRepository;
+import com.example.ssauc.user.product.entity.Category;
 import com.example.ssauc.user.product.entity.Product;
+import com.example.ssauc.user.product.repository.CategoryRepository;
 import com.example.ssauc.user.product.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,9 @@ public class ProductRepositoryTest {
     @Autowired
     private UsersRepository usersRepository; // 판매자(Users) 엔티티 관련 Repository
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     @Test
     void testSaveAndFindProduct() {
         // 판매자(Users) 엔티티 생성 및 저장
@@ -35,10 +40,16 @@ public class ProductRepositoryTest {
         seller.setUpdatedAt(LocalDateTime.now());
         Users savedSeller = usersRepository.save(seller);
 
+        // 카테고리(Category) 엔티티 생성 및 저장
+        Category category = new Category();
+        category.setName("categoryTest");
+        category.setUser(savedSeller);
+        Category savedCategory = categoryRepository.save(category);
+
         // Product 엔티티 생성
         Product product = new Product();
         product.setSeller(savedSeller);  // 연관관계 설정
-        product.setCategoryId(1L);
+        product.setCategory(savedCategory);
         product.setName("Test Product");
         product.setDescription("This is a test product.");
         product.setPrice(10000L);
