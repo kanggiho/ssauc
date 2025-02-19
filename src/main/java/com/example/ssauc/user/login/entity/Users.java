@@ -1,6 +1,8 @@
 package com.example.ssauc.user.login.entity;
 
 import com.example.ssauc.user.bid.entity.Bid;
+import com.example.ssauc.user.chat.entity.ChatMessage;
+import com.example.ssauc.user.chat.entity.ChatParticipant;
 import com.example.ssauc.user.main.entity.ProductLike;
 import com.example.ssauc.user.main.entity.RecentlyViewed;
 import com.example.ssauc.user.order.entity.Orders;
@@ -79,5 +81,13 @@ public class Users {
 
     @OneToMany(mappedBy = "payer")
     private List<Payment> payments;
+
+    // 채팅방에 참여한 유저 목록 (1:N)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<ChatParticipant> chatParticipants;
+
+    // 사용자가 보낸 메시지 (1:N)
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
+    private List<ChatMessage> sentMessages;
 
 }
