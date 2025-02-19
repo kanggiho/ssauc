@@ -7,4 +7,4 @@ issue_templates:
   - name: "📋 To-Do List"
     description: "해야 할 일 정리"
     labels: ["todo"]
-    body: todo_template.md
+    body: todo_template.yml
