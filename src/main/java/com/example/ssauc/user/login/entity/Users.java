@@ -1,10 +1,18 @@
 package com.example.ssauc.user.login.entity;
 
 import com.example.ssauc.user.bid.entity.Bid;
+import com.example.ssauc.user.chat.entity.Ban;
 import com.example.ssauc.user.chat.entity.ChatMessage;
 import com.example.ssauc.user.chat.entity.ChatParticipant;
+import com.example.ssauc.user.chat.entity.Report;
+import com.example.ssauc.user.contact.entity.Board;
+import com.example.ssauc.user.main.entity.Notification;
 import com.example.ssauc.user.main.entity.ProductLike;
 import com.example.ssauc.user.main.entity.RecentlyViewed;
+import com.example.ssauc.user.mypage.entity.Charge;
+import com.example.ssauc.user.mypage.entity.ReputationHistory;
+import com.example.ssauc.user.mypage.entity.UserActivity;
+import com.example.ssauc.user.mypage.entity.Withdraw;
 import com.example.ssauc.user.order.entity.Orders;
 import com.example.ssauc.user.pay.entity.Payment;
 import com.example.ssauc.user.pay.entity.Review;
@@ -82,12 +90,51 @@ public class Users {
     @OneToMany(mappedBy = "payer")
     private List<Payment> payments;
 
-    // 채팅방에 참여한 유저 목록 (1:N)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<ChatParticipant> chatParticipants;
 
-    // 사용자가 보낸 메시지 (1:N)
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
     private List<ChatMessage> sentMessages;
+
+
+
+    @OneToMany(mappedBy = "reporter", cascade = CascadeType.ALL)
+    private List<Report> reportsByUser;
+
+    @OneToMany(mappedBy = "reportedUser", cascade = CascadeType.ALL)
+    private List<Report> reportsAgainstUser;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Notification> notifications;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Board> boards;
+
+
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Ban> bansAsUser;
+
+    @OneToMany(mappedBy = "blockedUser", cascade = CascadeType.ALL)
+    private List<Ban> bansAsBlockedUser;
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Withdraw> withdraws;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Charge> charges;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserActivity> userActivities;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReputationHistory> reputationHistories;
+
+
+
+
+
 
 }

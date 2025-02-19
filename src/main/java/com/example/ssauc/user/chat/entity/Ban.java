@@ -6,25 +6,28 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "chat_participant")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ChatParticipant {
+@Entity
+@Table(name = "ban")
+public class Ban {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long chatParticipantId;
-
-    @ManyToOne
-    @JoinColumn(name = "chat_room_id", nullable = false)
-    private ChatRoom chatRoom;
+    @Column(name = "ban_id")
+    private Long banId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
-    private LocalDateTime joinedAt;
+    @ManyToOne
+    @JoinColumn(name = "blocked_user_id", nullable = false)
+    private Users blockedUser;
+
+    @Column(name = "blocked_at")
+    private LocalDateTime blockedAt;
 }
