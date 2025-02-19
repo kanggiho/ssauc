@@ -3,6 +3,9 @@ package com.example.ssauc.user.login.entity;
 import com.example.ssauc.user.bid.entity.Bid;
 import com.example.ssauc.user.main.entity.ProductLike;
 import com.example.ssauc.user.main.entity.RecentlyViewed;
+import com.example.ssauc.user.order.entity.Orders;
+import com.example.ssauc.user.pay.entity.Payment;
+import com.example.ssauc.user.pay.entity.Review;
 import com.example.ssauc.user.product.entity.Category;
 import com.example.ssauc.user.product.entity.Product;
 import jakarta.persistence.*;
@@ -12,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Builder
 @Table(name = "users")
 @Getter
 @Setter
@@ -60,5 +64,20 @@ public class Users {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductLike> likedProducts;
+
+    @OneToMany(mappedBy = "buyer")
+    private List<Orders> purchasedOrders;
+
+    @OneToMany(mappedBy = "seller")
+    private List<Orders> soldOrders;
+
+    @OneToMany(mappedBy = "reviewer")
+    private List<Review> reviewsGiven;
+
+    @OneToMany(mappedBy = "reviewee")
+    private List<Review> reviewsReceived;
+
+    @OneToMany(mappedBy = "payer")
+    private List<Payment> payments;
 
 }
