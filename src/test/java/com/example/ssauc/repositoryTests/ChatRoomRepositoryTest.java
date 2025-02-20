@@ -1,4 +1,4 @@
-package com.example.ssauc;
+package com.example.ssauc.repositoryTests;
 
 import com.example.ssauc.user.chat.entity.ChatRoom;
 import com.example.ssauc.user.chat.repository.ChatRoomRepository;

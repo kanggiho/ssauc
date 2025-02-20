@@ -7,12 +7,12 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Entity
 @Table(name = "charge")
 public class Charge {
 

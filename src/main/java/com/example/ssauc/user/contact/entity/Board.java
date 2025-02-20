@@ -7,12 +7,12 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Entity
 @Table(name = "board")
 public class Board {
 
@@ -20,6 +20,7 @@ public class Board {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long boardId;
 
+    // 문의 게시글을 작성한 사용자
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;

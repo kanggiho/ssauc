@@ -6,12 +6,12 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Entity
 @Table(name = "notification")
 public class Notification {
 
@@ -19,6 +19,7 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long notificationId;
 
+    // 알림 대상 사용자
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
@@ -31,5 +32,5 @@ public class Notification {
 
     private LocalDateTime createdAt;
 
-    private int readStatus; // 0: 안 읽음, 1: 읽음
+    private int readStatus;
 }

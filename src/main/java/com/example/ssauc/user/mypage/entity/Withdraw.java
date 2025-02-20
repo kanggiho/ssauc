@@ -6,12 +6,12 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Entity
 @Table(name = "withdraw")
 public class Withdraw {
 
@@ -20,6 +20,7 @@ public class Withdraw {
     @Column(name = "withdraw_id")
     private Long withdrawId;
 
+    // 환급 신청 사용자
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;

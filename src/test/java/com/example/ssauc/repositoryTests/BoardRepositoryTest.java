@@ -1,4 +1,4 @@
-package com.example.ssauc;
+package com.example.ssauc.repositoryTests;
 
 import com.example.ssauc.user.contact.entity.Board;
 import com.example.ssauc.user.contact.repository.BoardRepository;

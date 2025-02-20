@@ -20,11 +20,11 @@ public class ChatRoom {
 
     private LocalDateTime createdAt;
 
-    // 채팅방에 참여한 유저 목록 (1:N)
+    // 채팅방에 참여한 유저 목록
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
     private List<ChatParticipant> participants;
 
-    // 채팅 메시지 목록 (1:N)
+    // 채팅 메시지 목록
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
     private List<ChatMessage> messages;
 }

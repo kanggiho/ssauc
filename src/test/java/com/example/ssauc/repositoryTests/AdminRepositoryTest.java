@@ -1,4 +1,4 @@
-package com.example.ssauc;
+package com.example.ssauc.repositoryTests;
 
 import com.example.ssauc.admin.entity.Admin;
 import com.example.ssauc.admin.repository.AdminRepository;

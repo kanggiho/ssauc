@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Builder
 @Table(name = "product")
 @Getter
 @Setter
@@ -22,12 +23,12 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productId;
 
-    // 판매자 정보 (N:1 관계)
+    // 판매자 정보
     @ManyToOne
     @JoinColumn(name = "seller_id", nullable = false)
     private Users seller;
 
-    // 카테고리 정보 (N:1 관계)
+    // 카테고리 정보
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
@@ -51,7 +52,9 @@ public class Product {
     private LocalDateTime updatedAt;
     private Long viewCount;
 
+
     // 연관 관계 설정
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecentlyViewed> recentlyViewedProducts;
 

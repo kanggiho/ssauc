@@ -7,24 +7,26 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Builder
 @Table(name = "chat_participant")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class ChatParticipant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long chatParticipantId;
 
-    @ManyToOne
-    @JoinColumn(name = "chat_room_id", nullable = false)
-    private ChatRoom chatRoom;
-
+    // 채팅 참여 사용자
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
+
+    // 채팅 참여 방
+    @ManyToOne
+    @JoinColumn(name = "chat_room_id", nullable = false)
+    private ChatRoom chatRoom;
 
     private LocalDateTime joinedAt;
 }

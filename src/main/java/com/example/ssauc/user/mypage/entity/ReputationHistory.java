@@ -8,12 +8,12 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Entity
 @Table(name = "reputation_history")
 public class ReputationHistory {
 
@@ -22,6 +22,7 @@ public class ReputationHistory {
     @Column(name = "history_id")
     private Long historyId;
 
+    // 사용자 평판
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;

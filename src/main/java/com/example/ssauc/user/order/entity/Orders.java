@@ -10,12 +10,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Builder
 @Table(name = "orders")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Orders {
 
     @Id
@@ -23,10 +23,12 @@ public class Orders {
     @Column(name = "order_id")
     private Long orderId;
 
+    // 주문 한 구매자
     @ManyToOne
     @JoinColumn(name = "buyer_id", nullable = false)
     private Users buyer;
 
+    // 주문 받은 판매자
     @ManyToOne
     @JoinColumn(name = "seller_id", nullable = false)
     private Users seller;
@@ -57,6 +59,9 @@ public class Orders {
 
     @Column(name = "completed_date")
     private LocalDateTime completedDate;
+
+
+    // 연결 관계 설정
 
     @OneToMany(mappedBy = "order")
     private List<Review> reviews;
