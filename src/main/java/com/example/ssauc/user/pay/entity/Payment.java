@@ -8,12 +8,12 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Builder
 @Table(name = "payment")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Payment {
 
     @Id
@@ -21,10 +21,12 @@ public class Payment {
     @Column(name = "payment_id")
     private Long paymentId;
 
+    // 결제 요청 주문
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     private Orders order;
 
+    // 결제 하는 사용자
     @ManyToOne
     @JoinColumn(name = "payer_id", nullable = false)
     private Users payer;

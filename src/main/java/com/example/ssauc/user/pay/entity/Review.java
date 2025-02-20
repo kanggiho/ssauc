@@ -8,12 +8,12 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Builder
 @Table(name = "review")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Review {
 
     @Id
@@ -21,14 +21,17 @@ public class Review {
     @Column(name = "review_id")
     private Long reviewId;
 
+    // 리뷰를 남긴 사용자
     @ManyToOne
     @JoinColumn(name = "reviewer_id", nullable = false)
     private Users reviewer;
 
+    // 리뷰가 남겨진 사용자
     @ManyToOne
     @JoinColumn(name = "reviewee_id", nullable = false)
     private Users reviewee;
 
+    // 주문이 완료된 거래
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     private Orders order;
