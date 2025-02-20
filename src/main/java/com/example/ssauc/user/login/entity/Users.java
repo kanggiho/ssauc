@@ -52,7 +52,9 @@ public class Users {
     @Column(length = 500)
     private String profileImage;
 
+    private String status;
     private Double reputation;
+    private int warningCount;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -75,10 +77,10 @@ public class Users {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductLike> likedProducts;
 
-    @OneToMany(mappedBy = "buyer")
+    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Orders> purchasedOrders;
 
-    @OneToMany(mappedBy = "seller")
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Orders> soldOrders;
 
     @OneToMany(mappedBy = "reviewer")
@@ -118,7 +120,6 @@ public class Users {
 
     @OneToMany(mappedBy = "blockedUser", cascade = CascadeType.ALL)
     private List<Ban> bansAsBlockedUser;
-
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Withdraw> withdraws;

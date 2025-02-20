@@ -1,4 +1,4 @@
-package com.example.ssauc;
+package com.example.ssauc.repositoryTests;
 
 import com.example.ssauc.user.main.entity.Notification;
 import com.example.ssauc.user.main.repository.NotificationRepository;
