@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout.html">
+<head>
+    <link rel="stylesheet" th:src="@{/css/likelist.css}">
+</head>
+
+<div class="container" layout:fragment="content">
+
+    <div class="container mt-4">
+        <h2 class="title">좋아요</h2>
+
+        <!-- 전체 선택 & 선택 삭제 -->
+        <div class="select-actions">
+            <input type="checkbox" id="selectAll">
+            <label for="selectAll">전체선택</label>
+            <button class="btn btn-outline-secondary btn-sm">선택삭제</button>
+        </div>
+
+        <!-- 상품 리스트 -->
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+
+            <!-- 상품 1 -->
+            <div class="col">
+                <div class="card product-card">
+                    <input type="checkbox" class="position-absolute top-0 start-0 m-2">
+                    <div class="product-icons">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        <i class="bi bi-heart-fill heart"></i>
+                    </div>
+                    <img th:src="@{/img/index/time.jpg}" alt="시계">
+                    <div class="card-body">
+                        <p class="product-title">시계왕 싸게 판매합니다</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
+                        <p class="product-info">영국 | ❤️ 3,810</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 상품 2 -->
+            <div class="col">
+                <div class="card product-card">
+                    <input type="checkbox" class="position-absolute top-0 start-0 m-2">
+                    <div class="product-icons">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        <i class="bi bi-heart heart"></i>
+                    </div>
+                    <img th:src="@{/img/index/time.jpg}" alt="신발">
+                    <div class="card-body">
+                        <p class="product-title">부록스 슈즈 2023년 10월 출시</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
+                        <p class="product-info">강남구 | ❤️ 3,592</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 상품 3 -->
+            <div class="col">
+                <div class="card product-card">
+                    <input type="checkbox" class="position-absolute top-0 start-0 m-2">
+                    <div class="product-icons">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        <i class="bi bi-heart heart"></i>
+                    </div>
+                    <img th:src="@{/img/index/time.jpg}" alt="세제">
+                    <div class="card-body">
+                        <p class="product-title">살짝 남은 세제</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
+                        <p class="product-info">정안리 | ❤️ 2,058</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 페이지네이션 -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <li class="page-item"><a class="page-link" href="#">&lt;</a></li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">4</a></li>
+                <li class="page-item"><a class="page-link" href="#">5</a></li>
+                <li class="page-item"><a class="page-link" href="#">&gt;</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <script>
+        // 전체 선택 체크박스 기능
+        document.getElementById("selectAll").addEventListener("change", function () {
+            let checkboxes = document.querySelectorAll(".product-card input[type='checkbox']");
+            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        });
+    </script>
+
+</div>
+</html>

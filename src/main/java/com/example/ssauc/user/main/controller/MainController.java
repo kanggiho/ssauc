@@ -40,8 +40,8 @@ public class MainController {
         return "product/cart";
     }
 
-    @GetMapping("like")
+    @GetMapping("likelist")
     public String like() {
-        return "product/like";
+        return "likelist/likelist";
     }
 }
