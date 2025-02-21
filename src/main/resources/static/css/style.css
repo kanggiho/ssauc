@@ -488,3 +488,111 @@ body {
 .footer-title {
     font-weight: bold;
 }
+
+/* 메인페이지 Premium SSAUC */
+.premium-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 50px;
+    margin: 20px 0 20px 0;
+    border-radius: 8px;
+}
+.premium-text {
+    max-width: 300px;
+    align-items: center;
+}
+.premium-btn {
+    background-color: #80392e;
+    color: #fff;
+    border: none;
+}
+.premium-btn:hover {
+    background-color: #5c2720;
+}
+.premium-carousel-item img {
+    max-height: 300px;
+    object-fit: contain;
+}
+
+/*bestItem 텍스트*/
+#best_item, #ssaucs_pick {
+    text-align: center;
+    margin: 70px;
+}
+
+.view-all {
+    color: black;
+    text-align: end;
+    text-decoration: none;
+}
+
+/* 알림 드롭다운 스타일 */
+.dropdown-menu {
+    width: 320px;
+    max-height: 300px; /* 스크롤 제한 */
+    overflow-y: auto;
+}
+
+.dropdown-header {
+    font-weight: bold;
+    text-align: center;
+    padding: 10px 0;
+}
+
+.notification-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.notification-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.notification-text {
+    font-size: 14px;
+}
+
+.notification-time {
+    font-size: 12px;
+    color: gray;
+}
+
+/* 삭제 버튼 스타일 */
+.clear-btn {
+    text-align: center;
+    padding: 10px;
+    cursor: pointer;
+    color: red;
+    font-weight: bold;
+    border-top: 1px solid #ddd;
+}
+
+.clear-btn:hover {
+    background: #f8d7da;
+}
+
+/* 알림 아이콘 빨간점 */
+.notification-icon {
+    position: relative;
+    font-size: 24px;
+    cursor: pointer;
+    border: none;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    margin: 12px;
+    background: red;
+    border-radius: 50%;
+    display: none;
+}
