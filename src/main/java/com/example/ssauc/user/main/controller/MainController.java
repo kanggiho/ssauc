@@ -20,11 +20,6 @@ public class MainController {
         return "user/signup";
     }
 
-    @GetMapping("mypage")
-    public String mypage() {
-        return "user/mypage";
-    }
-
     @GetMapping("product")
     public String product() {
         return "product/productlist";
