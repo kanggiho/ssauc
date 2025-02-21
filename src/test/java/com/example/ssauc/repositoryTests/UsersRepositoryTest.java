@@ -1,0 +1,42 @@
+package com.example.ssauc.repositoryTests;
+
+import com.example.ssauc.user.login.entity.Users;
+import com.example.ssauc.user.login.repository.UsersRepository;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import static org.assertj.core.api.Assertions.assertThat;
+import java.time.LocalDateTime;
+
+@DataJpaTest  // JPA 관련 테스트 최적화 (내장 DB 사용 가능)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+class UsersRepositoryTest {
+
+    @Autowired
+    private UsersRepository usersRepository;
+
+    @Test
+    void testSaveAndFindUser() {
+        // Given (테스트 데이터 생성)
+        Users user = new Users();
+        user.setUserName("kanggiho");
+        user.setEmail("test@example.com");
+        user.setPassword("securepassword");
+        user.setPhone("010-1234-5678");
+        user.setProfileImage("https://example.com/profile.jpg");
+        user.setReputation(4.5);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
+
+        // When (데이터 저장 및 조회)
+        Users savedUser = usersRepository.save(user);
+        Users foundUser = usersRepository.findByEmail("test@example.com");
+
+        // Then (검증)
+        assertThat(foundUser).isNotNull();
+        assertThat(foundUser.getUserId()).isEqualTo(savedUser.getUserId());
+        assertThat(foundUser.getUserName()).isEqualTo("kanggiho");
+        assertThat(foundUser.getEmail()).isEqualTo("test@example.com");
+    }
+}
