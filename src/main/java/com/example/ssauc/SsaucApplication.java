@@ -7,11 +7,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @EnableJpaAuditing
-@EntityScan(basePackages =
-        {"com.example.sauce.entity"})
+@EntityScan(basePackages = "com.example.ssauc")
+@EnableJpaRepositories(basePackages = "com.example.ssauc")
 public class SsaucApplication implements CommandLineRunner {
 
     @Autowired
