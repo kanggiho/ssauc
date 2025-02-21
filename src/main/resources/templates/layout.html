@@ -42,7 +42,9 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-white">
             <div class="container d-flex justify-content-between align-items-center">
                 <!-- 좌측: 브랜드 -->
-                <img src="/img/index/ssauc_logo.png" class="logo_image">
+                <a th:href="@{/}">
+                    <img src="/img/index/ssauc_logo.png" class="logo_image">
+                </a>
 
                 <!-- 우측: 검색창, 좋아요, 장바구니 아이콘 -->
                 <div class="d-flex align-items-center">
@@ -60,12 +62,20 @@
                     <div class="user-menu">
                         <a href="#">로그인</a>
                         <a href="#">회원가입</a>
-                        <!-- 알림 아이콘 -->
-                        <a th:href="@{notification}" class="me-3 text-dark">
-                            <i class="bi bi-bell"></i>
-                        </a>
+                        <!-- 알림 버튼 -->
+                            <div class="dropdown">
+                                <button class="btn notification-icon" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-bell"></i>
+                                    <span class="notification-badge" id="notificationBadge"></span>
+                                </button>
+
+                                <ul class="dropdown-menu" aria-labelledby="notificationDropdown" id="notificationList">
+                                    <li class="dropdown-header">알림</li>
+                                    <li class="no-notification text-center text-muted py-3">알림이 없습니다.</li>
+                                </ul>
+                            </div>
                         <!-- 좋아요 아이콘 -->
-                        <a th:href="@{like}" class="me-3 text-dark">
+                        <a th:href="@{likelist}" class="me-3 text-dark">
                             <i class="bi bi-heart"></i>
                         </a>
 
@@ -77,12 +87,14 @@
             </div>
         </nav>
 
+
+
         <!-- GNB 네비게이션 -->
         <nav class="gnb bg-white">
             <div class="container">
                 <ul class="nav justify-content: flex-start fw-bold">
                     <li class="nav-item gnb-item">
-                        <a class="nav-link active" href="#" style="height: 100%">중고 경매</a>
+                        <a class="nav-link active" th:href="@{/secondhandauction}" style="height: 100%">중고 경매</a>
 
                         <!-- 중고 경매 LNB -->
                         <div class="lnb">
@@ -188,6 +200,47 @@
             header.classList.remove("fixed-top", "shadow");
         }
     });
+
+    // 예제 알림 데이터
+    const notifications = [
+        { user: "강기호", message: "님이 입찰하였습니다.", time: "2025.02.20 10:52", img: "/img/index/time.jpg" },
+        { user: "강기호", message: "님이 입찰하였습니다.", time: "2025.02.20 10:52", img: "/img/index/time.jpg" },
+        { user: "강기호", message: "님이 입찰하였습니다.", time: "2025.02.20 10:52", img: "/img/index/time.jpg" }
+    ];
+
+    const notificationList = document.getElementById("notificationList");
+    const notificationBadge = document.getElementById("notificationBadge");
+
+    function loadNotifications() {
+        notificationList.innerHTML = `<li class="dropdown-header">알림</li>`;
+
+        if (notifications.length === 0) {
+            notificationList.innerHTML += `<li class="no-notification text-center text-muted py-3">알림이 없습니다.</li>`;
+            notificationBadge.style.display = "none";
+        } else {
+            notifications.forEach(notif => {
+                notificationList.innerHTML += `
+                    <li class="notification-item">
+                        <img src="${notif.img}" alt="User">
+                        <div>
+                            <p class="notification-text"><strong>${notif.user}</strong>${notif.message}</p>
+                            <p class="notification-time">${notif.time}</p>
+                        </div>
+                    </li>
+                `;
+            });
+
+            notificationList.innerHTML += `<li class="clear-btn" onclick="clearNotifications()">🗑️ 비우기</li>`;
+            notificationBadge.style.display = "block";
+        }
+    }
+
+    function clearNotifications() {
+        notifications.length = 0;
+        loadNotifications();
+    }
+
+    document.addEventListener("DOMContentLoaded", loadNotifications);
 </script>
 </body>
 
