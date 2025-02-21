@@ -1,4 +1,4 @@
-package com.example.ssauc;
+package com.example.ssauc.repositoryTests;
 
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.repository.UsersRepository;
@@ -73,7 +73,7 @@ public class RecentlyViewedRepositoryTest {
         RecentlyViewed savedRecentlyViewed = recentlyViewedRepository.save(recentlyViewed);
 
         // 4. 저장된 RecentlyViewed 조회 및 검증
-        Optional<RecentlyViewed> optionalRV = recentlyViewedRepository.findById(savedRecentlyViewed.getId());
+        Optional<RecentlyViewed> optionalRV = recentlyViewedRepository.findById(savedRecentlyViewed.getRecentlyId());
         assertTrue(optionalRV.isPresent(), "저장된 RecentlyViewed가 존재해야 합니다.");
         RecentlyViewed foundRV = optionalRV.get();
         assertEquals(savedUser.getUserId(), foundRV.getUser().getUserId(), "사용자 ID가 일치해야 합니다.");

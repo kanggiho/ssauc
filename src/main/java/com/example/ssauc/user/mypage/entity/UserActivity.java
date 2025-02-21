@@ -7,12 +7,12 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Entity
 @Table(name = "user_activity")
 public class UserActivity {
 
@@ -21,6 +21,7 @@ public class UserActivity {
     @Column(name = "activity_id")
     private Long activityId;
 
+    // 사용자 활동
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;

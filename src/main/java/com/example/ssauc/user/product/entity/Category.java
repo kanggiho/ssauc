@@ -7,6 +7,7 @@ import lombok.*;
 import java.util.List;
 
 @Entity
+@Builder
 @Table(name = "category")
 @Getter
 @Setter
@@ -18,15 +19,16 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long categoryId;
 
-    @Column(nullable = false, length = 100)
-    private String name;
-
     // 해당 카테고리를 만든 사용자
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
-    // 하나의 카테고리는 여러 개의 상품을 가질 수 있음 (1:N 관계)
+    @Column(nullable = false, length = 100)
+    private String name;
+
+    // 연관 관계 설정
+
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products;
 }

@@ -8,6 +8,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Builder
 @Table(name = "bid")
 @Getter
 @Setter
@@ -30,10 +31,10 @@ public class Bid {
     private Users user;
 
     @Column(nullable = false)
-    private Long bidPrice; // 입찰 가격
+    private Long bidPrice;
 
     @Column(nullable = false)
-    private LocalDateTime bidTime; // 입찰 시간
+    private LocalDateTime bidTime;
 
-    private Long autoBidMax; // 자동 입찰 최대 금액
+    private Long autoBidMax;
 }

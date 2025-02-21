@@ -1,4 +1,4 @@
-package com.example.ssauc;
+package com.example.ssauc.repositoryTests;
 
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.repository.UsersRepository;
@@ -73,11 +73,11 @@ public class ProductLikeRepositoryTest {
         ProductLike savedProductLike = productLikeRepository.save(productLike);
 
         // 저장된 ProductLike 조회 및 검증
-        Optional<ProductLike> optionalProductLike = productLikeRepository.findById(savedProductLike.getId());
+        Optional<ProductLike> optionalProductLike = productLikeRepository.findById(savedProductLike.getLikeId());
         assertTrue(optionalProductLike.isPresent(), "저장된 ProductLike가 존재해야 합니다.");
 
         ProductLike foundProductLike = optionalProductLike.get();
-        assertEquals(savedProductLike.getId(), foundProductLike.getId(), "ID가 일치해야 합니다.");
+        assertEquals(savedProductLike.getLikeId(), foundProductLike.getLikeId(), "ID가 일치해야 합니다.");
         assertEquals(savedSeller.getUserId(), foundProductLike.getUser().getUserId(), "판매자 ID가 일치해야 합니다.");
         assertEquals(savedProduct.getProductId(), foundProductLike.getProduct().getProductId(), "상품 ID가 일치해야 합니다.");
     }

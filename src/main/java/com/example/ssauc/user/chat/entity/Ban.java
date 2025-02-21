@@ -6,12 +6,12 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Entity
 @Table(name = "ban")
 public class Ban {
 
@@ -20,10 +20,12 @@ public class Ban {
     @Column(name = "ban_id")
     private Long banId;
 
+    // 차단한 사용자
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
+    // 차단 당한 사용자
     @ManyToOne
     @JoinColumn(name = "blocked_user_id", nullable = false)
     private Users blockedUser;

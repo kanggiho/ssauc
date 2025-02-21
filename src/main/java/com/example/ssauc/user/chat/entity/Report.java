@@ -6,12 +6,12 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Entity
 @Table(name = "report")
 public class Report {
 
@@ -19,10 +19,12 @@ public class Report {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reportId;
 
+    // 신고 한 사용자
     @ManyToOne
     @JoinColumn(name = "reporter_id", nullable = false)
     private Users reporter;
 
+    // 신고 당한 사용자
     @ManyToOne
     @JoinColumn(name = "reported_user_id", nullable = false)
     private Users reportedUser;
