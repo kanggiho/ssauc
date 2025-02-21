@@ -10,33 +10,13 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
     <!-- Pretendard 폰트 추가 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css">
+    <link rel="stylesheet" href="/css/style.css">
 
     <style>
         * {
             font-family: 'Pretendard', sans-serif !important;
-        }
-
-        .footer {
-            background-color: #000;
-            color: #fff;
-            padding: 40px 0;
-        }
-        .footer a {
-            color: #fff;
-            text-decoration: none;
-        }
-        .footer a:hover {
-            text-decoration: underline;
-        }
-        .subscribe-input {
-            width: 100%;
-            max-width: 250px;
-            background: #000;
-            border: 1px solid #fff;
-            color: #fff;
         }
     </style>
 </head>
@@ -45,73 +25,106 @@
 <th:block th:fragment="header">
     <header id="stickyHeader">
         <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white">
             <div class="container d-flex justify-content-between align-items-center">
                 <!-- 좌측: 브랜드 -->
-                <a class="navbar-brand fw-bold" href="/">SSAUC</a>
-
-                <!-- 모바일 토글 버튼 -->
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <!-- 가운데: 네비게이션 메뉴 -->
-                <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/">HOME</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" th:href="@{product}">상품</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" th:href="@{community}">커뮤니티</a>
-                        </li>
-                    </ul>
-                </div>
+                <img src="/img/index/ssauc_logo.png" class="logo_image">
 
                 <!-- 우측: 검색창, 좋아요, 장바구니 아이콘 -->
                 <div class="d-flex align-items-center">
                     <!-- 검색폼 -->
                     <form class="d-flex me-3">
                         <div class="input-group">
-                            <input class="form-control" type="search" placeholder="검색어를 입력해주세요" aria-label="검색" size="30">
+                            <input class="form-control" type="search" placeholder="검색어를 입력해주세요" aria-label="검색" size="70">
                             <span class="input-group-text">
-            <i class="bi bi-search"></i>
-          </span>
+                            <i class="bi bi-search"></i>
+                            </span>
                         </div>
                     </form>
-                    <!-- 좋아요 아이콘 -->
-                    <a th:href="@{like}" class="me-3 text-dark">
-                        <i class="bi bi-heart"></i>
-                    </a>
-                    <!-- 장바구니 아이콘 -->
-                    <a th:href="@{cart}" class="me-3 text-dark">
-                        <i class="bi bi-cart"></i>
-                    </a>
-                    <!-- 내 정보 아이콘 -->
 
-                    <div class="dropdown">
-                        <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-circle" style="font-size: 1.5rem;"></i>
+                    <!-- 유저 기능 아이콘 -->
+                    <div class="user-menu">
+                        <a href="#">로그인</a>
+                        <a href="#">회원가입</a>
+                        <!-- 알림 아이콘 -->
+                        <a th:href="@{notification}" class="me-3 text-dark">
+                            <i class="bi bi-bell"></i>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser1">
-                            <li><a class="dropdown-item" th:href="@{mypage}">내 정보</a></li>
-                            <li><a class="dropdown-item" href="#">내 쏙머니</a></li>
-                            <li><a class="dropdown-item" href="#">배송조회</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <!-- session이 있을 경우 로그아웃 없을 경우 Login 으로 출력                    -->
-                            <li><a class="dropdown-item" th:href="@{signin}">로그인</a></li>
-                            <!--                    <li><a class="dropdown-item" href="#">Logout</a></li>-->
-                        </ul>
+                        <!-- 좋아요 아이콘 -->
+                        <a th:href="@{like}" class="me-3 text-dark">
+                            <i class="bi bi-heart"></i>
+                        </a>
+
+                        <a th:href="@{comment}" class="me-3 text-dark">
+                            <i class="bi bi-chat-dots"></i>
+                        </a>
                     </div>
-                    <!--            <a href="/profile.html" class="me-3 text-dark">-->
-                    <!--                <i class="bi bi-person-circle" style="font-size: 1.5rem;"></i>-->
-                    <!--            </a>-->
                 </div>
             </div>
         </nav>
+
+        <!-- GNB 네비게이션 -->
+        <nav class="gnb bg-white">
+            <div class="container">
+                <ul class="nav justify-content: flex-start fw-bold">
+                    <li class="nav-item gnb-item">
+                        <a class="nav-link active" href="#" style="height: 100%">중고 경매</a>
+
+                        <!-- 중고 경매 LNB -->
+                        <div class="lnb">
+                            <div class="lnb-container">
+                                <div class="lnb-category">
+                                    <p>카테고리</p>
+                                    <ul>
+                                        <li><a href="#">전체보기</a></li>
+                                        <li><a href="#">추천경매</a></li>
+                                        <li><a href="#">인기경매</a></li>
+                                        <li><a href="#">마감임박</a></li>
+                                    </ul>
+                                </div>
+                                <div class="lnb-list">
+                                    <ul>
+                                        <li><a href="#">디지털기기</a></li>
+                                        <li><a href="#">가구/인테리어</a></li>
+                                        <li><a href="#">유아동</a></li>
+                                        <li><a href="#">여성의류</a></li>
+                                        <li><a href="#">여성잡화</a></li>
+                                    </ul>
+                                    <ul>
+                                        <li><a href="#">남성패션/잡화</a></li>
+                                        <li><a href="#">생활가전</a></li>
+                                        <li><a href="#">생활/주방</a></li>
+                                        <li><a href="#">스포츠/레저</a></li>
+                                        <li><a href="#">취미/게임/음반</a></li>
+                                    </ul>
+                                    <ul>
+                                        <li><a href="#">뷰티/미용</a></li>
+                                        <li><a href="#">식품</a></li>
+                                        <li><a href="#">가공식품</a></li>
+                                        <li><a href="#">건강기능식품</a></li>
+                                        <li><a href="#">반려동물용품</a></li>
+                                    </ul>
+                                    <ul>
+                                        <li><a href="#">티켓/교환권</a></li>
+                                        <li><a href="#">도서</a></li>
+                                        <li><a href="#">유아도서</a></li>
+                                        <li><a href="#" class="highlight">기타 중고물품</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">프리미엄 경매</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">이용가이드</a>
+                    </li>
+                    <button class="register-btn ms-auto">상품 등록</button>
+                </ul>
+            </div>
+        </nav>
+
     </header>
 </th:block>
 
