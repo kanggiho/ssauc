@@ -1,0 +1,266 @@
+/* 기본 스타일 초기화 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Arial", sans-serif;
+}
+
+body {
+    background-color: #fff;
+    color: #333;
+}
+
+
+/* 헤더 전체 컨테이너 */
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* 로고 스타일 */
+.logo a {
+    font-size: 22px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #333;
+}
+
+/* 검색창 */
+.search-box {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    padding: 5px;
+    border-radius: 30px;
+    width: 500px;
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    padding: 8px 10px;
+    flex: 1;
+}
+
+.search-box .menu-btn,
+.search-box .search-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+/* 유저 메뉴 */
+.user-menu {
+    display: flex;
+    align-items: center;
+}
+
+.user-menu a {
+    text-decoration: none;
+    color: #888;
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+.user-menu i {
+    font-size: 18px;
+    margin-left: 10px;
+    color: #333;
+    cursor: pointer;
+}
+
+/* 상품 등록 버튼 */
+.register-btn {
+    background: none;
+    border: 1px solid #000;
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* GNB 네비게이션 */
+.gnb {
+    text-align: center;
+}
+
+.gnb ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+}
+
+.gnb-item a {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* 선택된 메뉴 스타일 */
+.gnb-item.active a {
+    border-bottom: 3px solid #000;
+    padding-bottom: 5px;
+}
+
+.gnb .nav {
+    display: flex;
+    justify-content: flex-start; /* 왼쪽 정렬 */
+    flex-grow: 1; /* 가득 차게 */
+}
+
+.register-btn {
+    background: none;
+    border: 1px solid #000;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: bold;
+    white-space: nowrap; /* 버튼 텍스트 줄바꿈 방지 */
+    margin-bottom: 1em;
+}
+
+.search-box {
+    flex-grow: 2; /* 검색창이 충분히 넓게 확장 */
+    max-width: 500px;
+}
+
+.user-menu {
+    white-space: nowrap; /* 아이콘 줄바꿈 방지 */
+}
+
+.gnb .nav-link {
+    font-size: 18px; /* 글씨 크기 */
+    color: black !important; /* 글씨 색상 검은색 */
+    text-decoration: none; /* 밑줄 제거 */
+}
+
+.gnb .nav-link:hover,
+.gnb .nav-link:focus,
+.gnb .nav-link:active,
+.gnb .nav-link:visited {
+    color: black !important; /* 클릭 후에도 색상 유지 */
+    text-decoration: none; /* 밑줄 제거 */
+}
+
+
+.footer {
+    background-color: #000;
+    color: #fff;
+    padding: 40px 0;
+}
+.footer a {
+    color: #fff;
+    text-decoration: none;
+}
+.footer a:hover {
+    text-decoration: underline;
+}
+
+.logo_image {
+    width: 10em;
+    height: auto;
+    padding-left: 16px;
+}
+
+.input-group {
+    padding-right: 50px;
+}
+
+/* 네비게이션 바 스타일 */
+.gnb {
+    position: relative;
+    background: white;
+    padding: 0px 0;
+    border-bottom: 1px solid #ddd;
+    z-index: 999;
+}
+
+.gnb .nav-link {
+    font-size: 18px;
+    color: black;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 10px 15px;
+}
+
+.gnb .nav-link:hover {
+    color: black;
+}
+
+/* LNB 스타일 */
+.lnb {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border-top: 1px solid #ddd;
+    display: none; /* 기본적으로 숨김 */
+    padding: 15px 0;
+    z-index: 1000;
+}
+
+/* 중고 경매에 마우스를 올리면 LNB 표시 */
+.gnb-item:hover .lnb {
+    display: flex;
+}
+
+/* LNB 내부 스타일 */
+.lnb-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 50px;
+}
+
+.lnb-category {
+    width: 30%;
+    font-weight: bold;
+    border-right: 1px solid #ddd;
+    padding: 10px;
+    flex-direction: column;
+}
+
+.lnb-list {
+    display: flex;
+    width: 85%;
+    justify-content: space-between;
+    padding-left: 20px;
+}
+
+.lnb-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.lnb-list li {
+    padding: 8px 0;
+}
+
+.lnb-list a {
+    text-decoration: none;
+    color: black;
+    padding: 5px 10px;
+    display: block;
+}
+
+.lnb-list a:hover {
+    color: #ff9900;
+}
+
+/* 기타 중고물품 강조 */
+.highlight {
+    background: #ffcc00;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.nav-link {
+    height: 100%;
+}
