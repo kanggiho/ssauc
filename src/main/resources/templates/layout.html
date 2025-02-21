@@ -23,6 +23,20 @@
 <body>
 
 <th:block th:fragment="header">
+
+<!--    &lt;!&ndash; 최근 본 상품 박스 &ndash;&gt;-->
+<!--    <div class="floating-box">-->
+<!--        <h6>최근 본 물품</h6>-->
+<!--        <a href="pdp1.html" class="recent-item">-->
+<!--            <img th:src="@{/img/index/bag.jpg}" alt="상품1">-->
+<!--        </a>-->
+<!--        <a href="pdp2.html" class="recent-item">-->
+<!--            <img th:src="@{/img/index/cheese.png}" alt="상품2">-->
+<!--        </a>-->
+<!--        &lt;!&ndash; TOP 버튼 &ndash;&gt;-->
+<!--        <button id="topBtn" class="top-btn hide">TOP</button>-->
+<!--    </div>-->
+
     <header id="stickyHeader">
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg navbar-light bg-white">
@@ -74,10 +88,10 @@
                         <div class="lnb">
                             <div class="lnb-container">
                                 <div class="lnb-category">
-                                    <p>카테고리</p>
                                     <ul>
+                                        <li><a href="#">카테고리</a></li>
                                         <li><a href="#">전체보기</a></li>
-                                        <li><a href="#">추천경매</a></li>
+                                        <li id="shalom"><a href="#">추천경매</a></li>
                                         <li><a href="#">인기경매</a></li>
                                         <li><a href="#">마감임박</a></li>
                                     </ul>
@@ -108,7 +122,7 @@
                                         <li><a href="#">티켓/교환권</a></li>
                                         <li><a href="#">도서</a></li>
                                         <li><a href="#">유아도서</a></li>
-                                        <li><a href="#" class="highlight">기타 중고물품</a></li>
+                                        <li><a href="#">기타 중고물품</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -133,42 +147,30 @@
 
 </div>
 
-<footer class="footer">
+<footer class="footer container-fluid text-white">
     <div class="container">
         <div class="row">
-            <div class="col-md-3">
-                <h5><strong>SSAUC</strong></h5>
-                <p>신세계 I&C 5차수 자바 교육 과정</p>
-            </div>
-
-            <div class="col-md-3">
-                <h5><strong>팀원</strong></h5>
+            <div class="col-md-8">
+                <img src="/img/index/ssaucwhitelogo.png" class="footer_image">
                 <ul class="list-unstyled">
-                    <li>강기호</li>
-                    <li>김건희</li>
-                    <li>김희재</li>
-                    <li>박상협</li>
-                    <li>정영재</li>
+                    <li><a href="#">회사소개</a> | <a href="#">이용약관</a> | <a href="#">개인정보취급방침</a></li>
                 </ul>
+                <p>상호명 : (주)SSAUC | 대표이사 : 강기호, 김건희, 김희재, 박상협, 정영재</p>
+                <p>주소 : 서울 강남구 삼성로 534 SAC아트홀 6층</p>
+                <p>Tel : 02-6463-6827 | Email : ssauc@campusseven.com</p>
+                <p style="color: #747474">사업자 등록번호 : 101-23-45678 | 통신판매업 신고번호 : 제01-2345호</p>
+                <p style="color: #747474">(주)SSAUC은 통신판매중개자로서 (주)SSAUC은 매도인의 경우를 제외하고 사이트 상에 등록된 모든 상품과 그 내용에 대해 책임을 지지 않습니다.</p>
+                <p style="color: #747474" class="small">Copyrightⓒ 2025, SSAUC, Inc All rights reserved.</p>
             </div>
-
-            <div class="col-md-3">
-                <h5><strong>링크</strong></h5>
+            <div class="col-md-4">
+                <h5 class="footer-title">고객센터</h5>
+                <p>중고 경매 : 02-6463-6828 (평일 09:00 ~ 18:00)</p>
+                <p>프리미엄 경매 : 02-6463-6829 (평일 09:00 ~ 18:00)</p>
+                <p>주말 및 공휴일은 휴무 입니다. (점심 12:00 ~ 13:00)</p>
+                <p class="small">(정확한 상담을 위해 통화 내용이 저장됩니다.)</p>
                 <ul class="list-unstyled">
-                    <li><a href="#">Github</a></li>
-                    <li><a href="#">Trello</a></li>
-                    <li><a href="#">Notion</a></li>
-                    <li><a href="#">Google Drive</a></li>
-                </ul>
-            </div>
-
-            <div class="col-md-3">
-                <h5><strong>추가해야할 것들</strong></h5>
-                <ul class="list-unstyled">
-                    <li><a href="#">신사골 감자탕</a></li>
-                    <li><a href="#">ㅁㄴㅇㅁㄴㅇ</a></li>
-                    <li><a href="#">Notion</a></li>
-                    <li><a href="#">Google Drive</a></li>
+                    <br>
+                    <li><a href="#">자주 묻는 질문 &nbsp; &nbsp; </a>  &nbsp; &nbsp;| <a href="#">  &nbsp; &nbsp; 1:1 문의 &nbsp; &nbsp; </a> |  &nbsp; &nbsp;<a href="#"> &nbsp; &nbsp; 챗봇 상담 &nbsp; &nbsp; &nbsp;</a></li>
                 </ul>
             </div>
         </div>
