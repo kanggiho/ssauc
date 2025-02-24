@@ -122,6 +122,10 @@ body {
     font-weight: bold;
     white-space: nowrap; /* 버튼 텍스트 줄바꿈 방지 */
     margin-bottom: 1em;
+    color: black;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
 }
 
 .search-box {

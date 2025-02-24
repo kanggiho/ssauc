@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout.html">
+<head>
+    <meta charset="UTF-8">
+    <title>리뷰 상세</title>
+    <!-- 스타일시트 연결 -->
+    <link rel="stylesheet" href="/css/mypage.css">
+    <link rel="stylesheet" href="/css/evaluated.css">
+</head>
+<body>
+
+<div class="evaluated-container" layout:fragment="content">
+    <!-- 왼쪽 사이드바 (mypage와 동일) -->
+    <div th:replace="~{mypage/mypage :: sidebar}"></div>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="evaluated-main">
+        <h2>리뷰 상세</h2>
+
+        <!-- 리뷰 상세 정보 영역 -->
+        <div class="review-detail">
+            <p class="reviewer">작성자: 홍길동</p>
+            <p class="reviewee">대상자: 김철수</p>
+            <p class="product-name">상품명: DANIEL KLENI</p>
+
+            <!-- 평가 항목 -->
+            <div class="review-ratings">
+                <div class="rating-item">
+                    <span class="rating-label">대화 매너:</span>
+                    <span class="rating-value positive">😊 좋아요</span>
+                </div>
+                <div class="rating-item">
+                    <span class="rating-label">약속 준수:</span>
+                    <span class="rating-value positive">⌚ 잘 지켰어요</span>
+                </div>
+                <div class="rating-item">
+                    <span class="rating-label">상품 만족도:</span>
+                    <span class="rating-value negative">📉 아쉬워요</span>
+                </div>
+            </div>
+
+            <!-- 리뷰 내용 -->
+            <div class="review-comment">
+                <h3>리뷰 내용</h3>
+                <p>거래가 원활했고, 상대방의 응대가 친절했습니다. 다만 상품에 약간의 아쉬움이 있었습니다.</p>
+            </div>
+
+            <!-- 작성일 -->
+            <div class="review-date">
+                <p>작성일: 2025-02-05</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

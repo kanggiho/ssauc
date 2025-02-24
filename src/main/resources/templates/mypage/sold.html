@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout.html">
+<head>
+  <meta charset="UTF-8">
+  <title>판매 내역 상세</title>
+  <!-- 스타일시트 연결 -->
+  <link rel="stylesheet" href="/css/mypage.css">
+  <link rel="stylesheet" href="/css/sold.css">
+</head>
+<body>
+
+<div class="selled-container" layout:fragment="content">
+  <!-- 왼쪽 사이드바 (mypage와 동일) -->
+  <div th:replace="~{mypage/mypage :: sidebar}"></div>
+
+  <!-- 메인 컨텐츠 -->
+  <main class="selled-main">
+    <h2>판매 내역 상세</h2>
+    <div class="sell-detail">
+      <!-- 상품 정보 영역 -->
+      <div class="product-info">
+        <!-- 왼쪽: 상품 정보 -->
+        <div class="product-details">
+          <p class="product-name"><strong>상품 이름:</strong> <span>상품 A</span></p>
+          <p class="product-category"><strong>카테고리:</strong> <span>전자제품</span></p>
+          <p class="register-time"><strong>등록 시간:</strong> <span>2025-02-05 14:30:00</span></p>
+        </div>
+        <!-- 오른쪽: 상품 이미지 -->
+        <div class="product-image">
+          <img src="/images/sample_product.jpg" alt="상품 이미지">
+        </div>
+      </div>
+
+      <!-- 거래 정보 영역 -->
+      <div class="transaction-info">
+        <p class="buyer"><strong>구매자:</strong> <span>구매자123</span></p>
+        <p class="transaction-type"><strong>거래 방식:</strong> <span>즉시 구매</span></p>
+        <p class="sold-price"><strong>판매 가격:</strong> <span>50,000 원</span></p>
+        <p class="sale-time"><strong>판매 시간:</strong> <span>2025-02-06 16:45:00</span></p>
+
+        <!-- 운송장 등록 영역 -->
+        <div class="tracking">
+          <span class="tracking-label">운송장 등록 현황:</span>
+          <button class="tracking-btn not-registered" onclick="registerTracking()">운송장 등록</button>
+          <p class="tracking-number" style="display: none;">
+            <strong>등록된 운송장 번호:</strong> <span id="trackingNo"></span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  function registerTracking() {
+    const trackingNo = prompt("운송장 번호를 입력하세요:");
+    if(trackingNo && trackingNo.trim() !== "") {
+      const btn = document.querySelector('.tracking-btn');
+      btn.classList.remove('not-registered');
+      btn.classList.add('registered');
+      btn.textContent = "운송장 등록 완료";
+      document.getElementById("trackingNo").textContent = trackingNo.trim();
+      document.querySelector(".tracking-number").style.display = "block";
+    }
+  }
+</script>
+
+</body>
+</html>

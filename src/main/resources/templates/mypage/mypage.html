@@ -25,16 +25,16 @@
             <ul>
                 <li><a href="#">나의 신뢰도</a></li>
                 <li><a href="#">회원 정보 수정</a></li>
-                <li><a href="#">신고 내역 조회</a></li>
-                <li><a href="#">차단 내역 조회</a></li>
+                <li><a href="/mypage/reported">신고 내역 조회</a></li>
+                <li><a href="/mypage/ban">차단 내역 조회</a></li>
                 <li><a href="#">관심 상품 목록</a></li>
                 <li><a href="#">채팅 목록</a></li>
             </ul>
             <!-- 거래 관련 메뉴 -->
             <h3>나의 거래 정보</h3>
             <ul>
-                <li><a href="#">판매 현황</a></li>
-                <li><a href="#">구매 현황</a></li>
+                <li><a href="/mypage/sell">판매 현황</a></li>
+                <li><a href="/mypage/buy">구매 현황</a></li>
                 <li><a href="/mypage/cash">나의 SSAUC머니</a></li>
             </ul>
             <!-- 고객 지원 관련 메뉴 -->
@@ -52,10 +52,10 @@
         <!-- 상단 요약 정보 (신뢰도 및 SSAUC 머니) -->
         <div class="mypage-summary">
             <!-- 신뢰도 박스 -->
-            <div class="mypage-box trust-score">
+            <a href="/mypage/evaluation" class="mypage-box trust-score">
                 <p>나의 신뢰도 ></p>
                 <h2>100 점</h2>
-            </div>
+            </a>
             <!-- SSAUC 머니 박스 (클릭 시 cash.html로 이동) -->
             <a href="/mypage/cash" class="mypage-box money">
                 <p>🔨 SSAUC 머니 ></p>
