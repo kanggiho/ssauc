@@ -1,0 +1,54 @@
+<!-- evaluate.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout.html">
+<head>
+  <meta charset="UTF-8">
+  <title>거래 리뷰 작성</title>
+  <link rel="stylesheet" href="/css/evaluate.css">
+</head>
+<body>
+
+<div class="evaluation-container" layout:fragment="content">
+  <h2 class="evaluation-title">Username님과의 거래 경험은 어땠나요?</h2>
+  <p class="product-name">상품명: DANIEL KLENI</p>
+
+  <div class="evaluation-content">
+    <!-- 선택지 섹션 -->
+    <div class="evaluation-options">
+
+      <h3>대화 매너는 어땠나요?</h3>
+      <div class="option-row">
+        <button class="option-btn negative">😂 아쉬워요</button>
+        <button class="option-btn positive">😊 좋아요</button>
+      </div>
+
+      <h3>약속은 잘 지켰나요?</h3>
+      <div class="option-row">
+        <button class="option-btn negative">⏳ 아쉬워요</button>
+        <button class="option-btn positive">⌚ 잘 지켰어요</button>
+      </div>
+
+      <h3>상품은 만족하나요?</h3>
+      <div class="option-row">
+        <button class="option-btn negative">📉 아쉬워요</button>
+        <button class="option-btn positive">😍 만족해요</button>
+      </div>
+    </div>
+
+    <!-- 텍스트 입력 섹션 -->
+    <div class="evaluation-text">
+      <h3>거래 후기를 남겨주세요.</h3>
+      <textarea class="review-input" placeholder="상대방과의 거래에서 느낀 점을 자유롭게 작성해주세요. 단, 악의적인 비방이나 허위 사실은 신고 대상이 될 수 있습니다."></textarea>
+    </div>
+  </div>
+
+  <!-- 완료 버튼 -->
+  <div class="button-container">
+    <button class="submit-btn">완료</button>
+  </div>
+</div>
+
+</body>
+</html>

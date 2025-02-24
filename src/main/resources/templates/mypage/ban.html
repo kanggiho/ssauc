@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout.html">
+<head>
+    <meta charset="UTF-8">
+    <title>차단 내역</title>
+    <!-- 스타일시트 연결 -->
+    <link rel="stylesheet" href="/css/mypage.css">
+    <link rel="stylesheet" href="/css/ban.css">
+</head>
+<body>
+
+<div class="ban-container" layout:fragment="content">
+    <!-- 왼쪽 사이드바 (mypage와 동일) -->
+    <div th:replace="~{mypage/mypage :: sidebar}"></div>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="ban-main">
+        <!-- 페이지 제목 -->
+        <h2>차단 내역</h2>
+
+        <!-- 차단 내역 테이블 -->
+        <table class="ban-table">
+            <thead>
+            <tr>
+                <th>차단당한 회원</th>
+                <th>차단 시간</th>
+                <th>조치</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>홍길동</td>
+                <td>2025-02-05 18:36:27</td>
+                <td>
+                    <button class="unban-btn">차단 해제</button>
+                </td>
+            </tr>
+            <tr>
+                <td>김철수</td>
+                <td>2025-02-04 15:20:10</td>
+                <td>
+                    <button class="unban-btn">차단 해제</button>
+                </td>
+            </tr>
+            <!-- 추가 데이터 행은 백엔드 연동에 따라 동적으로 채워짐 -->
+            </tbody>
+        </table>
+
+        <!-- 페이지네이션 (필요시) -->
+        <div class="pagination">
+            <button><</button>
+            <button class="active">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>4</button>
+            <button>5</button>
+            <button>></button>
+        </div>
+    </main>
+</div>
+
+<!-- 차단 해제 버튼 클릭 이벤트 스크립트 -->
+<script>
+    function confirmUnban(event) {
+        if (confirm("차단 해제 하시겠습니까?")) {
+            alert("차단 해제가 완료되었습니다.");
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const unbanButtons = document.querySelectorAll(".unban-btn");
+        unbanButtons.forEach(button => {
+            button.addEventListener("click", confirmUnban);
+        });
+    });
+</script>
+
+</body>
+</html>

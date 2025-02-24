@@ -1,0 +1,107 @@
+/* 리뷰 평가 페이지 스타일 */
+.evaluation-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.evaluation-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.product-name {
+    font-size: 16px;
+    color: gray;
+    margin-bottom: 20px;
+}
+
+.evaluation-content {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.evaluation-options, .evaluation-text {
+    flex: 1;
+    padding: 20px;
+    border: 1px solid black;
+    border-radius: 10px;
+    background-color: white;
+}
+
+.evaluation-options h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.evaluation-options h3:nth-of-type(2),
+.evaluation-options h3:nth-of-type(3) {
+    margin-top: 30px; /* 특정 요소에만 여백 적용 */
+}
+
+.evaluation-text h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.option-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.option-btn {
+    width: 48%;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    background-color: white;
+    cursor: pointer;
+    font-size: 14px;
+    border: 1px solid black;
+}
+
+.negative {
+    background-color: white;
+    border-color: #ff8888;
+}
+
+.positive {
+    background-color: white;
+    border-color: #88cc88;
+}
+
+.option-btn:hover {
+    background-color: black;
+    color: white;
+}
+
+.review-input {
+    width: 100%;
+    height: 250px; /* 높이 증가 */
+    padding: 10px;
+    border: 1px solid black;
+    border-radius: 5px;
+    resize: none;
+}
+
+.button-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.submit-btn {
+    padding: 10px 50px;
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background-color: #f9f9f9;
+}

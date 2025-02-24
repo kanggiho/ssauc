@@ -2,130 +2,564 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="layout.html">
+<head>
+    <link rel="stylesheet" href="/css/index.css">
+</head>
 
 <div class="container" layout:fragment="content">
-<!--    메인 컨텐츠 시작 -->
 
-    <!-- Bootstrap 5 예시 (header/footer 제외, 중앙 콘텐츠만) -->
-    <div class="container py-5">
-        <div class="row">
-            <!-- 좌측: 상품 이미지 & 판매자 정보 -->
-            <div class="col-md-7">
-                <!-- 이미지 슬라이드(캐러셀) 예시 -->
-                <div id="productCarousel" class="carousel slide border" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-                        <!-- 첫 번째 이미지 -->
-                        <div class="carousel-item active">
-                            <img
-                                    src="/img/test/clock.png"
-                                    class="d-block w-100"
-                                    alt="상품 이미지1"
-                            >
+    <!-- 캐러셀 배너 -->
+    <div id="bannerCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img th:src="@{/img/index/banner.png}" class="d-block w-100" alt="배너 1">
+            </div>
+            <div class="carousel-item">
+                <img th:src="@{/img/index/banner.png}" class="d-block w-100" alt="배너 2">
+            </div>
+            <div class="carousel-item">
+                <img th:src="@{/img/index/banner.png}" class="d-block w-100" alt="배너 3">
+            </div>
+        </div>
+
+        <!-- 이전 / 다음 버튼 -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+
+    <!-- 인기 카테고리 슬라이더 -->
+    <div id="categoryCarousel" class="carousel slide category-carousel" data-bs-ride="carousel">
+        <h3 class="fw-bold">주요 카테고리</h3>
+        <div class="carousel-inner">
+            <!-- 첫 번째 슬라이드 -->
+            <div class="carousel-item active">
+                <div class="category-group">
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-phone"></i>
                         </div>
-                        <!-- 두 번째 이미지 -->
-                        <div class="carousel-item">
-                            <img
-                                    src="/img/test/clock.png"
-                                    class="d-block w-100"
-                                    alt="상품 이미지2"
-                            >
+                        <p>디지털기기</p>
+                    </a>
+
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-lamp"></i>
                         </div>
-                        <!-- 필요 시 이미지 추가 -->
-                    </div>
-                    <!-- 슬라이드 컨트롤(좌우 버튼) -->
-                    <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">이전</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">다음</span>
-                    </button>
+                        <p>가구/인테리어</p>
+                    </a>
+
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-bag-heart"></i>
+                        </div>
+                        <p>유아동</p>
+                    </a>
+
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <p>여성의류</p>
+                    </a>
+
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-handbag"></i>
+                        </div>
+                        <p>여성잡화</p>
+                    </a>
+
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-person-badge"></i>
+                        </div>
+                        <p>남성패션/잡화</p>
+                    </a>
+
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-houses"></i>
+                        </div>
+                        <p>생활가전</p>
+                    </a>
+
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-house-door"></i>
+                        </div>
+                        <p>생활/주방</p>
+                    </a>
                 </div>
+            </div>
 
-                <!-- 판매자 정보 -->
-                <div class="d-flex align-items-center mt-3">
-                    <!-- 판매자 프로필 이미지(예시) -->
-                    <img
-                            src="https://via.placeholder.com/40x40?text=User"
-                            alt="판매자 프로필"
-                            class="rounded-circle me-2"
-                            style="width:40px; height:40px; object-fit:cover;"
-                    >
-                    <div>
-                        <span class="fw-bold">Username</span>
-                        <!-- 판매 중 아이템 수 등 추가 정보 -->
-                        <span class="text-muted ms-2">판매중 3개</span>
+            <!-- 두 번째 슬라이드 -->
+            <div class="carousel-item">
+                <div class="category-group">
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-bicycle"></i>
+                        </div>
+                        <p>스포츠/레저</p>
+                    </a>
+
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-controller"></i>
+                        </div>
+                        <p>취미/게임/음반</p>
+                    </a>
+
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-gem"></i>
+                        </div>
+                        <p>뷰티/미용</p>
+                    </a>
+
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-flower1"></i>
+                        </div>
+                        <p>식물</p>
+                    </a>
+
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-basket"></i>
+                        </div>
+                        <p>가공식품</p>
+                    </a>
+
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-heart-pulse"></i>
+                        </div>
+                        <p>건강기능식품</p>
+                    </a>
+
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-piggy-bank"></i>
+                        </div>
+                        <p>반려동물용품</p>
+                    </a>
+
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-ticket-detailed"></i>
+                        </div>
+                        <p>티켓/교환권</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 세 번째 슬라이드 -->
+            <div class="carousel-item">
+                <div class="category-group">
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-book"></i>
+                        </div>
+                        <p>도서</p>
+                    </a>
+
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-book-half"></i>
+                        </div>
+                        <p>유아도서</p>
+                    </a>
+
+                    <a href="#" class="category-item">
+                        <div class="category-icon">
+                            <i class="bi bi-box"></i>
+                        </div>
+                        <p>기타 중고물품</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 이전 / 다음 버튼 -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#categoryCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#categoryCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+
+    <!-- BestItem -->
+    <div class="container mt-4">
+        <h3 class="mb-3" id="best_item">BEST ITEM</h3>
+        <a th:href="@{/}" class="view-all">
+            <p style="text-align: end">전체보기</p>
+        </a>
+
+        <!-- 상품 리스트 -->
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+
+            <!-- 상품 1 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/lg.png}" alt="LG세탁기 Faust tc5">
+                    <div class="card-body">
+                        <p class="product-title">LG세탁기 Faust tc5</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 139회 | ⏳ 1일 09시간</p>
+                        <p class="product-info">역삼2동 | ❤️ 3,810</p>
                     </div>
                 </div>
             </div>
 
-            <!-- 우측: 상품 정보 & 버튼 -->
-            <div class="col-md-5 mt-4 mt-md-0">
-                <!-- 상품명 및 가격 -->
-                <h3 class="fw-bold mb-2">DANIEL KLENI</h3>
-                <p class="text-muted mb-1">현재가</p>
-                <p class="fw-bold fs-3 text-danger mb-4">59,000원</p>
-                <!-- 간단 설명 -->
-                <p class="mb-4">
-                    어떤거 시베리아 군사 시계처럼 보인다는 센스없는 댓글임 ㅠㅠ<br>
-                    고급스럽고 시인성이 좋은 디자인이 특징입니다.
-                </p>
-
-                <!-- 정보 카드 -->
-                <div class="card mb-4">
+            <!-- 상품 2 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/cheese.png}" alt="썩은 치즈">
                     <div class="card-body">
-                        <ul class="list-unstyled mb-0">
-                            <li class="d-flex justify-content-between py-2 border-bottom">
-                                <span class="text-muted">남은 시간</span>
-                                <span class="fw-bold text-danger">02:15:32</span>
-                            </li>
-                            <li class="d-flex justify-content-between py-2 border-bottom">
-                                <span class="text-muted">입찰 기록</span>
-                                <span class="fw-bold">12명</span>
-                            </li>
-                            <li class="d-flex justify-content-between py-2 border-bottom">
-                                <span class="text-muted">입찰 단위</span>
-                                <span class="fw-bold">1,000원</span>
-                            </li>
-                            <li class="d-flex justify-content-between py-2 border-bottom">
-                                <span class="text-muted">희망 입찰가</span>
-                                <span class="fw-bold">60,000원</span>
-                            </li>
-                            <li class="d-flex justify-content-between py-2">
-                                <span class="text-muted">예상 구매가</span>
-                                <span class="fw-bold">65,000원</span>
-                            </li>
-                        </ul>
+                        <p class="product-title">썩은 치즈</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
+                        <p class="product-info">영국 | ❤️ 1,910</p>
                     </div>
                 </div>
+            </div>
 
-                <!-- 버튼들 -->
-                <div class="d-flex flex-wrap gap-2">
-                    <button type="button" class="btn btn-danger flex-fill">
-                        즉시 구매하기
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary">
-                        관심상품
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary">
-                        신고하기
-                    </button>
+            <!-- 상품 3 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/noodle.png}" alt="2013년 신라면">
+                    <div class="card-body">
+                        <p class="product-title">2013년 신라면</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 21회 | ⏳ 5일 22시간</p>
+                        <p class="product-info">영국 | ❤️ 2,313</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 상품 4 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/truck.png}" alt="최신식 트럭">
+                    <div class="card-body">
+                        <p class="product-title">최신식 트럭</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 0회 | ⏳ 2일 13시간</p>
+                        <p class="product-info">빌바오 | ❤️ 4,120</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 상품 5 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/truck.png}" alt="최신식 트럭">
+                    <div class="card-body">
+                        <p class="product-title">최신식 트럭</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 0회 | ⏳ 2일 13시간</p>
+                        <p class="product-info">빌바오 | ❤️ 4,120</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 상품 1 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/lg.png}" alt="LG세탁기 Faust tc5">
+                    <div class="card-body">
+                        <p class="product-title">LG세탁기 Faust tc5</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 139회 | ⏳ 1일 09시간</p>
+                        <p class="product-info">역삼2동 | ❤️ 3,810</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 상품 2 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/cheese.png}" alt="썩은 치즈">
+                    <div class="card-body">
+                        <p class="product-title">썩은 치즈</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
+                        <p class="product-info">영국 | ❤️ 1,910</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 상품 3 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/noodle.png}" alt="2013년 신라면">
+                    <div class="card-body">
+                        <p class="product-title">2013년 신라면</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 21회 | ⏳ 5일 22시간</p>
+                        <p class="product-info">영국 | ❤️ 2,313</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 상품 4 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/truck.png}" alt="최신식 트럭">
+                    <div class="card-body">
+                        <p class="product-title">최신식 트럭</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 0회 | ⏳ 2일 13시간</p>
+                        <p class="product-info">빌바오 | ❤️ 4,120</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 상품 5 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/truck.png}" alt="최신식 트럭">
+                    <div class="card-body">
+                        <p class="product-title">최신식 트럭</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 0회 | ⏳ 2일 13시간</p>
+                        <p class="product-info">빌바오 | ❤️ 4,120</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Premium Section 배너 -->
+    <div class="container premium-section bg-light">
+        <div class="premium-text">
+            <h2>SSAUC's Premium</h2>
+            <button class="btn premium-btn mt-3">바로가기</button>
+        </div>
+        <div id="premiumCarousel" class="carousel slide premium-carousel" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active premium-carousel-item">
+                    <img th:src="@{/img/index/premium1.jpg}" class="d-block w-100" alt="책 이미지 1">
+                </div>
+                <div class="carousel-item premium-carousel-item">
+                    <img th:src="@{/img/index/premium2.png}" class="d-block w-100" alt="책 이미지 2">
+                </div>
+                <div class="carousel-item premium-carousel-item">
+                    <img th:src="@{/img/index/premium3.jpg}" class="d-block w-100" alt="책 이미지 3">
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#premiumCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#premiumCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    </div>
 
+    <!-- SSAUC's Pick -->
+    <div class="container mt-4">
+        <h3 class="mb-3" id="ssaucs_pick">SSAUC's Pick</h3>
+        <a th:href="@{/}" class="view-all">
+            <p style="text-align: end">전체보기</p>
+        </a>
 
+        <!-- 상품 리스트 -->
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
 
+            <!-- 상품 1 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/lg.png}" alt="LG세탁기 Faust tc5">
+                    <div class="card-body">
+                        <p class="product-title">LG세탁기 Faust tc5</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 139회 | ⏳ 1일 09시간</p>
+                        <p class="product-info">역삼2동 | ❤️ 3,810</p>
+                    </div>
+                </div>
+            </div>
 
+            <!-- 상품 2 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/cheese.png}" alt="썩은 치즈">
+                    <div class="card-body">
+                        <p class="product-title">썩은 치즈</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
+                        <p class="product-info">영국 | ❤️ 1,910</p>
+                    </div>
+                </div>
+            </div>
 
+            <!-- 상품 3 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/noodle.png}" alt="2013년 신라면">
+                    <div class="card-body">
+                        <p class="product-title">2013년 신라면</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 21회 | ⏳ 5일 22시간</p>
+                        <p class="product-info">영국 | ❤️ 2,313</p>
+                    </div>
+                </div>
+            </div>
 
+            <!-- 상품 4 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/truck.png}" alt="최신식 트럭">
+                    <div class="card-body">
+                        <p class="product-title">최신식 트럭</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 0회 | ⏳ 2일 13시간</p>
+                        <p class="product-info">빌바오 | ❤️ 4,120</p>
+                    </div>
+                </div>
+            </div>
 
+            <!-- 상품 5 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/truck.png}" alt="최신식 트럭">
+                    <div class="card-body">
+                        <p class="product-title">최신식 트럭</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 0회 | ⏳ 2일 13시간</p>
+                        <p class="product-info">빌바오 | ❤️ 4,120</p>
+                    </div>
+                </div>
+            </div>
 
+            <!-- 상품 1 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/lg.png}" alt="LG세탁기 Faust tc5">
+                    <div class="card-body">
+                        <p class="product-title">LG세탁기 Faust tc5</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 139회 | ⏳ 1일 09시간</p>
+                        <p class="product-info">역삼2동 | ❤️ 3,810</p>
+                    </div>
+                </div>
+            </div>
 
-    <!--    메인 컨텐츠 끝 -->
+            <!-- 상품 2 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/cheese.png}" alt="썩은 치즈">
+                    <div class="card-body">
+                        <p class="product-title">썩은 치즈</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
+                        <p class="product-info">영국 | ❤️ 1,910</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 상품 3 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/noodle.png}" alt="2013년 신라면">
+                    <div class="card-body">
+                        <p class="product-title">2013년 신라면</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 21회 | ⏳ 5일 22시간</p>
+                        <p class="product-info">영국 | ❤️ 2,313</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 상품 4 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/truck.png}" alt="최신식 트럭">
+                    <div class="card-body">
+                        <p class="product-title">최신식 트럭</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 0회 | ⏳ 2일 13시간</p>
+                        <p class="product-info">빌바오 | ❤️ 4,120</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 상품 5 -->
+            <div class="col">
+                <div class="card product-card">
+                    <button class="icon-btn"><i class="bi bi-heart"></i></button>
+                    <img th:src="@{/img/index/truck.png}" alt="최신식 트럭">
+                    <div class="card-body">
+                        <p class="product-title">최신식 트럭</p>
+                        <p class="product-price">400,000</p>
+                        <p class="product-info">입찰 0회 | ⏳ 2일 13시간</p>
+                        <p class="product-info">빌바오 | ❤️ 4,120</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- 끝나는 div -->
 </div>
 
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // TOP 버튼 스크롤 감지
+    const topBtn = document.getElementById("topBtn");
+
+    window.addEventListener("scroll", function() {
+        if (window.scrollY > 200) {
+            topBtn.classList.remove("hide");
+        } else {
+            topBtn.classList.add("hide");
+        }
+    });
+
+    // TOP 버튼 클릭 시 맨 위로 이동
+    topBtn.addEventListener("click", function() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const categoryCards = document.querySelectorAll('.category-card');
+
+        categoryCards.forEach(card => {
+            card.addEventListener("click", function() {
+                document.querySelector('.category-card.active')?.classList.remove('active');
+                this.classList.add('active');
+            });
+        });
+    });
+</script>
 </html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout.html">
+<head>
+    <meta charset="UTF-8">
+    <title>신고 내역</title>
+    <!-- 스타일시트 연결 -->
+    <link rel="stylesheet" href="/css/mypage.css">
+    <link rel="stylesheet" href="/css/reported.css">
+</head>
+<body>
+
+<div class="reported-container" layout:fragment="content">
+    <!-- 왼쪽 사이드바 (mypage와 동일) -->
+    <div th:replace="~{mypage/mypage :: sidebar}"></div>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="reported-main">
+        <!-- 페이지 제목 -->
+        <h2>신고 내역</h2>
+
+        <!-- 필터 섹션 -->
+        <div class="filter-section">
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="setActiveFilter(this, 'received')">내가 받은 신고</button>
+                <button class="filter-btn" onclick="setActiveFilter(this, 'submitted')">내가 한 신고</button>
+            </div>
+        </div>
+
+        <!-- 탭 콘텐츠: 내가 받은 신고 (기본 노출) -->
+        <div class="tab-content" id="received">
+            <table class="reported-table">
+                <thead>
+                <tr>
+                    <th>신고자</th>
+                    <th>신고 사유</th>
+                    <th>신고일</th>
+                    <th>처리 상태</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr onclick="location.href='/report/receivedDetail?id=1'">
+                    <td>홍길동</td>
+                    <td>욕설 및 비방</td>
+                    <td>2025-02-05</td>
+                    <td>처리중</td>
+                </tr>
+                <!-- 추가 행: 백엔드 연동에 따라 동적으로 채워짐 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 탭 콘텐츠: 내가 신고한 신고 -->
+        <div class="tab-content" id="submitted" style="display: none;">
+            <table class="reported-table">
+                <thead>
+                <tr>
+                    <th>피신고자</th>
+                    <th>신고 사유</th>
+                    <th>신고일</th>
+                    <th>처리 상태</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr onclick="location.href='/report/submittedDetail?id=2'">
+                    <td>김철수</td>
+                    <td>거짓 정보 유포</td>
+                    <td>2025-02-04</td>
+                    <td>완료</td>
+                </tr>
+                <!-- 추가 행: 백엔드 연동에 따라 동적으로 채워짐 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div class="pagination">
+            <button><</button>
+            <button class="active">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>4</button>
+            <button>5</button>
+            <button>></button>
+        </div>
+    </main>
+</div>
+
+<!-- 필터 버튼 전환 스크립트 -->
+<script>
+    function setActiveFilter(selectedButton, tabId) {
+        // 모든 버튼에서 active 클래스를 제거
+        const buttons = document.querySelectorAll(".filter-btn");
+        buttons.forEach(button => {
+            button.classList.remove("active");
+        });
+        // 클릭한 버튼에 active 추가
+        selectedButton.classList.add("active");
+
+        // 모든 탭 숨김
+        const tabContents = document.querySelectorAll(".tab-content");
+        tabContents.forEach(tab => {
+            tab.style.display = "none";
+        });
+        // 선택한 탭 보이기
+        document.getElementById(tabId).style.display = "block";
+    }
+</script>
+
+</body>
+</html>

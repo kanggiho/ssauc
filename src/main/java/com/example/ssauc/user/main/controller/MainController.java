@@ -20,16 +20,6 @@ public class MainController {
         return "user/signup";
     }
 
-    @GetMapping("mypage")
-    public String mypage() {
-        return "user/mypage";
-    }
-
-    @GetMapping("product")
-    public String product() {
-        return "product/productlist";
-    }
-
     @GetMapping("community")
     public String community() {
         return "community/community";
@@ -40,8 +30,8 @@ public class MainController {
         return "product/cart";
     }
 
-    @GetMapping("like")
+    @GetMapping("likelist")
     public String like() {
-        return "product/like";
+        return "likelist/likelist";
     }
 }
