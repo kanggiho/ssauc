@@ -60,8 +60,18 @@
 
                     <!-- 유저 기능 아이콘 -->
                     <div class="user-menu">
-                        <a href="#">로그인</a>
-                        <a href="#">회원가입</a>
+                        <!-- ✅ 로그인 상태에 따라 다른 UI 표시 -->
+                        <th:block th:if="${session.user == null}">
+                            <!-- 로그인하지 않은 상태 -->
+                            <a href="/login">로그인</a>
+                            <a href="/register">회원가입</a>
+                        </th:block>
+
+                        <th:block th:if="${session.user != null}">
+                            <!-- 로그인한 상태 -->
+                            <span class="me-3 text-dark fw-bold" th:text="'환영합니다, ' + ${session.user.userName} + ' 님'"></span>
+                            <a href="/logout" class="text-danger">로그아웃</a>
+                        </th:block>
                         <!-- 알림 버튼 -->
                             <div class="dropdown">
                                 <button class="btn notification-icon" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
