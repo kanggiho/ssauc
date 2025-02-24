@@ -15,4 +15,10 @@ public class BidController {
     public String bid(Model model) {
         return "bid/bid";
     }
+
+    @GetMapping("report")
+    public String report(Model model) {
+        return "bid/report";
+    }
+
 }
