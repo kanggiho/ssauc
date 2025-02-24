@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSAUC 로그인</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+    <script th:src="@{/js/login.js}" defer></script>
+</head>
+<body>
+<!-- content 영역에 로그인 폼을 배치 -->
+<div class="container" layout:fragment="content">
+    <div class="login-container">
+        <div class="login-box">
+            <h2>로그인</h2>
+
+            <!-- 에러 메시지 출력 -->
+            <div th:if="${errorMessage}" style="color:red;">
+                <p th:text="${errorMessage}"></p>
+            </div>
+            <!-- 회원가입 성공 메시지 출력 -->
+            <div th:if="${successMessage}" style="color:green;">
+                <p th:text="${successMessage}"></p>
+            </div>
+
+            <form action="/login" method="post">
+                <input type="text" name="username" placeholder="아이디" required>
+                <input type="password" name="password" placeholder="비밀번호" required>
+                <button type="submit">로그인</button>
+                <div class="links">
+                    <a href="#">아이디 찾기</a> |
+                    <a href="#">비밀번호 재설정</a> |
+                    <a href="#">회원가입</a>
+                </div>
+            </form>
+
+            <!-- 소셜 로그인 -->
+            <div class="social-login">
+                <button class="kakao-login">카카오 로그인</button>
+                <button class="naver-login">네이버 로그인</button>
+                <button class="google-login">구글 로그인</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

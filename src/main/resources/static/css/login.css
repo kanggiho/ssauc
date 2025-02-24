@@ -1,0 +1,114 @@
+/* 전체 스타일 초기화 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f8f8f8;
+}
+
+
+/* 로그인 폼 */
+.login-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.login-box {
+    background: white;
+    padding: 30px;
+    width: 350px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-box h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.error-msg {
+    color: red;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.login-box button {
+    width: 100%;
+    padding: 10px;
+    background-color: black;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.links {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.links a {
+    font-size: 12px;
+    text-decoration: none;
+    color: gray;
+}
+
+/* 소셜 로그인 */
+.social-login {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.kakao-login {
+    background-color: #FEE500;
+}
+
+.naver-login {
+    background-color: #2DB400;
+    color: white;
+}
+
+.google-login {
+    background-color: #FFFFFF;
+    border: 1px solid #b4b4b4;
+}
+
+.social-login button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+/* 푸터 */
+footer {
+    background-color: black;
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    margin-top: 50px;
+}
+
+.footer-container {
+    width: 80%;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+}
+
+.footer-left, .footer-right {
+    font-size: 12px;
+}

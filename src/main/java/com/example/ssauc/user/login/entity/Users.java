@@ -52,6 +52,9 @@ public class Users {
     @Column(length = 500)
     private String profileImage;
 
+    @Column(length = 255) // 🔹 추가된 부분 (지역 정보)
+    private String location;
+
     private String status;
     private Double reputation;
     private int warningCount;
@@ -60,6 +63,12 @@ public class Users {
     private LocalDateTime updatedAt;
     private LocalDateTime lastLogin;
 
+    // 🔹 추가: username과 password만 받는 생성자
+    public Users(String userName, String password) {
+        this.userName = userName;
+        this.password = password;
+        this.createdAt = LocalDateTime.now(); // 생성 시간 자동 설정 (선택)
+    }
 
     // 연관 관계 설정
 

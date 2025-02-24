@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout.html">
+<head>
+    <!-- 필요한 css,js,cdn 등등 추가하기 -->
+</head>
+
+<div class="container" layout:fragment="content">
+    <!-- 필요한 태그 추가하기 -->
+
+
+    <h2 style="margin-top: 50px; margin-left: 20px">게시글 신고</h2>
+
+    <!-- container 시작 -->
+    <div class="container py-5">
+        <!-- 외곽 테두리를 위해 border와 패딩을 부여 -->
+        <div class="border p-4">
+            <!-- 신고사유선택 (Select Box) -->
+            <div class="mb-3 row">
+                <label for="reportReason" class="col-sm-2 col-form-label">신고사유선택</label>
+                <div class="col-sm-10">
+                    <select class="form-select" id="reportReason">
+                        <option selected>음란물/청소년유해물/폭력적인언어</option>
+                        <option>사기의심 상품</option>
+                        <option>횡령물 의심 상품</option>
+                        <option>금지된 물품 판매</option>
+                        <option>기타 신고</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 상세신고사유 (Textarea) -->
+            <div class="mb-3 row">
+                <label for="reportContent" class="col-sm-2 col-form-label">상세신고사유</label>
+                <div class="col-sm-10">
+        <textarea
+                class="form-control"
+                id="reportContent"
+                rows="5"
+                placeholder="내용을 입력해주세요"
+        ></textarea>
+                </div>
+            </div>
+
+            <!-- 등록하기 버튼 (오른쪽 정렬) -->
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-primary">등록하기</button>
+            </div>
+        </div>
+    </div>
+    <!-- container 끝 -->
+
+
+
+
+</div>
+</html>

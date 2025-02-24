@@ -41,6 +41,7 @@ public class RecentlyViewedRepositoryTest {
         user.setUserName("userTest");
         user.setEmail("userTest@example.com");
         user.setPassword("password");
+        user.setLocation("seoul");
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         Users savedUser = usersRepository.save(user);
@@ -60,6 +61,7 @@ public class RecentlyViewedRepositoryTest {
         product.setPrice(5000L);
         product.setImageUrl("http://example.com/product.jpg");
         product.setStatus("Available");
+        product.setStartPrice(1000L);
         product.setCreatedAt(LocalDateTime.now());
         product.setUpdatedAt(LocalDateTime.now());
         product.setViewCount(0L);

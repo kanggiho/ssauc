@@ -24,18 +24,18 @@
 
 <th:block th:fragment="header">
 
-<!--    &lt;!&ndash; 최근 본 상품 박스 &ndash;&gt;-->
-<!--    <div class="floating-box">-->
-<!--        <h6>최근 본 물품</h6>-->
-<!--        <a href="pdp1.html" class="recent-item">-->
-<!--            <img th:src="@{/img/index/bag.jpg}" alt="상품1">-->
-<!--        </a>-->
-<!--        <a href="pdp2.html" class="recent-item">-->
-<!--            <img th:src="@{/img/index/cheese.png}" alt="상품2">-->
-<!--        </a>-->
-<!--        &lt;!&ndash; TOP 버튼 &ndash;&gt;-->
-<!--        <button id="topBtn" class="top-btn hide">TOP</button>-->
-<!--    </div>-->
+    <!--    &lt;!&ndash; 최근 본 상품 박스 &ndash;&gt;-->
+    <!--    <div class="floating-box">-->
+    <!--        <h6>최근 본 물품</h6>-->
+    <!--        <a href="pdp1.html" class="recent-item">-->
+    <!--            <img th:src="@{/img/index/bag.jpg}" alt="상품1">-->
+    <!--        </a>-->
+    <!--        <a href="pdp2.html" class="recent-item">-->
+    <!--            <img th:src="@{/img/index/cheese.png}" alt="상품2">-->
+    <!--        </a>-->
+    <!--        &lt;!&ndash; TOP 버튼 &ndash;&gt;-->
+    <!--        <button id="topBtn" class="top-btn hide">TOP</button>-->
+    <!--    </div>-->
 
     <header id="stickyHeader">
         <!-- Navbar -->
@@ -59,27 +59,33 @@
                     </form>
 
                     <!-- 유저 기능 아이콘 -->
-                    <div class="user-menu">
-                        <a href="#">로그인</a>
-                        <a href="#">회원가입</a>
+                    <div class="user-menu d-flex align-items-center">
+                        <th:block th:if="${session.user == null}">
+                            <a href="/login" class="me-3 text-dark text-decoration-none">로그인</a>
+                            <a href="/register" class="me-3 text-dark text-decoration-none">회원가입</a>
+                        </th:block>
+                        <th:block th:if="${session.user != null}">
+                            <span class="me-3 text-dark fw-bold" th:text="'환영합니다, ' + ${session.user.userName} + ' 님'"></span>
+                            <a href="/logout" class="text-danger me-3 text-decoration-none">로그아웃</a>
+                        </th:block>
                         <!-- 알림 버튼 -->
-                            <div class="dropdown">
-                                <button class="btn notification-icon" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-bell"></i>
-                                    <span class="notification-badge" id="notificationBadge"></span>
-                                </button>
+                        <div class="dropdown">
+                            <button class="btn notification-icon" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell"></i>
+                                <span class="notification-badge" id="notificationBadge"></span>
+                            </button>
 
-                                <ul class="dropdown-menu" aria-labelledby="notificationDropdown" id="notificationList">
-                                    <li class="dropdown-header">알림</li>
-                                    <li class="no-notification text-center text-muted py-3">알림이 없습니다.</li>
-                                </ul>
-                            </div>
+                            <ul class="dropdown-menu" aria-labelledby="notificationDropdown" id="notificationList">
+                                <li class="dropdown-header">알림</li>
+                                <li class="no-notification text-center text-muted py-3">알림이 없습니다.</li>
+                            </ul>
+                        </div>
                         <!-- 좋아요 아이콘 -->
                         <a th:href="@{likelist}" class="me-3 text-dark">
                             <i class="bi bi-heart"></i>
                         </a>
 
-                        <a th:href="@{comment}" class="me-3 text-dark">
+                        <a th:href="@{/chat/chat}" class="me-3 text-dark">
                             <i class="bi bi-chat-dots"></i>
                         </a>
                     </div>
@@ -141,7 +147,7 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">프리미엄 경매</a>
+                        <a class="nav-link" th:href="@{/list/premiumlist}">프리미엄 경매</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">이용가이드</a>
@@ -182,7 +188,7 @@
                 <p class="small">(정확한 상담을 위해 통화 내용이 저장됩니다.)</p>
                 <ul class="list-unstyled">
                     <br>
-                    <li><a href="#">자주 묻는 질문 &nbsp; &nbsp; </a>  &nbsp; &nbsp;| <a href="#">  &nbsp; &nbsp; 1:1 문의 &nbsp; &nbsp; </a> |  &nbsp; &nbsp;<a href="#"> &nbsp; &nbsp; 챗봇 상담 &nbsp; &nbsp; &nbsp;</a></li>
+                    <li><a th:href="@{/contact/faq}">자주 묻는 질문 &nbsp; &nbsp; </a>  &nbsp; &nbsp;| <a th:href="@{/contact/qna}">  &nbsp; &nbsp; 1:1 문의 &nbsp; &nbsp; </a> |  &nbsp; &nbsp;<a th:href="@{/contact/chatbot}"> &nbsp; &nbsp; 챗봇 상담 &nbsp; &nbsp; &nbsp;</a></li>
                 </ul>
             </div>
         </div>
