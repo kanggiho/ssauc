@@ -24,18 +24,18 @@
 
 <th:block th:fragment="header">
 
-<!--    &lt;!&ndash; 최근 본 상품 박스 &ndash;&gt;-->
-<!--    <div class="floating-box">-->
-<!--        <h6>최근 본 물품</h6>-->
-<!--        <a href="pdp1.html" class="recent-item">-->
-<!--            <img th:src="@{/img/index/bag.jpg}" alt="상품1">-->
-<!--        </a>-->
-<!--        <a href="pdp2.html" class="recent-item">-->
-<!--            <img th:src="@{/img/index/cheese.png}" alt="상품2">-->
-<!--        </a>-->
-<!--        &lt;!&ndash; TOP 버튼 &ndash;&gt;-->
-<!--        <button id="topBtn" class="top-btn hide">TOP</button>-->
-<!--    </div>-->
+    <!--    &lt;!&ndash; 최근 본 상품 박스 &ndash;&gt;-->
+    <!--    <div class="floating-box">-->
+    <!--        <h6>최근 본 물품</h6>-->
+    <!--        <a href="pdp1.html" class="recent-item">-->
+    <!--            <img th:src="@{/img/index/bag.jpg}" alt="상품1">-->
+    <!--        </a>-->
+    <!--        <a href="pdp2.html" class="recent-item">-->
+    <!--            <img th:src="@{/img/index/cheese.png}" alt="상품2">-->
+    <!--        </a>-->
+    <!--        &lt;!&ndash; TOP 버튼 &ndash;&gt;-->
+    <!--        <button id="topBtn" class="top-btn hide">TOP</button>-->
+    <!--    </div>-->
 
     <header id="stickyHeader">
         <!-- Navbar -->
@@ -59,31 +59,27 @@
                     </form>
 
                     <!-- 유저 기능 아이콘 -->
-                    <div class="user-menu">
-                        <!-- ✅ 로그인 상태에 따라 다른 UI 표시 -->
+                    <div class="user-menu d-flex align-items-center">
                         <th:block th:if="${session.user == null}">
-                            <!-- 로그인하지 않은 상태 -->
-                            <a href="/login">로그인</a>
-                            <a href="/register">회원가입</a>
+                            <a href="/login" class="me-3 text-dark text-decoration-none">로그인</a>
+                            <a href="/register" class="me-3 text-dark text-decoration-none">회원가입</a>
                         </th:block>
-
                         <th:block th:if="${session.user != null}">
-                            <!-- 로그인한 상태 -->
                             <span class="me-3 text-dark fw-bold" th:text="'환영합니다, ' + ${session.user.userName} + ' 님'"></span>
-                            <a href="/logout" class="text-danger">로그아웃</a>
+                            <a href="/logout" class="text-danger me-3 text-decoration-none">로그아웃</a>
                         </th:block>
                         <!-- 알림 버튼 -->
-                            <div class="dropdown">
-                                <button class="btn notification-icon" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-bell"></i>
-                                    <span class="notification-badge" id="notificationBadge"></span>
-                                </button>
+                        <div class="dropdown">
+                            <button class="btn notification-icon" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell"></i>
+                                <span class="notification-badge" id="notificationBadge"></span>
+                            </button>
 
-                                <ul class="dropdown-menu" aria-labelledby="notificationDropdown" id="notificationList">
-                                    <li class="dropdown-header">알림</li>
-                                    <li class="no-notification text-center text-muted py-3">알림이 없습니다.</li>
-                                </ul>
-                            </div>
+                            <ul class="dropdown-menu" aria-labelledby="notificationDropdown" id="notificationList">
+                                <li class="dropdown-header">알림</li>
+                                <li class="no-notification text-center text-muted py-3">알림이 없습니다.</li>
+                            </ul>
+                        </div>
                         <!-- 좋아요 아이콘 -->
                         <a th:href="@{likelist}" class="me-3 text-dark">
                             <i class="bi bi-heart"></i>
