@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout.html">
+<head>
+    <!-- 필요한 css,js,cdn 등등 추가하기 -->
+</head>
+
+<div class="container" layout:fragment="content">
+    <!-- 필요한 태그 추가하기 -->
+
+    <!-- container 시작 -->
+    <div class="container py-5">
+
+        <!-- 결제 상세정보 제목 -->
+        <h2 class="text-center fw-bold mb-4">결제 상세정보</h2>
+
+        <!-- 결제번호 파티션 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <p class="mb-1 text-muted">2025.02.24 14:24:20</p>
+                        <p class="fw-bold mb-0">결제번호: 202502245459885</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 결제 상품 파티션 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                        <span>결제상품</span>
+                        <button class="btn btn-outline-secondary btn-sm">문의하기</button>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="fw-bold">주식회사 SSAUC 🏠</h6>
+                        <div class="d-flex align-items-center p-3 border rounded">
+                            <!-- 상품 이미지 -->
+                            <img
+                                    src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/penguin.png"
+                                    alt="상품 이미지"
+                                    class="img-fluid rounded me-3"
+                                    style="width: 80px; height: 80px; object-fit: cover;"
+                            >
+                            <!-- 상품 정보 -->
+                            <div>
+                                <p class="mb-1 fw-bold">DANIEL KLEIN</p>
+                                <p class="mb-1 text-muted small">결제 번호: 9719-2123-1231-231</p>
+                                <p class="mb-1 text-muted small">옵션: 블랙 | 수량: 1개</p>
+                                <p class="fw-bold mb-0">64,300원</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 결제 정보 파티션 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header fw-bold">결제정보</div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-danger fw-bold">결제금액</span>
+                            <span class="fw-bold text-danger">총 64,300원</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>상품금액</span>
+                            <span>64,300원</span>
+                        </div>
+                        <div class="d-flex justify-content-between border-top pt-3 fw-bold">
+                            <span>SSAUC 머니 사용</span>
+                            <span>64,300원</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- container 끝 -->
+
+
+</div>
+</html>

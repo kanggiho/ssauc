@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout.html">
+<head>
+    <!-- 필요한 css, js, cdn 등 추가 -->
+    <style>
+        .chat-img {
+            width: 200px;       /* 고정 너비 */
+            height: 200px;      /* 고정 높이 */
+            object-fit: cover;  /* 이미지 비율 유지하며 영역 채우기 */
+            display: block;
+            border-radius: 5px;
+        }
+        /* 프로필 이미지 자동 조정: 40x40 픽셀, 원형 */
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<div class="container" layout:fragment="content">
+    <!-- 필요한 태그 추가 -->
+    <div class="container py-5">
+        <div class="card shadow-sm">
+            <!-- 채팅방 헤더 -->
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">채팅방</h5>
+            </div>
+
+            <!-- 채팅 메시지 영역 (스크롤 가능) -->
+            <div class="card-body" style="height: 500px; overflow-y: auto;">
+                <!-- 예시 메시지 (텍스트, 왼쪽: 상대방) -->
+                <div class="d-flex mb-3">
+                    <div class="flex-shrink-0 me-2">
+                        <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/heejava.png"
+                             alt="User" class="profile-img">
+                    </div>
+                    <div>
+                        <h6 class="mb-1">상대방</h6>
+                        <div class="bg-light p-2 rounded" style="max-width: 70%;">
+                            안녕하세요! 오늘 회의 준비 되셨나요?
+                        </div>
+                        <small class="text-muted">10:00 AM</small>
+                    </div>
+                </div>
+
+                <!-- 예시 메시지 (텍스트, 오른쪽: 본인) -->
+                <div class="d-flex mb-3 justify-content-end">
+                    <div>
+                        <h6 class="mb-1 text-end">나</h6>
+                        <div class="bg-primary text-white p-2 rounded" style="max-width: 70%;">
+                            네, 준비 완료했습니다.
+                        </div>
+                        <small class="text-muted d-block text-end">10:01 AM</small>
+                    </div>
+                    <div class="flex-shrink-0 ms-2">
+                        <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/penguin.png"
+                             alt="User" class="profile-img">
+                    </div>
+                </div>
+
+                <!-- 예시 이미지 메시지 (이미지는 항상 같은 크기로 조정) -->
+                <div class="d-flex mb-3 justify-content-end">
+                    <div>
+                        <h6 class="mb-1 text-end">나</h6>
+                        <div class="p-2 rounded" style="max-width: 70%;">
+                            <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/blueclock.png"
+                                 alt="Uploaded Image" class="chat-img">
+                        </div>
+                        <small class="text-muted d-block text-end">10:05 AM</small>
+                    </div>
+                    <div class="flex-shrink-0 ms-2">
+                        <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/penguin.png"
+                             alt="User" class="profile-img">
+                    </div>
+                </div>
+
+                <!-- 예시 메시지 (텍스트, 왼쪽: 상대방) -->
+                <div class="d-flex mb-3">
+                    <div class="flex-shrink-0 me-2">
+                        <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/heejava.png"
+                             alt="User" class="profile-img">
+                    </div>
+                    <div>
+                        <h6 class="mb-1">상대방</h6>
+                        <div class="bg-light p-2 rounded" style="max-width: 70%;">
+                            그럼 회의 진행 할게요!!
+                        </div>
+                        <small class="text-muted">10:00 AM</small>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+
+
+
+            <!-- 메시지 입력 영역 -->
+            <div class="card-footer">
+                <form>
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="메시지를 입력하세요" aria-label="메시지 입력">
+                        <button class="btn btn-dark" type="submit">전송</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

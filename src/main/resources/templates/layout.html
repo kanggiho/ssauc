@@ -85,7 +85,7 @@
                             <i class="bi bi-heart"></i>
                         </a>
 
-                        <a th:href="@{comment}" class="me-3 text-dark">
+                        <a th:href="@{/chat/chat}" class="me-3 text-dark">
                             <i class="bi bi-chat-dots"></i>
                         </a>
                     </div>
@@ -188,7 +188,7 @@
                 <p class="small">(정확한 상담을 위해 통화 내용이 저장됩니다.)</p>
                 <ul class="list-unstyled">
                     <br>
-                    <li><a href="#">자주 묻는 질문 &nbsp; &nbsp; </a>  &nbsp; &nbsp;| <a href="#">  &nbsp; &nbsp; 1:1 문의 &nbsp; &nbsp; </a> |  &nbsp; &nbsp;<a href="#"> &nbsp; &nbsp; 챗봇 상담 &nbsp; &nbsp; &nbsp;</a></li>
+                    <li><a th:href="@{/contact/faq}">자주 묻는 질문 &nbsp; &nbsp; </a>  &nbsp; &nbsp;| <a th:href="@{/contact/qna}">  &nbsp; &nbsp; 1:1 문의 &nbsp; &nbsp; </a> |  &nbsp; &nbsp;<a th:href="@{/contact/chatbot}"> &nbsp; &nbsp; 챗봇 상담 &nbsp; &nbsp; &nbsp;</a></li>
                 </ul>
             </div>
         </div>

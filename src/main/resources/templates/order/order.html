@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout.html">
+<head>
+    <!-- 필요한 css,js,cdn 등등 추가하기 -->
+</head>
+
+<div class="container" layout:fragment="content">
+
+    <!-- container 시작 -->
+    <div class="container py-5">
+
+        <!-- 배송주소 파티션 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header fw-bold">배송주소</div>
+                    <div class="card-body">
+                        <!-- 예시: 현재 등록된 주소가 없을 때 -->
+                        <p class="mb-3">현재 등록된 주소가 없습니다.</p>
+                        <!-- 새 주소 추가 버튼 -->
+                        <button type="button" class="btn btn-outline-primary">새 주소 추가</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 주문상품 파티션 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header fw-bold">주문상품</div>
+                    <div class="card-body">
+                        <!-- 예시 상품 정보 -->
+                        <div class="d-flex align-items-center mb-4" style="border: 1px solid #eee; border-radius: 0.5rem; padding: 1rem;">
+                            <!-- 상품 이미지 -->
+                            <img
+                                    src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/penguin.png"
+                                    alt="상품 이미지"
+                                    class="img-fluid rounded me-3"
+                                    style="width: 80px; height: 80px; object-fit: cover;"
+                            >
+                            <!-- 상품 상세 -->
+                            <div>
+                                <h6 class="fw-bold mb-1">상품명</h6>
+                                <p class="mb-1 text-muted">옵션 / 수량 1개</p>
+                                <p class="fw-bold mb-0">10,000P</p>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold">거래 방식</h6>
+
+                        <!-- 배송 방법 선택 (라디오 버튼) -->
+                        <div class="mb-3">
+                            <div class="form-check form-check-inline">
+                                <input
+                                        class="form-check-input"
+                                        type="radio"
+                                        name="deliveryOption"
+                                        id="deliveryOption1"
+                                        value="택배"
+                                        checked
+                                >
+                                <label class="form-check-label" for="deliveryOption1">택배</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input
+                                        class="form-check-input"
+                                        type="radio"
+                                        name="deliveryOption"
+                                        id="deliveryOption2"
+                                        value="직거래"
+                                >
+                                <label class="form-check-label" for="deliveryOption2">직거래</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 최종 주문정보 파티션 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header fw-bold">최종 주문정보</div>
+                    <div class="card-body">
+                        <!-- 구매가 -->
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>구매가</span>
+                            <span>10,000P</span>
+                        </div>
+                        <!-- 수수료 -->
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>수수료</span>
+                            <span>1,000P</span>
+                        </div>
+                        <!-- 배송비 -->
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>배송비</span>
+                            <span>2,500P</span>
+                        </div>
+                        <!-- 총 결제금액 -->
+                        <div class="border-top pt-3 mt-3 d-flex justify-content-between fw-bold">
+                            <span>총 결제금액</span>
+                            <span>13,500P</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 결제하기 버튼 -->
+        <div class="row">
+          <div class="col-12 text-end">
+            <button type="button" class="btn btn-primary btn-lg">결제하기</button>
+          </div>
+        </div>
+
+    </div>
+    <!-- container 끝 -->
+
+
+
+</div>
+</html>
