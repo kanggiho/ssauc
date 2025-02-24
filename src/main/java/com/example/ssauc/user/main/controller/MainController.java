@@ -20,11 +20,6 @@ public class MainController {
         return "user/signup";
     }
 
-    @GetMapping("product")
-    public String product() {
-        return "product/productlist";
-    }
-
     @GetMapping("community")
     public String community() {
         return "community/community";

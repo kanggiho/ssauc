@@ -1,0 +1,153 @@
+/* 판매 내역 상세 페이지 스타일 */
+
+/* 전체 레이아웃 */
+.bought-container {
+    display: flex;
+    width: 100%;
+    max-width: 1200px;
+    margin: 40px auto;
+    gap: 40px;
+}
+
+/* 메인 컨텐츠 */
+.bought-main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.bought-main h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+}
+
+/* 판매 상세 정보 영역 */
+.buy-detail {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 상품 정보 영역 */
+.product-info {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: center;
+}
+
+/* 상품 상세 정보 (왼쪽) */
+.product-details {
+    flex-grow: 1;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #000;
+}
+
+.detail-item {
+    margin-bottom: 8px;
+}
+
+.detail-item strong {
+    margin-right: 5px;
+}
+
+/* 상품 이미지 (오른쪽) */
+.product-image {
+    width: 200px;
+    height: 200px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 거래 정보 영역 */
+.transaction-info {
+    font-size: 16px;
+    line-height: 1.5;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+    color: #000;
+}
+
+.transaction-info .detail-item {
+    margin-bottom: 8px;
+}
+
+.transaction-info strong {
+    display: inline-block;
+    margin-right: 5px;
+}
+
+/* 운송장 및 거래 완료 영역 */
+.tracking-area {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.tracking {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tracking-label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #000;
+}
+
+.tracking-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.tracking-number {
+    font-size: 16px;
+    margin: 0;
+    color: #000;
+}
+
+/* 거래 완료 버튼 */
+.complete-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: #28a745;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* 스마트택배 배송 조회 버튼 */
+.smartapi-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: #17a2b8; /* 파란색 계열의 정보색상 */
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
