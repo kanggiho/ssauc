@@ -42,6 +42,8 @@ public class Product {
     @Column(nullable = false)
     private Long price;
 
+    private Long startPrice;
+
     @Column(length = 500)
     private String imageUrl;
 
