@@ -38,6 +38,7 @@ public class ProductRepositoryTest {
         seller.setPassword("password");
         seller.setCreatedAt(LocalDateTime.now());
         seller.setUpdatedAt(LocalDateTime.now());
+        seller.setLocation("Busan");
         Users savedSeller = usersRepository.save(seller);
 
         // 카테고리(Category) 엔티티 생성 및 저장
@@ -53,6 +54,7 @@ public class ProductRepositoryTest {
         product.setName("Test Product");
         product.setDescription("This is a test product.");
         product.setPrice(10000L);
+        product.setStartPrice(5000L);
         product.setImageUrl("http://example.com/product.jpg");
         product.setStatus("Available");
         product.setCreatedAt(LocalDateTime.now());
@@ -69,5 +71,6 @@ public class ProductRepositoryTest {
         Product foundProduct = optionalProduct.get();
         assertEquals("Test Product", foundProduct.getName(), "상품명이 일치해야 합니다.");
         assertEquals("seller1", foundProduct.getSeller().getUserName(), "판매자명이 일치해야 합니다.");
+        assertEquals(5000L, foundProduct.getStartPrice(), "경매 시작가가 일치해야 합니다.");
     }
 }

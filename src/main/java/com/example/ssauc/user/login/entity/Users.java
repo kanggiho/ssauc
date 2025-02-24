@@ -52,6 +52,9 @@ public class Users {
     @Column(length = 500)
     private String profileImage;
 
+    @Column(length = 255) // 🔹 추가된 부분 (지역 정보)
+    private String location;
+
     private String status;
     private Double reputation;
     private int warningCount;
