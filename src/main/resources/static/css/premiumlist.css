@@ -1,0 +1,73 @@
+/* 검색 바 스타일 */
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    margin-top: 1em;
+}
+
+.search-bar input {
+    flex: 1;
+    max-width: 300px;
+}
+
+/* 경매 리스트 스타일 */
+.auction-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.auction-item img {
+    width: 120px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.auction-info {
+    flex: 1;
+}
+
+.auction-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #0056b3;
+}
+
+.auction-price {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.auction-meta {
+    font-size: 14px;
+    color: gray;
+}
+
+/* 버튼 스타일 */
+.btn-dark {
+    width: 100px;
+}
+
+.wishlist-btn {
+    background: none;
+    border: 1px solid #ddd;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.wishlist-btn i {
+    color: red;
+}
+
+.premiumbtn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}

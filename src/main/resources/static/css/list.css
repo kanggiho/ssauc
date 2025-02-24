@@ -6,6 +6,10 @@
     font-family: "Arial", sans-serif;
 }
 
+a {
+    text-decoration: none;
+}
+
 body {
     background-color: #fff;
     color: #333;
