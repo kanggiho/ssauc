@@ -15,10 +15,18 @@ h2 {
 }
 
 /* 테이블 스타일 */
-.product-table, .auction-table {
+.product-table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
+}
+.auction-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px; /* 테이블 사이 여백 제거 */
+}
+
+.auction-name {
+    margin-top:20px;
 }
 
 .product-table td, .auction-table td {
@@ -31,7 +39,7 @@ h2 {
     background-color: #e0e0e0;
     font-weight: bold;
     text-align: center;
-    width: 15%;
+    width: 17%;
     font-size: 16px;
     color: black;
 }
@@ -42,6 +50,11 @@ h2 {
     text-align: left;
     padding-left: 10px;
     height: 100%;
+}
+
+/* 거래 유형 칸 정렬 */
+.input-cell.deal-type {
+    text-align: center;
 }
 
 /* 필수 입력 표시 */
@@ -129,7 +142,14 @@ textarea {
 /* 시작가 입력칸 */
 .start-price {
     width: 50%;
-    max-width: 160px; /* 크기 제한 */
+    max-width: 140px; /* 크기 제한 */
+    box-sizing: border-box;
+}
+
+/* 즉시 구매가 입력칸 */
+.instant-price {
+    width: 50%;
+    max-width: 140px; /* 크기 제한 */
     box-sizing: border-box;
 }
 
@@ -138,6 +158,7 @@ textarea {
     width: 30%;
     max-width: 120px; /* 크기 제한 */
     box-sizing: border-box;
+    margin-left: 20px;
 }
 
 /* 시간 및 분 선택란 */
@@ -145,10 +166,20 @@ textarea {
     width: 20%;
     max-width: 80px; /* 크기 제한 */
     box-sizing: border-box;
+    margin-left: 20px;
+}
+
+.check-box.box2 {
+    margin-left: 10px;
 }
 
 .auction-table select {
     width: 100%;  /* 부모 요소를 꽉 채우도록 설정 */
+}
+
+/* 거래 유형 칸 크기 맞춤 */
+.auction-table td[colspan="3"] {
+    text-align: center;
 }
 
 

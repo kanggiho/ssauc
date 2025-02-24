@@ -4,140 +4,168 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="layout.html">
 <head>
-  <meta charset="UTF-8">
-  <title>상품 등록</title>
-  <link rel="stylesheet" href="/css/layout.css">
-  <link rel="stylesheet" href="/css/insert.css">
+    <meta charset="UTF-8">
+    <title>상품 등록</title>
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/insert.css">
 </head>
 <body>
 
 <div class="product-container" layout:fragment="content">
-  <!-- 상품 정보 입력 섹션 -->
-  <section class="product-info">
-    <h2>상품 정보</h2>
-    <table class="product-table">
-      <tr>
-        <td class="label-cell"><span class="required">*</span> 상품 제목</td>
-        <td class="input-cell"><input type="text" placeholder="상품 제목을 입력해주세요."></td>
-      </tr>
-      <tr>
-        <td class="label-cell"><span class="required">*</span> 이미지 등록 <br><small>(최소 1장 ~ 최대 10장)</small></td>
-        <td class="input-cell">
-          <div class="image-upload">
-            <div class="image-dropzone" id="dropzone">업로드할 파일을 여기에 놓으세요.</div>
-            <input type="file" id="fileInput" multiple style="display: none;">
-            <button class="file-btn" onclick="document.getElementById('fileInput').click();">파일 첨부</button>
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <td class="label-cell"><span class="required">*</span> 상품 설명</td>
-        <td class="input-cell"><textarea placeholder="내용을 입력해주세요."></textarea></td>
-      </tr>
-    </table>
-  </section>
+    <!-- 상품 정보 입력 섹션 -->
+    <section class="product-info">
+        <h2>상품 정보</h2>
+        <table class="product-table">
+            <tr>
+                <td class="label-cell"><span class="required">*</span> 상품 제목</td>
+                <td class="input-cell"><input type="text" placeholder="상품 제목을 입력해주세요."></td>
+                <td class="label-cell"><span class="required">*</span> 카테고리</td>
+                <td class="input-cell">
+                    <select>
+                        <option>선택하세요</option>
+                        <option>디지털기기</option>
+                        <option>가구/인테리어</option>
+                        <option>유아동</option>
+                        <option>여성의류</option>
+                        <option>여성잡화</option>
+                        <option>남성패션/잡화</option>
+                        <option>생활가전</option>
+                        <option>생활/주방</option>
+                        <option>스포츠/레저</option>
+                        <option>취미/게임/음반</option>
+                        <option>뷰티/미용</option>
+                        <option>식품</option>
+                        <option>가공식품</option>
+                        <option>건강기능식품</option>
+                        <option>반려동물용품</option>
+                        <option>티켓/교환권</option>
+                        <option>도서</option>
+                        <option>유아도서</option>
+                        <option>기타 중고물품</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="label-cell"><span class="required">*</span> 이미지 등록 <br><small>(최소 1장 ~ 최대 10장)</small></td>
+                <td class="input-cell" colspan="3">
+                    <div class="image-upload">
+                        <div class="image-dropzone" id="dropzone">업로드할 파일을 여기에 놓으세요.</div>
+                        <input type="file" id="fileInput" multiple style="display: none;">
+                        <button class="file-btn" onclick="document.getElementById('fileInput').click();">파일 첨부</button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="label-cell"><span class="required">*</span> 상품 설명</td>
+                <td class="input-cell" colspan="3"><textarea placeholder="내용을 입력해주세요."></textarea></td>
+            </tr>
+        </table>
+    </section>
 
-  <!-- 경매 설정 섹션 -->
-  <section class="auction-settings">
-    <h2>경매 설정</h2>
-    <table class="auction-table">
-      <tr>
-        <td class="label-cell">시작가</td>
-        <td class="input-cell"><input type="number" class="start-price" placeholder="0"> 원</td>
-        <td class="label-cell">입찰 단위</td>
-        <td class="input-cell">
-          <select>
-            <option>선택하세요</option>
-            <option>100원</option>
-            <option>500원</option>
-            <option>1000원</option>
-          </select>
-        </td>
-      </tr>
-      <tr>
-        <td class="label-cell"><span class="required">*</span> 마감 시간</td>
-        <td class="input-cell">
-          <label>시작</label>
-          <input type="date" class="auction-date"> 일
-          <select class="auction-time">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-            <option>6</option>
-            <option>7</option>
-            <option>8</option>
-            <option>9</option>
-            <option>10</option>
-            <option>11</option>
-            <option>12</option>
-            <option>13</option>
-            <option>14</option>
-            <option>15</option>
-            <option>16</option>
-            <option>17</option>
-            <option>18</option>
-            <option>19</option>
-            <option>20</option>
-            <option>21</option>
-            <option>22</option>
-            <option>23</option>
-            <option>24</option>
-          </select> 시
-          <select class="auction-time">
-            <option>0</option>
-            <option>10</option>
-            <option>20</option>
-            <option>30</option>
-            <option>40</option>
-            <option>50</option>
-          </select> 분
-        </td>
-        <td class="label-cell"><span class="required">*</span> 거래 유형</td>
-        <td class="input-cell">
-          <label class="check-box"><input type="checkbox"> 직거래</label>
-          <label class="check-box"><input type="checkbox"> 택배</label>
-        </td>
-      </tr>
-    </table>
-  </section>
+    <!-- 경매 설정 섹션 -->
+    <section class="auction-settings">
+        <h2 class="auction-name">경매 설정</h2>
+        <table class="auction-table">
+            <tr>
+                <td class="label-cell">시작가</td>
+                <td class="input-cell"><input type="number" class="start-price" placeholder="0"> 원</td>
+                <td class="label-cell">즉시 구매가</td>
+                <td class="input-cell"><input type="number" class="instant-price" placeholder="0"> 원</td>
+                <td class="label-cell">입찰 단위</td>
+                <td class="input-cell">
+                    <select>
+                        <option>선택하세요</option>
+                        <option>500원</option>
+                        <option>1000원</option>
+                        <option>5000원</option>
+                        <option>10000원</option>
+                        <option>100000원</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="label-cell"><span class="required">*</span> 거래 유형</td>
+                <td class="input-cell deal-type">
+                    <label class="check-box"><input type="checkbox"> 직거래</label>
+                    <label class="check-box box2"><input type="checkbox"> 택배</label>
+                </td>
+                <td class="label-cell"><span class="required">*</span> 마감 시간</td>
+                <td class="input-cell" colspan="3">
+                    <input type="date" class="auction-date"> 일
+                    <select class="auction-time">
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                        <option>5</option>
+                        <option>6</option>
+                        <option>7</option>
+                        <option>8</option>
+                        <option>9</option>
+                        <option>10</option>
+                        <option>11</option>
+                        <option>12</option>
+                        <option>13</option>
+                        <option>14</option>
+                        <option>15</option>
+                        <option>16</option>
+                        <option>17</option>
+                        <option>18</option>
+                        <option>19</option>
+                        <option>20</option>
+                        <option>21</option>
+                        <option>22</option>
+                        <option>23</option>
+                        <option>24</option>
+                    </select> 시
+                    <select class="auction-time">
+                        <option>0</option>
+                        <option>10</option>
+                        <option>20</option>
+                        <option>30</option>
+                        <option>40</option>
+                        <option>50</option>
+                    </select> 분
+                </td>
+            </tr>
+        </table>
+    </section>
 
-  <!-- 버튼 영역 -->
-  <div class="button-group">
-    <button class="cancel">취소</button>
-    <button class="submit">물품 등록</button>
-  </div>
+    <!-- 버튼 영역 -->
+    <div class="button-group">
+        <button class="cancel">취소</button>
+        <button class="submit">물품 등록</button>
+    </div>
 </div>
 
 <script>
-  // 드래그 앤 드롭 파일 업로드
-  const dropzone = document.getElementById("dropzone");
-  const fileInput = document.getElementById("fileInput");
+    // 드래그 앤 드롭 파일 업로드
+    const dropzone = document.getElementById("dropzone");
+    const fileInput = document.getElementById("fileInput");
 
-  dropzone.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    dropzone.style.backgroundColor = "#bbb";
-  });
+    dropzone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropzone.style.backgroundColor = "#bbb";
+    });
 
-  dropzone.addEventListener("dragleave", () => {
-    dropzone.style.backgroundColor = "#ccc";
-  });
+    dropzone.addEventListener("dragleave", () => {
+        dropzone.style.backgroundColor = "#ccc";
+    });
 
-  dropzone.addEventListener("drop", (e) => {
-    e.preventDefault();
-    dropzone.style.backgroundColor = "#ccc";
-    const files = e.dataTransfer.files;
-    if (files.length > 10) {
-      alert("최대 10개 파일만 업로드 가능합니다.");
-      return;
-    }
-    fileInput.files = files;
-  });
+    dropzone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropzone.style.backgroundColor = "#ccc";
+        const files = e.dataTransfer.files;
+        if (files.length > 10) {
+            alert("최대 10개 파일만 업로드 가능합니다.");
+            return;
+        }
+        fileInput.files = files;
+    });
 
-  document.querySelector(".submit").addEventListener("click", () => {
-    alert("물품이 등록되었습니다!");
-  });
+    document.querySelector(".submit").addEventListener("click", () => {
+        alert("물품이 등록되었습니다!");
+    });
 </script>
 
 </body>
