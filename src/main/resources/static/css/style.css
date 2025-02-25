@@ -166,9 +166,10 @@ body {
 }
 
 .logo_image {
-    width: 15em;
+    width: 12em;
     height: auto;
-    padding-left: 16px;
+    padding-left: 26px;
+    margin-top: 5px;
 }
 
 .footer_image {
