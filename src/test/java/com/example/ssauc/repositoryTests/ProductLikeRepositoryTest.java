@@ -62,7 +62,7 @@ public class ProductLikeRepositoryTest {
         product.setStatus("Available");
         product.setStartPrice(1000L);
         product.setCreatedAt(LocalDateTime.now());
-        product.setUpdatedAt(LocalDateTime.now());
+        product.setEndAt(LocalDateTime.now());
         product.setViewCount(0L);
         Product savedProduct = productRepository.save(product);
 

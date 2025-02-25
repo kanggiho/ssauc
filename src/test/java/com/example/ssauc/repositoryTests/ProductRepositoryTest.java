@@ -58,8 +58,10 @@ public class ProductRepositoryTest {
         product.setImageUrl("http://example.com/product.jpg");
         product.setStatus("Available");
         product.setCreatedAt(LocalDateTime.now());
-        product.setUpdatedAt(LocalDateTime.now());
+        product.setEndAt(LocalDateTime.now());
         product.setViewCount(0L);
+        product.setMinIncrement(500L);
+        product.setDealType(2L);
 
         // Product 저장
         Product savedProduct = productRepository.save(product);

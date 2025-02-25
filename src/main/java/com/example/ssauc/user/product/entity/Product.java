@@ -44,15 +44,23 @@ public class Product {
 
     private Long startPrice;
 
-    @Column(length = 500)
+    @Column(length = 1000)
     private String imageUrl;
 
     @Column(length = 50)
     private String status;
 
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private LocalDateTime endAt;
     private Long viewCount;
+
+    // 최소 입찰 단위
+    @Column(name = "min_increment")
+    private Long minIncrement;
+
+    // 거래 유형 (0: 직거래, 1: 택배, 2: 둘 다 선택)
+    @Column(name = "deal_type")
+    private Long dealType;
 
 
     // 연관 관계 설정
