@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <title>상품 등록</title>
-    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/insert.css">
 </head>
 <body>
@@ -71,9 +71,9 @@
                 <td class="input-cell"><input type="number" class="start-price" placeholder="0"> 원</td>
                 <td class="label-cell">즉시 구매가</td>
                 <td class="input-cell"><input type="number" class="instant-price" placeholder="0"> 원</td>
-                <td class="label-cell">입찰 단위</td>
+                <td class="label-cell">최소입찰단위</td>
                 <td class="input-cell">
-                    <select>
+                    <select class="min-increment">
                         <option>선택하세요</option>
                         <option>500원</option>
                         <option>1000원</option>
@@ -138,35 +138,133 @@
     </div>
 </div>
 
-<script>
-    // 드래그 앤 드롭 파일 업로드
-    const dropzone = document.getElementById("dropzone");
-    const fileInput = document.getElementById("fileInput");
+<script layout:fragment="script">
+    document.addEventListener("DOMContentLoaded", () => {
+        const submitButton = document.querySelector(".submit");
+        if (submitButton) {
+            submitButton.addEventListener("click", async (e) => {
+                console.log("등록 버튼 클릭됨!");
+                e.preventDefault();
 
-    dropzone.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        dropzone.style.backgroundColor = "#bbb";
-    });
+                // 입력값 수집
+                const name = document.querySelector('input[placeholder="상품 제목을 입력해주세요."]').value;
 
-    dropzone.addEventListener("dragleave", () => {
-        dropzone.style.backgroundColor = "#ccc";
-    });
+                // 카테고리: 선택한 옵션의 텍스트(이름)를 사용
+                const categorySelect = document.querySelectorAll('select')[0];
+                const categoryName = categorySelect.value;  // 예: "디지털기기", "가구/인테리어", 등
 
-    dropzone.addEventListener("drop", (e) => {
-        e.preventDefault();
-        dropzone.style.backgroundColor = "#ccc";
-        const files = e.dataTransfer.files;
-        if (files.length > 10) {
-            alert("최대 10개 파일만 업로드 가능합니다.");
-            return;
+                const description = document.querySelector('textarea').value;
+                const startPrice = document.querySelector('.start-price').value;
+                const price = document.querySelector('.instant-price').value;
+
+                // 파일 첨부: 파일이 존재하면 첫 번째 파일의 이름을 사용
+                const fileInput = document.getElementById('fileInput');
+                const imageUrl = fileInput && fileInput.files.length > 0 ? fileInput.files[0].name : "";
+
+                // 마감 시간 입력값 수집
+                const auctionDate = document.querySelector('.auction-date').value;  // YYYY-MM-DD
+                const auctionTimeSelects = document.querySelectorAll('.auction-time');
+                const auctionHour = auctionTimeSelects[0].value;
+                const auctionMinute = auctionTimeSelects[1].value;
+
+                // 거래 유형 처리: 체크박스 2개 검사 (직거래, 택배)
+                const dealTypeContainer = document.querySelector('.deal-type');
+                const dealCheckboxes = dealTypeContainer.querySelectorAll('input[type="checkbox"]');
+                let dealType = -1;
+                if(dealCheckboxes.length === 2) {
+                    const isDirect = dealCheckboxes[0].checked;
+                    const isDelivery = dealCheckboxes[1].checked;
+                    if(isDirect && !isDelivery) {
+                        dealType = 0;
+                    } else if(!isDirect && isDelivery) {
+                        dealType = 1;
+                    } else if(isDirect && isDelivery) {
+                        dealType = 2;
+                    } else {
+                        alert("거래 유형을 선택해주세요.");
+                        return;
+                    }
+                } else {
+                    alert("거래 유형 선택 오류.");
+                    return;
+                }
+
+                // 최소 입찰 단위 처리
+                const minIncrementSelect = document.querySelector('.min-increment');
+                const minIncrementOption = minIncrementSelect.value;
+                let minIncrement = 0;
+                if(minIncrementOption !== "선택하세요") {
+                    minIncrement = parseInt(minIncrementOption.replace('원',''));
+                } else {
+                    alert("최소 입찰 단위를 선택해주세요.");
+                    return;
+                }
+
+                // ❌ 필수 입력값 체크
+                if (!name || categoryName === "선택하세요" || !description || !startPrice || !price || !auctionDate) {
+                    alert("모든 필수 입력값을 입력해야 합니다.");
+                    return;
+                }
+
+                // ❌ 숫자 값 검증
+                if (isNaN(startPrice) || isNaN(price) || parseInt(startPrice) < 0 || parseInt(price) < 0) {
+                    alert("경매 시작가와 즉시 구매가는 0 이상이어야 합니다.");
+                    return;
+                }
+
+                // ✅ 마감 시간 검증 (현재 시간 기준 24시간 후부터 설정 가능)
+                const now = new Date();
+                const selectedClosingTime = new Date(`${auctionDate}T${String(auctionHour).padStart(2, '0')}:${String(auctionMinute).padStart(2, '0')}:00`);
+                const minClosingTime = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 현재 시간 + 24시간
+
+                if (selectedClosingTime.getTime() <= minClosingTime.getTime()) {
+                    alert("마감 시간은 현재 시간 기준 24시간 이후로 설정해야 합니다.");
+                    return;
+                }
+
+                // 등록 확인 후 전송
+                if (!confirm("물품을 등록하시겠습니까?")) {
+                    return;
+                }
+
+                // 폼 데이터 구성 – categoryName를 보내고, 마감 시간 정보 포함
+                const formData = {
+                    categoryName: categoryName,
+                    name: name,
+                    description: description,
+                    startPrice: parseInt(startPrice),
+                    price: parseInt(price),
+                    imageUrl: imageUrl,
+                    auctionDate: auctionDate,
+                    auctionHour: parseInt(auctionHour),
+                    auctionMinute: parseInt(auctionMinute),
+                    minIncrement: minIncrement,
+                    dealType: dealType
+                };
+
+                try {
+                    const response = await fetch('/product/insert', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+                    if (response.ok) {
+                        alert("물품이 등록되었습니다!");
+                        // window.location.href = "/";
+                    } else {
+                        alert("등록에 실패했습니다.");
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("등록 중 오류가 발생했습니다.");
+                }
+            });
+        } else {
+            console.error("등록 버튼을 찾을 수 없습니다.");
         }
-        fileInput.files = files;
-    });
-
-    document.querySelector(".submit").addEventListener("click", () => {
-        alert("물품이 등록되었습니다!");
     });
 </script>
+
 
 </body>
 </html>
