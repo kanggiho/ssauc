@@ -49,7 +49,6 @@ public class RecentlyViewedRepositoryTest {
         // 카테고리(Category) 엔티티 생성 및 저장
         Category category = new Category();
         category.setName("categoryTest");
-        category.setUser(savedUser);
         Category savedCategory = categoryRepository.save(category);
 
         // 2. 상품(Product) 엔티티 생성 및 저장
