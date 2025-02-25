@@ -26,7 +26,7 @@ public class ProductInsertDto {
     private Integer auctionMinute;
 
     // 최소 입찰단위
-    private Long minIncrement;
+    private int minIncrement;
     // 거래 유형 (0: 직거래, 1: 택배, 2: 둘 다 선택)
-    private Long dealType;
+    private int dealType;
 }

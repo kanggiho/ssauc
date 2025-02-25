@@ -44,7 +44,6 @@ public class ProductRepositoryTest {
         // 카테고리(Category) 엔티티 생성 및 저장
         Category category = new Category();
         category.setName("categoryTest");
-        category.setUser(savedSeller);
         Category savedCategory = categoryRepository.save(category);
 
         // Product 엔티티 생성
@@ -59,9 +58,9 @@ public class ProductRepositoryTest {
         product.setStatus("Available");
         product.setCreatedAt(LocalDateTime.now());
         product.setEndAt(LocalDateTime.now());
-        product.setViewCount(0L);
-        product.setMinIncrement(500L);
-        product.setDealType(2L);
+        product.setViewCount(0);
+        product.setMinIncrement(500);
+        product.setDealType(2);
 
         // Product 저장
         Product savedProduct = productRepository.save(product);

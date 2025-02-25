@@ -50,7 +50,6 @@ class BidRepositoryTest {
         // 카테고리(Category) 엔티티 생성 및 저장
         Category category = new Category();
         category.setName("categoryTest");
-        category.setUser(savedUser);
         Category savedCategory = categoryRepository.save(category);
 
 
@@ -66,7 +65,7 @@ class BidRepositoryTest {
         product.setStatus("Available");
         product.setCreatedAt(LocalDateTime.now());
         product.setEndAt(LocalDateTime.now());
-        product.setViewCount(0L);
+        product.setViewCount(0);
         Product savedProduct = productRepository.save(product);
 
 

@@ -52,15 +52,15 @@ public class Product {
 
     private LocalDateTime createdAt;
     private LocalDateTime endAt;
-    private Long viewCount;
-
-    // 최소 입찰 단위
-    @Column(name = "min_increment")
-    private Long minIncrement;
+    private int viewCount;
 
     // 거래 유형 (0: 직거래, 1: 택배, 2: 둘 다 선택)
-    @Column(name = "deal_type")
-    private Long dealType;
+    private int bidCount;
+    private int dealType;
+    private int minIncrement;
+    private int likeCount;
+
+    
 
 
     // 연관 관계 설정
