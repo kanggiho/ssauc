@@ -46,10 +46,10 @@
                 </td>
             </tr>
             <tr>
-                <td class="label-cell"><span class="required">*</span> 이미지 등록 <br><small>(최소 1장 ~ 최대 10장)</small></td>
+                <td class="label-cell"><span class="required">*</span> 이미지 등록 <br><small>(최소 1장 ~ 최대 5장)</small></td>
                 <td class="input-cell" colspan="3">
                     <div class="image-upload">
-                        <div class="image-dropzone" id="dropzone">업로드할 파일을 여기에 놓으세요.</div>
+                        <div class="image-dropzone" id="dropzone">업로드한 파일을 확인하세요.</div>
                         <input type="file" id="fileInput" multiple style="display: none;">
                         <button class="file-btn" onclick="document.getElementById('fileInput').click();">파일 첨부</button>
                     </div>
@@ -140,26 +140,97 @@
 
 <script layout:fragment="script">
     document.addEventListener("DOMContentLoaded", () => {
+
+        // 전역 배열 선언: 누적된 파일들을 저장
+        let accumulatedFiles = [];
+
+        const fileInput = document.getElementById('fileInput');
+        const dropzone = document.getElementById('dropzone');
+
+        // 파일 선택 시 미리보기 및 누적 처리
+        fileInput.addEventListener('change', (event) => {
+            // 새로 선택한 파일들을 배열로 변환
+            const newFiles = Array.from(event.target.files);
+            // 총 파일 수가 10장을 초과하는지 확인
+            if (accumulatedFiles.length + newFiles.length > 5) {
+                alert("최대 5장의 이미지만 첨부할 수 있습니다.");
+                fileInput.value = ""; // fileInput 초기화
+                return;
+            }
+            // 새로 선택한 파일들을 하나씩 검증 후 누적
+            newFiles.forEach(file => {
+                if (!file.type.startsWith('image/')) {
+                    alert("이미지 파일만 업로드 가능합니다.");
+                    return;
+                }
+                if (file.size > 3 * 1024 * 1024) {
+                    alert("파일 크기는 3MB를 초과할 수 없습니다.");
+                    return;
+                }
+                accumulatedFiles.push(file);
+            });
+            fileInput.value = ""; // 선택 후 초기화해서 재사용 가능하도록 함
+
+            // 누적된 모든 파일들을 이용하여 미리보기 업데이트
+            dropzone.innerHTML = ""; // 기존 미리보기 초기화
+            accumulatedFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.maxWidth = "150px"; // 미리보기 크기 조정
+                    img.style.maxHeight = "150px";
+                    img.style.margin = "5px";
+                    dropzone.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+            });
+        });
+
         const submitButton = document.querySelector(".submit");
+
         if (submitButton) {
             submitButton.addEventListener("click", async (e) => {
-                console.log("등록 버튼 클릭됨!");
+
                 e.preventDefault();
 
                 // 입력값 수집
                 const name = document.querySelector('input[placeholder="상품 제목을 입력해주세요."]').value;
-
-                // 카테고리: 선택한 옵션의 텍스트(이름)를 사용
-                const categorySelect = document.querySelectorAll('select')[0];
+                const categorySelect = document.querySelectorAll('select')[0];  // 카테고리: 선택한 옵션의 텍스트(이름)를 사용
                 const categoryName = categorySelect.value;  // 예: "디지털기기", "가구/인테리어", 등
-
                 const description = document.querySelector('textarea').value;
                 const startPrice = document.querySelector('.start-price').value;
                 const price = document.querySelector('.instant-price').value;
 
-                // 파일 첨부: 파일이 존재하면 첫 번째 파일의 이름을 사용
-                const fileInput = document.getElementById('fileInput');
-                const imageUrl = fileInput && fileInput.files.length > 0 ? fileInput.files[0].name : "";
+                // 파일 업로드: accumulatedFiles 배열 사용 (누적된 파일들을 전송)
+                let uploadedImageUrls = "";
+                if (accumulatedFiles.length > 0) {
+                    const formDataFiles = new FormData();
+                    // accumulatedFiles의 파일들을 모두 FormData에 추가
+                    for (let i = 0; i < accumulatedFiles.length; i++) {
+                        if (accumulatedFiles[i].size > 3 * 1024 * 1024) {
+                            alert("파일 크기는 3MB를 초과할 수 없습니다.");
+                            return;
+                        }
+                        formDataFiles.append("files", accumulatedFiles[i]);
+                    }
+                    try {
+                        const uploadResponse = await fetch('/product/uploadMultiple', {
+                            method: 'POST',
+                            body: formDataFiles
+                        });
+                        if (!uploadResponse.ok) {
+                            alert("이미지 업로드에 실패했습니다.");
+                            return;
+                        }
+                        const uploadResult = await uploadResponse.json();
+                        uploadedImageUrls = uploadResult.urls; // 콤마로 구분된 URL 문자열
+                    } catch (error) {
+                        console.error("Error during file upload:", error);
+                        alert("이미지 업로드 중 오류가 발생했습니다.");
+                        return;
+                    }
+                }
 
                 // 마감 시간 입력값 수집
                 const auctionDate = document.querySelector('.auction-date').value;  // YYYY-MM-DD
@@ -207,8 +278,8 @@
                 }
 
                 // ❌ 숫자 값 검증
-                if (isNaN(startPrice) || isNaN(price) || parseInt(startPrice) < 0 || parseInt(price) < 0) {
-                    alert("경매 시작가와 즉시 구매가는 0 이상이어야 합니다.");
+                if (isNaN(startPrice) || isNaN(price) || parseInt(startPrice) < 1000 || parseInt(price) < 1000) {
+                    alert("경매 시작가와 즉시 구매가는 1000원 이상이어야 합니다.");
                     return;
                 }
 
@@ -227,14 +298,14 @@
                     return;
                 }
 
-                // 폼 데이터 구성 – categoryName를 보내고, 마감 시간 정보 포함
+                // 폼 데이터 구성
                 const formData = {
                     categoryName: categoryName,
                     name: name,
                     description: description,
                     startPrice: parseInt(startPrice),
                     price: parseInt(price),
-                    imageUrl: imageUrl,
+                    imageUrl: uploadedImageUrls,  // imageUrl 필드는 S3 업로드 후 반환받은 URL들 사용
                     auctionDate: auctionDate,
                     auctionHour: parseInt(auctionHour),
                     auctionMinute: parseInt(auctionMinute),
