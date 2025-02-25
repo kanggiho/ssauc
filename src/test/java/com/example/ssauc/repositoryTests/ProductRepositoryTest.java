@@ -58,9 +58,9 @@ public class ProductRepositoryTest {
         product.setStatus("Available");
         product.setCreatedAt(LocalDateTime.now());
         product.setEndAt(LocalDateTime.now());
-        product.setViewCount(0L);
-        product.setMinIncrement(500L);
-        product.setDealType(2L);
+        product.setViewCount(0);
+        product.setMinIncrement(500);
+        product.setDealType(2);
 
         // Product 저장
         Product savedProduct = productRepository.save(product);

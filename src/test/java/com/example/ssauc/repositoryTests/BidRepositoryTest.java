@@ -65,7 +65,7 @@ class BidRepositoryTest {
         product.setStatus("Available");
         product.setCreatedAt(LocalDateTime.now());
         product.setEndAt(LocalDateTime.now());
-        product.setViewCount(0L);
+        product.setViewCount(0);
         Product savedProduct = productRepository.save(product);
 
 
