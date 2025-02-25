@@ -42,7 +42,7 @@ public class ProductService {
                 .status("판매중")
                 .createdAt(LocalDateTime.now())
                 .endAt(auctionClosingDateTime)
-                .viewCount(0L)
+                .viewCount(0)
                 .minIncrement(dto.getMinIncrement())
                 .dealType(dto.getDealType())
                 .build();

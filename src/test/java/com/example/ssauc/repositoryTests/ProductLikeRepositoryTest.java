@@ -62,7 +62,7 @@ public class ProductLikeRepositoryTest {
         product.setStartPrice(1000L);
         product.setCreatedAt(LocalDateTime.now());
         product.setEndAt(LocalDateTime.now());
-        product.setViewCount(0L);
+        product.setViewCount(0);
         Product savedProduct = productRepository.save(product);
 
         // ProductLike 엔티티 생성 및 저장
