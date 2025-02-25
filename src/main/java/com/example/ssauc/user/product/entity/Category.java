@@ -19,10 +19,6 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long categoryId;
 
-    // 해당 카테고리를 만든 사용자
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
 
     @Column(nullable = false, length = 100)
     private String name;
