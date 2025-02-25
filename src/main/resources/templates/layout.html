@@ -89,11 +89,11 @@
                             </ul>
                         </div>
                         <!-- 좋아요 아이콘 -->
-                        <a th:href="@{likelist}" class="me-3 text-dark">
+                        <a th:href="@{/likelist}" class="me-3 text-dark">
                             <i class="bi bi-heart"></i>
                         </a>
 
-                        <a th:href="@{comment}" class="me-3 text-dark">
+                        <a th:href="@{/comment}" class="me-3 text-dark">
                             <i class="bi bi-chat-dots"></i>
                         </a>
                     </div>
@@ -155,7 +155,7 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">프리미엄 경매</a>
+                        <a class="nav-link" th:href="@{/list/premiumlist}">프리미엄 경매</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">이용가이드</a>
