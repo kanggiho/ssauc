@@ -1,4 +1,4 @@
 package com.example.ssauc.config;
 
-public class config {
+public class S3Config {
 }

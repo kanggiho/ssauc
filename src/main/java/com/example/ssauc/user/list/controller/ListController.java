@@ -18,9 +18,4 @@ public class ListController {
     public String premiumlist() {
         return "list/premiumlist";
     }
-
-    @GetMapping("bid")
-    public String bid() {
-        return "bid/bid";
-    }
 }
