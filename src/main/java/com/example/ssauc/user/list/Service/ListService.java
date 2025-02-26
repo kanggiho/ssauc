@@ -23,7 +23,7 @@ public class ListService {
 
         for(ListDto listDto : list){
 
-            Duration duration = Duration.between(listDto.getEndAt(), listDto.getCreatedAt());
+            Duration duration = Duration.between(listDto.getCreatedAt(), listDto.getEndAt());
 
             int days = (int)duration.toDays();
             int hours = (int)duration.toHours()%24;
