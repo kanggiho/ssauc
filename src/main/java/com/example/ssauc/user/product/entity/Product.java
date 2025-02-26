@@ -42,17 +42,28 @@ public class Product {
     @Column(nullable = false)
     private Long price;
 
+    private Long tempPrice;
+
     private Long startPrice;
 
-    @Column(length = 500)
+    @Column(length = 1000)
     private String imageUrl;
 
     @Column(length = 50)
     private String status;
 
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private Long viewCount;
+    private LocalDateTime endAt;
+    private int viewCount;
+
+    private int dealType;
+
+    // 거래 유형 (0: 직거래, 1: 택배, 2: 둘 다 선택)
+    private int bidCount;
+    private int minIncrement;
+    private int likeCount;
+
+    
 
 
     // 연관 관계 설정
@@ -65,5 +76,4 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bid> bids;
-
 }

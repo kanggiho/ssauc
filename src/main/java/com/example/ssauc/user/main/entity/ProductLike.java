@@ -31,4 +31,10 @@ public class ProductLike {
     private Product product;
 
     private LocalDateTime likedAt;
+
+    public ProductLike(Users user, Product product) {
+        this.user = user;
+        this.product = product;
+        this.likedAt = LocalDateTime.now();
+    }
 }

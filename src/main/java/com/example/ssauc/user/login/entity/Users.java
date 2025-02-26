@@ -9,14 +9,13 @@ import com.example.ssauc.user.contact.entity.Board;
 import com.example.ssauc.user.main.entity.Notification;
 import com.example.ssauc.user.main.entity.ProductLike;
 import com.example.ssauc.user.main.entity.RecentlyViewed;
-import com.example.ssauc.user.mypage.entity.Charge;
+import com.example.ssauc.user.cash.entity.Charge;
 import com.example.ssauc.user.mypage.entity.ReputationHistory;
 import com.example.ssauc.user.mypage.entity.UserActivity;
-import com.example.ssauc.user.mypage.entity.Withdraw;
+import com.example.ssauc.user.cash.entity.Withdraw;
 import com.example.ssauc.user.order.entity.Orders;
 import com.example.ssauc.user.pay.entity.Payment;
 import com.example.ssauc.user.pay.entity.Review;
-import com.example.ssauc.user.product.entity.Category;
 import com.example.ssauc.user.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.*;
@@ -63,6 +62,8 @@ public class Users {
     private LocalDateTime updatedAt;
     private LocalDateTime lastLogin;
 
+    private Long cash;
+
     // 🔹 추가: username과 password만 받는 생성자
     public Users(String userName, String password) {
         this.userName = userName;
@@ -71,9 +72,6 @@ public class Users {
     }
 
     // 연관 관계 설정
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Category> categories;
 
     @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products;

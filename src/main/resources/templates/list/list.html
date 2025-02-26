@@ -44,475 +44,85 @@
 
             <!-- 상품 리스트 -->
             <div class="col-lg-10">
+                <p th:if="${session.user != null}">사용자 이름: <span th:text="${session.user.getUserId()}"></span></p>
                 <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+                    <div class="col" th:each="product : ${secondList}">
+                            <div class="card product-card">
+                                <button class="icon-btn" th:data-product-id="${product.productId}" onclick="toggleHeart(this)">
+                                    <i class="bi bi-heart"></i>
+                                </button>
+                                <a th:href="@{/bid/bid(productId=${product.productId})}">
+                                <img th:src="${product.imageUrl}" alt="시계">
+                                <div class="card-body">
 
-                    <!-- 상품 1 -->
-                    <div class="col">
-                        <a th:href="@{/list/bid}">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="시계">
-                            <div class="card-body">
-                                <p class="product-title">시계왕 싸게 판매합니다</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">영국 | ❤️ 3,810</p>
+                                    <p class="product-title" th:text="${product.name}"></p>
+                                    <p class="product-price" th:text="${product.price}"></p>
+                                    <p class="product-info">[[${product.bidCount}]] | [[${product.gap}]]</p>
+                                    <p class="product-info">[[${product.location}]] | [[${product.likeCount}]]</p>
+                                </div>
+                                </a>
                             </div>
-                        </div>
-                        </a>
                     </div>
+                </div>
 
-                    <!-- 상품 2 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="신발">
-                            <div class="card-body">
-                                <p class="product-title">부록스 슈즈 2023년 10...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">강남구 | ❤️ 3,592</p>
-                            </div>
-                        </div>
+                <!-- ✅ 페이지네이션을 상품 리스트 바깥으로 이동 -->
+                <div class="pagination-container">
+                    <div class="pagination">
+                        <!-- 이전 페이지 버튼 -->
+                        <a th:if="${secondList.hasPrevious()}" th:href="@{/list/list(page=${secondList.number - 1})}" class="page-link">&lt;</a>
+
+                        <!-- 페이지 번호 (5개씩 표시) -->
+                        <th:block th:with="start=${(secondList.number / 5) * 5}, end=${T(java.lang.Math).min(start + 4, secondList.totalPages - 1)}">
+                            <a th:each="i : ${#numbers.sequence(start, end)}"
+                               th:href="@{/list/list(page=${i})}"
+                               th:text="${i + 1}"
+                               th:classappend="${i == secondList.number} ? 'active' : ''"
+                               class="page-link">
+                            </a>
+                        </th:block>
+
+                        <!-- 다음 페이지 버튼 -->
+                        <a th:if="${secondList.hasNext()}" th:href="@{/list/list(page=${secondList.number + 1})}" class="page-link">&gt;</a>
                     </div>
-
-                    <!-- 상품 3 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="세제">
-                            <div class="card-body">
-                                <p class="product-title">살짝 남은 세제</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">정안리 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 1 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="시계">
-                            <div class="card-body">
-                                <p class="product-title">시계왕 싸게 판매합니다</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">영국 | ❤️ 3,810</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 2 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="신발">
-                            <div class="card-body">
-                                <p class="product-title">부록스 슈즈 2023년 10...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">강남구 | ❤️ 3,592</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 3 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="세제">
-                            <div class="card-body">
-                                <p class="product-title">살짝 남은 세제</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">정안리 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div><!-- 상품 1 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="시계">
-                            <div class="card-body">
-                                <p class="product-title">시계왕 싸게 판매합니다</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">영국 | ❤️ 3,810</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 2 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="신발">
-                            <div class="card-body">
-                                <p class="product-title">부록스 슈즈 2023년 10...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">강남구 | ❤️ 3,592</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 3 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="세제">
-                            <div class="card-body">
-                                <p class="product-title">살짝 남은 세제</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">정안리 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div><!-- 상품 1 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="시계">
-                            <div class="card-body">
-                                <p class="product-title">시계왕 싸게 판매합니다</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">영국 | ❤️ 3,810</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 2 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="신발">
-                            <div class="card-body">
-                                <p class="product-title">부록스 슈즈 2023년 10...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">강남구 | ❤️ 3,592</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 3 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="세제">
-                            <div class="card-body">
-                                <p class="product-title">살짝 남은 세제</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">정안리 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div><!-- 상품 1 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="시계">
-                            <div class="card-body">
-                                <p class="product-title">시계왕 싸게 판매합니다</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">영국 | ❤️ 3,810</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 2 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="신발">
-                            <div class="card-body">
-                                <p class="product-title">부록스 슈즈 2023년 10...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">강남구 | ❤️ 3,592</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 3 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="세제">
-                            <div class="card-body">
-                                <p class="product-title">살짝 남은 세제</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">정안리 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div><!-- 상품 1 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="시계">
-                            <div class="card-body">
-                                <p class="product-title">시계왕 싸게 판매합니다</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">영국 | ❤️ 3,810</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 2 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="신발">
-                            <div class="card-body">
-                                <p class="product-title">부록스 슈즈 2023년 10...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">강남구 | ❤️ 3,592</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 3 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="세제">
-                            <div class="card-body">
-                                <p class="product-title">살짝 남은 세제</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">정안리 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상품 4 -->
-                    <div class="col">
-                        <div class="card product-card">
-                            <img th:src="@{/img/index/time.jpg}" alt="헤드셋">
-                            <div class="card-body">
-                                <p class="product-title">오른쪽만 들리는 헤드셋...</p>
-                                <p class="product-price">400,000</p>
-                                <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                                <p class="product-info">빌바오 | ❤️ 2,058</p>
-                            </div>
-                        </div>
-                    </div>
-
-
                 </div>
             </div>
         </div>
     </div>
+
+    <script th:inline="javascript">
+        var isLoggedIn = /*[[${session.user != null}]]*/ false;
+        var isLogin = /*[[${session.user != null ? session.user.getUserId() : 'huge'}]]*/ 'guest';
+
+        function toggleHeart(button) {
+            // 로그인 여부 체크: 로그인 안 되어 있으면 메시지 표시 후 리턴
+            if (!isLoggedIn || isLoggedIn === "false") {
+                // confirm 창의 기본 버튼은 브라우저에 따라 "확인"/"취소"로 표시됩니다.
+                // "확인"을 누르면 true, "취소"(혹은 아니오)를 누르면 false 반환.
+                if (confirm("로그인 후 이용할 수 있습니다.\n로그인 페이지로 이동하시겠습니까?")) {
+                    // 사용자가 확인을 누른 경우 로그인 페이지로 이동
+                    window.location.href = '/login';
+                }
+                return; // 로그인하지 않았다면 이후 동작 중단
+            }
+
+            const icon = button.querySelector("i");
+            let liked;
+
+            if (icon.classList.contains("bi-heart-fill")) {
+                // 이미 채워져 있으면 빈 하트로 전환 및 검정색
+                icon.classList.remove("bi-heart-fill");
+                icon.classList.add("bi-heart");
+                icon.style.color = "black";
+                liked = false;
+            } else {
+                // 빈 하트면 꽉 찬 빨간 하트로 전환
+                icon.classList.remove("bi-heart");
+                icon.classList.add("bi-heart-fill");
+                icon.style.color = "red";
+                liked = true;
+            }
+        }
+    </script>
 
 </div>
 

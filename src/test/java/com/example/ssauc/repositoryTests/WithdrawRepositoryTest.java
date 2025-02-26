@@ -1,9 +1,9 @@
 package com.example.ssauc.repositoryTests;
 
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.mypage.entity.Withdraw;
+import com.example.ssauc.user.cash.entity.Withdraw;
 import com.example.ssauc.user.login.repository.UsersRepository;
-import com.example.ssauc.user.mypage.repository.WithdrawRepository;
+import com.example.ssauc.user.cash.repository.WithdrawRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;

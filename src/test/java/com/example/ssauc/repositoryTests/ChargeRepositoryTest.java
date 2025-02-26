@@ -1,9 +1,9 @@
 package com.example.ssauc.repositoryTests;
 
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.mypage.entity.Charge;
+import com.example.ssauc.user.cash.entity.Charge;
 import com.example.ssauc.user.login.repository.UsersRepository;
-import com.example.ssauc.user.mypage.repository.ChargeRepository;
+import com.example.ssauc.user.cash.repository.ChargeRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;

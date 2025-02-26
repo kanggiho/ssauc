@@ -40,7 +40,6 @@ class CategoryRepositoryTest {
 
         Category category = new Category();
         category.setName("Electronics");
-        category.setUser(savedUser);
         Category savedCategory = categoryRepository.save(category);
         Category foundCategory = categoryRepository.findById(savedCategory.getCategoryId()).orElse(null);
 

@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <title>상품 등록</title>
-    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/insert.css">
 </head>
 <body>
@@ -17,9 +17,9 @@
         <h2>상품 정보</h2>
         <table class="product-table">
             <tr>
-                <td class="label-cell"><span class="required">*</span> 상품 제목</td>
+                <td class="label-cell"> 상품 제목</td>
                 <td class="input-cell"><input type="text" placeholder="상품 제목을 입력해주세요."></td>
-                <td class="label-cell"><span class="required">*</span> 카테고리</td>
+                <td class="label-cell"> 카테고리</td>
                 <td class="input-cell">
                     <select>
                         <option>선택하세요</option>
@@ -46,17 +46,17 @@
                 </td>
             </tr>
             <tr>
-                <td class="label-cell"><span class="required">*</span> 이미지 등록 <br><small>(최소 1장 ~ 최대 10장)</small></td>
+                <td class="label-cell"> 이미지 등록 <br><small>(최소 1장 ~ 최대 5장)</small></td>
                 <td class="input-cell" colspan="3">
                     <div class="image-upload">
-                        <div class="image-dropzone" id="dropzone">업로드할 파일을 여기에 놓으세요.</div>
+                        <div class="image-dropzone" id="dropzone">업로드한 파일을 확인하세요.</div>
                         <input type="file" id="fileInput" multiple style="display: none;">
                         <button class="file-btn" onclick="document.getElementById('fileInput').click();">파일 첨부</button>
                     </div>
                 </td>
             </tr>
             <tr>
-                <td class="label-cell"><span class="required">*</span> 상품 설명</td>
+                <td class="label-cell"> 상품 설명</td>
                 <td class="input-cell" colspan="3"><textarea placeholder="내용을 입력해주세요."></textarea></td>
             </tr>
         </table>
@@ -71,10 +71,11 @@
                 <td class="input-cell"><input type="number" class="start-price" placeholder="0"> 원</td>
                 <td class="label-cell">즉시 구매가</td>
                 <td class="input-cell"><input type="number" class="instant-price" placeholder="0"> 원</td>
-                <td class="label-cell">입찰 단위</td>
+                <td class="label-cell">최소입찰단위</td>
                 <td class="input-cell">
-                    <select>
+                    <select class="min-increment">
                         <option>선택하세요</option>
+                        <option>100원</option>
                         <option>500원</option>
                         <option>1000원</option>
                         <option>5000원</option>
@@ -84,12 +85,12 @@
                 </td>
             </tr>
             <tr>
-                <td class="label-cell"><span class="required">*</span> 거래 유형</td>
+                <td class="label-cell"> 거래 유형</td>
                 <td class="input-cell deal-type">
                     <label class="check-box"><input type="checkbox"> 직거래</label>
                     <label class="check-box box2"><input type="checkbox"> 택배</label>
                 </td>
-                <td class="label-cell"><span class="required">*</span> 마감 시간</td>
+                <td class="label-cell"> 마감 시간</td>
                 <td class="input-cell" colspan="3">
                     <input type="date" class="auction-date"> 일
                     <select class="auction-time">
@@ -138,35 +139,231 @@
     </div>
 </div>
 
-<script>
-    // 드래그 앤 드롭 파일 업로드
-    const dropzone = document.getElementById("dropzone");
-    const fileInput = document.getElementById("fileInput");
+<script layout:fragment="script">
+    document.addEventListener("DOMContentLoaded", () => {
 
-    dropzone.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        dropzone.style.backgroundColor = "#bbb";
-    });
+        // 전역 배열 선언: 누적된 파일들을 저장
+        let accumulatedFiles = [];
 
-    dropzone.addEventListener("dragleave", () => {
-        dropzone.style.backgroundColor = "#ccc";
-    });
+        const fileInput = document.getElementById('fileInput');
+        const dropzone = document.getElementById('dropzone');
 
-    dropzone.addEventListener("drop", (e) => {
-        e.preventDefault();
-        dropzone.style.backgroundColor = "#ccc";
-        const files = e.dataTransfer.files;
-        if (files.length > 10) {
-            alert("최대 10개 파일만 업로드 가능합니다.");
-            return;
+        // 파일 선택 시 미리보기 및 누적 처리
+        fileInput.addEventListener('change', (event) => {
+            // 새로 선택한 파일들을 배열로 변환
+            const newFiles = Array.from(event.target.files);
+            // 총 파일 수가 5장을 초과하는지 확인
+            if (accumulatedFiles.length + newFiles.length > 5) {
+                alert("최대 5장의 이미지만 첨부할 수 있습니다.");
+                fileInput.value = ""; // fileInput 초기화
+                return;
+            }
+            // 새로 선택한 파일들을 하나씩 검증 후 누적
+            newFiles.forEach(file => {
+                if (!file.type.startsWith('image/')) {
+                    alert("이미지 파일만 업로드 가능합니다.");
+                    return;
+                }
+                if (file.size > 3 * 1024 * 1024) {
+                    alert("파일 크기는 3MB를 초과할 수 없습니다.");
+                    return;
+                }
+                accumulatedFiles.push(file);
+            });
+            fileInput.value = ""; // 선택 후 초기화해서 재사용 가능하도록 함
+
+            // 누적된 모든 파일들을 이용하여 미리보기 업데이트
+            dropzone.innerHTML = ""; // 기존 미리보기 초기화
+            accumulatedFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.maxWidth = "150px"; // 미리보기 크기 조정
+                    img.style.maxHeight = "150px";
+                    img.style.margin = "5px";
+                    dropzone.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+            });
+        });
+
+        const submitButton = document.querySelector(".submit");
+
+        if (submitButton) {
+            submitButton.addEventListener("click", async (e) => {
+
+                e.preventDefault();
+
+                // 입력값 수집
+                const name = document.querySelector('input[placeholder="상품 제목을 입력해주세요."]').value;
+                const categorySelect = document.querySelectorAll('select')[0];  // 카테고리: 선택한 옵션의 텍스트(이름)를 사용
+                const categoryName = categorySelect.value;  // 예: "디지털기기", "가구/인테리어", 등
+                const description = document.querySelector('textarea').value;
+                const startPrice = document.querySelector('.start-price').value;
+                const price = document.querySelector('.instant-price').value;
+
+                // 마감 시간 입력값 수집
+                const auctionDate = document.querySelector('.auction-date').value;  // YYYY-MM-DD
+                const auctionTimeSelects = document.querySelectorAll('.auction-time');
+                const auctionHour = auctionTimeSelects[0].value;
+                const auctionMinute = auctionTimeSelects[1].value;
+
+                // 파일 업로드: accumulatedFiles 배열 사용 (누적된 파일들을 전송)
+                let uploadedImageUrls = "";
+                if (accumulatedFiles.length > 0) {
+                    const formDataFiles = new FormData();
+                    // accumulatedFiles의 파일들을 모두 FormData에 추가
+                    for (let i = 0; i < accumulatedFiles.length; i++) {
+                        if (accumulatedFiles[i].size > 3 * 1024 * 1024) {
+                            alert("파일 크기는 3MB를 초과할 수 없습니다.");
+                            return;
+                        }
+                        formDataFiles.append("files", accumulatedFiles[i]);
+                    }
+                    try {
+                        const uploadResponse = await fetch('/product/uploadMultiple', {
+                            method: 'POST',
+                            body: formDataFiles
+                        });
+                        if (!uploadResponse.ok) {
+                            alert("이미지 업로드에 실패했습니다.");
+                            return;
+                        }
+                        const uploadResult = await uploadResponse.json();
+                        uploadedImageUrls = uploadResult.urls; // 콤마로 구분된 URL 문자열
+                    } catch (error) {
+                        console.error("Error during file upload:", error);
+                        alert("이미지 업로드 중 오류가 발생했습니다.");
+                        return;
+                    }
+                }
+
+                // 거래 유형 처리: 체크박스 2개 검사 (직거래, 택배)
+                const dealTypeContainer = document.querySelector('.deal-type');
+                const dealCheckboxes = dealTypeContainer.querySelectorAll('input[type="checkbox"]');
+                let dealType = -1;
+                if(dealCheckboxes.length === 2) {
+                    const isDirect = dealCheckboxes[0].checked;
+                    const isDelivery = dealCheckboxes[1].checked;
+                    if(isDirect && !isDelivery) {
+                        dealType = 0;
+                    } else if(!isDirect && isDelivery) {
+                        dealType = 1;
+                    } else if(isDirect && isDelivery) {
+                        dealType = 2;
+                    } else {
+                        alert("거래 유형을 선택해주세요.");
+                        return;
+                    }
+                } else {
+                    alert("거래 유형 선택 오류.");
+                    return;
+                }
+
+                // ❌ 최소 입찰 단위 처리
+                const minIncrementSelect = document.querySelector('.min-increment');
+                const minIncrementOption = minIncrementSelect.value;
+                let minIncrement = 0;
+                if(minIncrementOption !== "선택하세요") {
+                    minIncrement = parseInt(minIncrementOption.replace('원',''));
+                } else {
+                    alert("최소 입찰 단위를 선택해주세요.");
+                    return;
+                }
+
+                // ❌ 필수 입력값 체크
+                if (!name || categoryName === "선택하세요" || !description || !startPrice || !price || !auctionDate) {
+                    alert("모든 필수 입력값을 입력해야 합니다.");
+                    return;
+                }
+
+                // ❌ 숫자 값 검증
+                if (isNaN(startPrice) || isNaN(price) || parseInt(startPrice) < 1000 || parseInt(price) < 1000) {
+                    alert("경매 시작가와 즉시 구매가는 1000원 이상이어야 합니다.");
+                    return;
+                }
+
+                // ❌ 즉시 구매가가 시작가보다 작으면 예외 처리
+                if (parseInt(price) < parseInt(startPrice)) {
+                    alert("즉시 구매가는 시작가보다 크거나 같아야 합니다.");
+                    return;
+                }
+
+                // ❌ 마감 시간 검증 (현재 시간 기준 24시간 후부터 설정 가능)
+                const now = new Date();
+                const selectedClosingTime = new Date(`${auctionDate}T${String(auctionHour).padStart(2, '0')}:${String(auctionMinute).padStart(2, '0')}:00+09:00`);
+                const minClosingTime = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 현재 시간 + 24시간
+                const maxClosingTime = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // +7일
+
+                if (selectedClosingTime.getTime() <= minClosingTime.getTime()) {
+                    alert("마감 시간은 현재 시간 기준 24시간 이후로 설정해야 합니다.");
+                    return;
+                }
+                if (selectedClosingTime.getTime() > maxClosingTime.getTime()) {
+                    alert("마감 시간은 현재 시간 기준 7일 이내로 설정해야 합니다.");
+                    return;
+                }
+
+                // ❌ 최소 입찰 단위 검증: 시작가 기준 10만원 미만은 10% 이하, 10만원 이상은 5% 이하
+                const intStartPrice = parseInt(startPrice);
+                if (minIncrement !== 100) {
+                    if (intStartPrice < 100000) {
+                        if (minIncrement > intStartPrice * 0.1) {
+                            alert("최소 입찰 단위는 시작가의 10% 이하로 설정 가능합니다.\n(시작가 기준 10만원 미만은 10% 이하)");
+                            return;
+                        }
+                    } else {
+                        if (minIncrement > intStartPrice * 0.05) {
+                            alert("최소 입찰 단위는 시작가의 5% 이하로 설정 가능합니다.\n(시작가 기준 10만원 이상은 5% 이하)");
+                            return;
+                        }
+                    }
+                }
+
+                // 등록 확인 후 전송
+                if (!confirm("물품을 등록하시겠습니까?")) {
+                    return;
+                }
+
+                // 폼 데이터 구성
+                const formData = {
+                    categoryName: categoryName,
+                    name: name,
+                    description: description,
+                    startPrice: parseInt(startPrice),
+                    price: parseInt(price),
+                    imageUrl: uploadedImageUrls,  // imageUrl 필드는 S3 업로드 후 반환받은 URL들 사용
+                    auctionDate: auctionDate,
+                    auctionHour: parseInt(auctionHour),
+                    auctionMinute: parseInt(auctionMinute),
+                    minIncrement: minIncrement,
+                    dealType: dealType
+                };
+
+                try {
+                    const response = await fetch('/product/insert', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+                    if (response.ok) {
+                        alert("물품이 등록되었습니다!");
+                        window.location.href = "/";
+                    } else {
+                        alert("등록에 실패했습니다.");
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("등록 중 오류가 발생했습니다.");
+                }
+            });
+        } else {
+            console.error("등록 버튼을 찾을 수 없습니다.");
         }
-        fileInput.files = files;
-    });
-
-    document.querySelector(".submit").addEventListener("click", () => {
-        alert("물품이 등록되었습니다!");
     });
 </script>
+
 
 </body>
 </html>

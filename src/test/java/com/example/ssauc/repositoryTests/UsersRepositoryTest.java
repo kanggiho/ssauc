@@ -29,6 +29,7 @@ class UsersRepositoryTest {
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         user.setLocation("Seoul");
+        user.setCash(10000L);
 
         // When (데이터 저장 및 조회)
         Users savedUser = usersRepository.save(user);
@@ -40,5 +41,6 @@ class UsersRepositoryTest {
         assertThat(foundUser.getUserName()).isEqualTo("kanggiho");
         assertThat(foundUser.getEmail()).isEqualTo("test@example.com");
         assertThat(foundUser.getLocation()).isEqualTo("Seoul");
+        assertThat(foundUser.getCash()).isEqualTo(10000L);
     }
 }

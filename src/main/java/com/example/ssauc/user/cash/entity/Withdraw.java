@@ -1,4 +1,4 @@
-package com.example.ssauc.user.mypage.entity;
+package com.example.ssauc.user.cash.entity;
 
 import com.example.ssauc.user.login.entity.Users;
 import jakarta.persistence.*;
