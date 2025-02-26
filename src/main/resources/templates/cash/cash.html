@@ -6,8 +6,8 @@
   <meta charset="UTF-8">
   <title>SSAUC 머니 페이지</title>
   <!-- 스타일시트 연결 -->
-  <link rel="stylesheet" href="/css/mypage.css">
-  <link rel="stylesheet" href="/css/cash.css">
+  <link rel="stylesheet" th:href="@{/css/mypage.css}">
+  <link rel="stylesheet" th:href="@{/css/cash.css}">
 </head>
 <body>
 
@@ -22,7 +22,7 @@
       <div class="cash-box">
         <p class="cash-title">🔨 SSAUC 머니 ></p>
         <div class="cash-box-content">
-          <h2 class="cash-amount">138,600 원</h2>
+          <h2 class="cash-amount" th:text="${session.user.cash + ' 원'}">138,600 원</h2>
           <div class="cash-buttons">
             <button class="charge">충전</button>
             <button class="refund">환급</button>
@@ -96,7 +96,7 @@
 </div>
 
 <!-- 필터 버튼 클릭 이벤트 -->
-<script>
+<script layout:fragment="script">
   function setActiveFilter(selectedButton) {
     // 모든 버튼에서 active 클래스를 제거하여 기본 스타일(흰색 배경, 검은색 테두리 및 글씨)을 적용
     const buttons = document.querySelectorAll(".filter-btn");
