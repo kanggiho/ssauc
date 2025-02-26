@@ -7,8 +7,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("chat")
 public class ChatController {
+
     @GetMapping("chat")
     public String chat() {
         return "chat/chat";
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

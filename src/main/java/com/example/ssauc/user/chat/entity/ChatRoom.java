@@ -14,17 +14,20 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ChatRoom {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "chat_room_id")
     private Long chatRoomId;
 
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     // 채팅방에 참여한 유저 목록
-    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatParticipant> participants;
 
     // 채팅 메시지 목록
-    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMessage> messages;
 }
