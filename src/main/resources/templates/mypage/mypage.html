@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <title>마이페이지</title>
     <!-- 스타일시트 연결 -->
-    <link rel="stylesheet" href="/css/mypage.css">
+    <link rel="stylesheet" th:href="@{/css/mypage.css}">
 </head>
 <body>
 <!-- 마이페이지 전체 컨테이너 -->
@@ -14,9 +14,11 @@
     <!-- 왼쪽 사이드바 (프로필 및 메뉴) -->
     <aside th:fragment="sidebar" class="mypage-sidebar">
         <!-- 프로필 영역 -->
-        <a href="/mypage" class="profile">
-            <img src="/img/profile.png" alt="프로필 이미지">
-            <p class="username">Username</p>
+        <a th:href="@{/mypage}" class="profile">
+            <!-- Users Entity의 profileImage 값 사용 -->
+            <img th:src="@{${session.user.profileImage}}" alt="프로필 이미지">
+            <!-- Users Entity의 userName 값 사용 -->
+            <p class="username" th:text="${session.user.userName}">Username</p>
         </a>
         <!-- 마이페이지 네비게이션 메뉴 -->
         <nav class="menu">
@@ -24,25 +26,25 @@
             <h3>MY SSAUC</h3>
             <ul>
                 <li><a href="#">나의 신뢰도</a></li>
-                <li><a href="#">회원 정보 수정</a></li>
-                <li><a href="/mypage/reported">신고 내역 조회</a></li>
-                <li><a href="/mypage/ban">차단 내역 조회</a></li>
-                <li><a href="#">관심 상품 목록</a></li>
-                <li><a href="#">채팅 목록</a></li>
+                <li><a th:href="@{#}">회원 정보 수정</a></li>
+                <li><a th:href="@{/history/reported}">신고 내역 조회</a></li>
+                <li><a th:href="@{/history/ban}">차단 내역 조회</a></li>
+                <li><a th:href="@{#}">관심 상품 목록</a></li>
+                <li><a th:href="@{#}">채팅 목록</a></li>
             </ul>
             <!-- 거래 관련 메뉴 -->
             <h3>나의 거래 정보</h3>
             <ul>
-                <li><a href="/mypage/sell">판매 현황</a></li>
-                <li><a href="/mypage/buy">구매 현황</a></li>
-                <li><a href="/mypage/cash">나의 SSAUC머니</a></li>
+                <li><a th:href="@{/history/sell}">판매 현황</a></li>
+                <li><a th:href="@{/history/buy}">구매 현황</a></li>
+                <li><a th:href="@{/cash/cash}">나의 SSAUC머니</a></li>
             </ul>
             <!-- 고객 지원 관련 메뉴 -->
             <h3>고객센터</h3>
             <ul>
-                <li><a href="#">자주 묻는 질문</a></li>
-                <li><a href="#">1:1 문의하기</a></li>
-                <li><a href="#">챗봇 상담</a></li>
+                <li><a th:href="@{#}">자주 묻는 질문</a></li>
+                <li><a th:href="@{#}">1:1 문의하기</a></li>
+                <li><a th:href="@{#}">챗봇 상담</a></li>
             </ul>
         </nav>
     </aside>
@@ -52,14 +54,14 @@
         <!-- 상단 요약 정보 (신뢰도 및 SSAUC 머니) -->
         <div class="mypage-summary">
             <!-- 신뢰도 박스 -->
-            <a href="/mypage/evaluation" class="mypage-box trust-score">
+            <a th:href="@{/mypage/evaluation}" class="mypage-box trust-score">
                 <p>나의 신뢰도 ></p>
-                <h2>100 점</h2>
+                <h2 th:text="${session.user.reputation}">100 점</h2>
             </a>
-            <!-- SSAUC 머니 박스 (클릭 시 cash.html로 이동) -->
-            <a href="/mypage/cash" class="mypage-box money">
+            <!-- SSAUC 머니 박스 -->
+            <a th:href="@{/cash/cash}" class="mypage-box money">
                 <p>🔨 SSAUC 머니 ></p>
-                <h2>138,600 원</h2>
+                <h2 th:text="${session.user.cash + ' 원'}">0 원</h2>
             </a>
         </div>
 
