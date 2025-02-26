@@ -33,10 +33,11 @@ public class ListService {
             String inform = "⏳ %d일 %d시간".formatted(days, hours);
             String like = "❤️ " + addCommas(String.valueOf(listDto.getLikeCount()));
             String price = addCommas(listDto.getPrice().toString());
+            String[] mainImage = listDto.getImageUrl().split(",");
 
             return TempDto.builder()
                     .productId(listDto.getProductId())
-                    .imageUrl(listDto.getImageUrl())
+                    .imageUrl(mainImage[0])
                     .name(listDto.getName())
                     .price(price)
                     .bidCount(bidCount)
