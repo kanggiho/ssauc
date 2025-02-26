@@ -61,7 +61,7 @@
             <!-- SSAUC 머니 박스 -->
             <a th:href="@{/cash/cash}" class="mypage-box money">
                 <p>🔨 SSAUC 머니 ></p>
-                <h2 th:text="${session.user.cash + ' 원'}">0 원</h2>
+                <h2 th:text="${T(java.lang.String).format('%,d 원', session.user.cash)}">0 원</h2>
             </a>
         </div>
 

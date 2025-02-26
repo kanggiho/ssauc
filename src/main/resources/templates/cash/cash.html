@@ -20,9 +20,9 @@
     <!-- SSAUC 머니 요약 -->
     <div class="cash-summary">
       <div class="cash-box">
-        <p class="cash-title">🔨 SSAUC 머니 ></p>
+        <p class="cash-title"> SSAUC 머니 ></p>
         <div class="cash-box-content">
-          <h2 class="cash-amount" th:text="${session.user.cash + ' 원'}">138,600 원</h2>
+          <h2 class="cash-amount" th:text="${T(java.lang.String).format('%,d 원', session.user.cash)}">0 원</h2>
           <div class="cash-buttons">
             <button class="charge">충전</button>
             <button class="refund">환급</button>
@@ -40,47 +40,102 @@
         <button class="search-btn">조회</button>
       </div>
     </div>
-
+    <!--        <button class="filter-btn active" onclick="setActiveFilter(this)">결제 / 정산</button>-->
+    <!--        <button class="filter-btn" onclick="setActiveFilter(this)">충전</button>-->
+    <!--        <button class="filter-btn" onclick="setActiveFilter(this)">환급</button>-->
     <!-- 사용 내역 필터 -->
     <div class="filter-section">
       <div class="filter-buttons">
-        <button class="filter-btn active" onclick="setActiveFilter(this)">전체</button>
-        <button class="filter-btn" onclick="setActiveFilter(this)">결제 / 정산</button>
-        <button class="filter-btn" onclick="setActiveFilter(this)">충전 / 환급</button>
+        <!-- 결제/정산은 나중 처리 -->
+        <a th:href="@{/cash/cash(filter='calculate')}" class="filter-btn"
+           th:classappend="${filter=='calculate'} ? ' active' : ''">결제 / 정산</a>
+        <a th:href="@{/cash/cash(filter='charge')}" class="charge filter-btn"
+           th:classappend="${filter=='charge'} ? ' active' : ''">충전</a>
+        <a th:href="@{/cash/cash(filter='withdraw')}" class="refund filter-btn"
+           th:classappend="${filter=='withdraw'} ? ' active' : ''">환급</a>
       </div>
     </div>
 
     <!-- 사용 내역 테이블 -->
-    <table class="cash-table">
-      <thead>
-      <tr>
-        <th>구분</th>
-        <th>날짜</th>
-        <th>금액</th>
-        <th>잔액</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr>
-        <td>충전</td>
-        <td>2025-02-05 18:36:27</td>
-        <td>30,000</td>
-        <td>138,600</td>
-      </tr>
-      <tr>
-        <td>충전</td>
-        <td>2025-02-05 18:36:27</td>
-        <td>30,000</td>
-        <td>138,600</td>
-      </tr>
-      <tr>
-        <td>충전</td>
-        <td>2025-02-05 18:36:27</td>
-        <td>30,000</td>
-        <td>138,600</td>
-      </tr>
-      </tbody>
-    </table>
+    <!-- 내역 테이블: filter 값에 따라 다른 테이블 출력 -->
+    <div th:if="${filter == 'charge'}">
+      <table class="cash-table">
+        <thead>
+        <tr>
+          <th>충전 ID</th>
+          <th>충전 방식</th>
+          <th>충전 금액</th>
+          <th>충전 상태</th>
+          <th>충전 시간</th>
+          <th>영수증</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="charge : ${chargeList}">
+          <td th:text="${charge.chargeId}">1</td>
+          <td th:text="${charge.chargeType}">계좌이체</td>
+          <td th:text="${T(java.lang.String).format('%,d', charge.amount)}">50,000</td>
+          <td th:text="${charge.status}">완료</td>
+          <td th:text="${#temporals.format(charge.createdAt, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30:00</td>
+          <td>
+            <a th:href="${charge.receiptUrl}" target="_blank">영수증 보기</a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div th:if="${filter == 'withdraw'}">
+      <table class="cash-table">
+        <thead>
+        <tr>
+          <th>환급 ID</th>
+          <th>환급 은행</th>
+          <th>환급 계좌</th>
+          <th>실 환급 금액</th>
+          <th>완료 시간</th>
+          <th>결과</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="withdraw : ${withdrawList}">
+          <td th:text="${withdraw.withdrawId}">1</td>
+          <td th:text="${withdraw.bank}">KB은행</td>
+          <td th:text="${withdraw.account}">123-456-789</td>
+          <td th:text="${T(java.lang.String).format('%,d', withdraw.netAmount)}">29,500</td>
+          <td th:text="${#temporals.format(withdraw.withdrawAt, 'yyyy-MM-dd HH:mm')}">2025-02-26 11:00:00</td>
+          <td th:text="${withdraw.requestStatus}">완료</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 결제/정산: 아직 미구현 -->
+    <div th:if="${filter == 'calculate'}">
+      <table class="cash-table">
+        <thead>
+        <tr>
+          <th>결제/정산 ID</th>
+          <th>결제/정산 금액</th>
+          <th>결제/정산 방식</th>
+          <th>결제/정산 시간</th>
+          <th>결제/정산 상태</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="calculate : ${calculateList}">
+          <td th:text="${calculate.orderId}">1</td>
+          <td th:text="${(calculate.paymentAmount.substring(0,1)) +
+               T(java.lang.String).format('%,d', T(java.lang.Long).parseLong(calculate.paymentAmount.substring(1)))}">
+            +1,600,000
+          </td>
+          <td th:text="${calculate.paymentMethod}">신용카드</td>
+          <td th:text="${#temporals.format(calculate.paymentTime, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30</td>
+          <td th:text="${calculate.orderStatus}">완료</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
 
     <!-- 페이지네이션 -->
     <div class="pagination">
@@ -96,19 +151,19 @@
 </div>
 
 <!-- 필터 버튼 클릭 이벤트 -->
-<script layout:fragment="script">
-  function setActiveFilter(selectedButton) {
-    // 모든 버튼에서 active 클래스를 제거하여 기본 스타일(흰색 배경, 검은색 테두리 및 글씨)을 적용
-    const buttons = document.querySelectorAll(".filter-btn");
-    buttons.forEach(button => {
-      button.classList.remove("active");
-    });
-    // 클릭한 버튼에만 active 클래스를 추가하여 검은색 배경, 흰색 글씨를 적용
-    selectedButton.classList.add("active");
+<!--<script layout:fragment="script">-->
+<!--  function setActiveFilter(selectedButton) {-->
+<!--    // 모든 버튼에서 active 클래스를 제거하여 기본 스타일(흰색 배경, 검은색 테두리 및 글씨)을 적용-->
+<!--    const buttons = document.querySelectorAll(".filter-btn");-->
+<!--    buttons.forEach(button => {-->
+<!--      button.classList.remove("active");-->
+<!--    });-->
+<!--    // 클릭한 버튼에만 active 클래스를 추가하여 검은색 배경, 흰색 글씨를 적용-->
+<!--    selectedButton.classList.add("active");-->
 
-    // 이후 필터 조건에 따른 데이터를 가져오는 로직을 추가할 수 있습니다.
-  }
-</script>
+<!--    // 이후 필터 조건에 따른 데이터를 가져오는 로직을 추가할 수 있습니다.-->
+<!--  }-->
+<!--</script>-->
 
 </body>
 </html>
