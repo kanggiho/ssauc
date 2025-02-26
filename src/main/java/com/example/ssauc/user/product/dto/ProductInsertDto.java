@@ -15,6 +15,8 @@ public class ProductInsertDto {
     private String description;
     // 즉시 구매가
     private Long price;
+    // 현재 입찰가
+    private Long tempPrice;
     // 경매 시작가
     private Long startPrice;
     // 첨부 이미지 파일명(향후 S3 연동 시 URL로 대체)

@@ -37,6 +37,7 @@ public class ProductService {
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .price(dto.getPrice())
+                .tempPrice(dto.getStartPrice()) // 이거 tempPrice 라고 안하고 startPrice로 한게 잘못한게 아님 초기값은 현재입찰가 == 초기입찰가 같아서 이렇게 함
                 .startPrice(dto.getStartPrice())
                 .imageUrl(dto.getImageUrl())
                 .status("판매중")

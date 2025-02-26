@@ -42,6 +42,8 @@ public class Product {
     @Column(nullable = false)
     private Long price;
 
+    private Long tempPrice;
+
     private Long startPrice;
 
     @Column(length = 1000)
@@ -54,9 +56,10 @@ public class Product {
     private LocalDateTime endAt;
     private int viewCount;
 
+    private int dealType;
+
     // 거래 유형 (0: 직거래, 1: 택배, 2: 둘 다 선택)
     private int bidCount;
-    private int dealType;
     private int minIncrement;
     private int likeCount;
 
