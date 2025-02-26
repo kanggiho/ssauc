@@ -57,11 +57,11 @@ h2 {
     text-align: center;
 }
 
-/* 필수 입력 표시 */
-.required {
-    color: red;
-    font-weight: bold;
-}
+/*!* 필수 입력 표시 *!*/
+/*.required {*/
+/*    color: red;*/
+/*    font-weight: bold;*/
+/*}*/
 
 /* 입력 필드 */
 input[type="text"],

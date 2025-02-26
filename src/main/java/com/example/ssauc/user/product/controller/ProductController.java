@@ -35,7 +35,11 @@ public class ProductController {
 
     // GET: 상품 등록 페이지
     @GetMapping("/insert")
-    public String insertPage() {
+    public String insertPage(HttpSession session) {
+        Users seller = (Users) session.getAttribute("user");
+        if (seller == null) {
+            return "redirect:/login";
+        }
         return "product/insert";
     }
 
@@ -43,7 +47,7 @@ public class ProductController {
     @PostMapping("/insert")
     @ResponseBody
     public ResponseEntity<String> insertProduct(@RequestBody ProductInsertDto productInsertDto, HttpSession session) {
-        // 세션에서 판매자 정보 획득 (세션 키가 "user"라고 가정)
+        // 세션에서 판매자 정보 획득 (세션 키가 "user")
         Users seller = (Users) session.getAttribute("user");
         if (seller == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");

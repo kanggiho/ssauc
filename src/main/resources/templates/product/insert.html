@@ -17,9 +17,9 @@
         <h2>상품 정보</h2>
         <table class="product-table">
             <tr>
-                <td class="label-cell"><span class="required">*</span> 상품 제목</td>
+                <td class="label-cell"> 상품 제목</td>
                 <td class="input-cell"><input type="text" placeholder="상품 제목을 입력해주세요."></td>
-                <td class="label-cell"><span class="required">*</span> 카테고리</td>
+                <td class="label-cell"> 카테고리</td>
                 <td class="input-cell">
                     <select>
                         <option>선택하세요</option>
@@ -46,7 +46,7 @@
                 </td>
             </tr>
             <tr>
-                <td class="label-cell"><span class="required">*</span> 이미지 등록 <br><small>(최소 1장 ~ 최대 5장)</small></td>
+                <td class="label-cell"> 이미지 등록 <br><small>(최소 1장 ~ 최대 5장)</small></td>
                 <td class="input-cell" colspan="3">
                     <div class="image-upload">
                         <div class="image-dropzone" id="dropzone">업로드한 파일을 확인하세요.</div>
@@ -56,7 +56,7 @@
                 </td>
             </tr>
             <tr>
-                <td class="label-cell"><span class="required">*</span> 상품 설명</td>
+                <td class="label-cell"> 상품 설명</td>
                 <td class="input-cell" colspan="3"><textarea placeholder="내용을 입력해주세요."></textarea></td>
             </tr>
         </table>
@@ -75,6 +75,7 @@
                 <td class="input-cell">
                     <select class="min-increment">
                         <option>선택하세요</option>
+                        <option>100원</option>
                         <option>500원</option>
                         <option>1000원</option>
                         <option>5000원</option>
@@ -84,12 +85,12 @@
                 </td>
             </tr>
             <tr>
-                <td class="label-cell"><span class="required">*</span> 거래 유형</td>
+                <td class="label-cell"> 거래 유형</td>
                 <td class="input-cell deal-type">
                     <label class="check-box"><input type="checkbox"> 직거래</label>
                     <label class="check-box box2"><input type="checkbox"> 택배</label>
                 </td>
-                <td class="label-cell"><span class="required">*</span> 마감 시간</td>
+                <td class="label-cell"> 마감 시간</td>
                 <td class="input-cell" colspan="3">
                     <input type="date" class="auction-date"> 일
                     <select class="auction-time">
@@ -151,7 +152,7 @@
         fileInput.addEventListener('change', (event) => {
             // 새로 선택한 파일들을 배열로 변환
             const newFiles = Array.from(event.target.files);
-            // 총 파일 수가 10장을 초과하는지 확인
+            // 총 파일 수가 5장을 초과하는지 확인
             if (accumulatedFiles.length + newFiles.length > 5) {
                 alert("최대 5장의 이미지만 첨부할 수 있습니다.");
                 fileInput.value = ""; // fileInput 초기화
@@ -202,6 +203,12 @@
                 const startPrice = document.querySelector('.start-price').value;
                 const price = document.querySelector('.instant-price').value;
 
+                // 마감 시간 입력값 수집
+                const auctionDate = document.querySelector('.auction-date').value;  // YYYY-MM-DD
+                const auctionTimeSelects = document.querySelectorAll('.auction-time');
+                const auctionHour = auctionTimeSelects[0].value;
+                const auctionMinute = auctionTimeSelects[1].value;
+
                 // 파일 업로드: accumulatedFiles 배열 사용 (누적된 파일들을 전송)
                 let uploadedImageUrls = "";
                 if (accumulatedFiles.length > 0) {
@@ -232,12 +239,6 @@
                     }
                 }
 
-                // 마감 시간 입력값 수집
-                const auctionDate = document.querySelector('.auction-date').value;  // YYYY-MM-DD
-                const auctionTimeSelects = document.querySelectorAll('.auction-time');
-                const auctionHour = auctionTimeSelects[0].value;
-                const auctionMinute = auctionTimeSelects[1].value;
-
                 // 거래 유형 처리: 체크박스 2개 검사 (직거래, 택배)
                 const dealTypeContainer = document.querySelector('.deal-type');
                 const dealCheckboxes = dealTypeContainer.querySelectorAll('input[type="checkbox"]');
@@ -260,7 +261,7 @@
                     return;
                 }
 
-                // 최소 입찰 단위 처리
+                // ❌ 최소 입찰 단위 처리
                 const minIncrementSelect = document.querySelector('.min-increment');
                 const minIncrementOption = minIncrementSelect.value;
                 let minIncrement = 0;
@@ -283,14 +284,41 @@
                     return;
                 }
 
-                // ✅ 마감 시간 검증 (현재 시간 기준 24시간 후부터 설정 가능)
+                // ❌ 즉시 구매가가 시작가보다 작으면 예외 처리
+                if (parseInt(price) < parseInt(startPrice)) {
+                    alert("즉시 구매가는 시작가보다 크거나 같아야 합니다.");
+                    return;
+                }
+
+                // ❌ 마감 시간 검증 (현재 시간 기준 24시간 후부터 설정 가능)
                 const now = new Date();
-                const selectedClosingTime = new Date(`${auctionDate}T${String(auctionHour).padStart(2, '0')}:${String(auctionMinute).padStart(2, '0')}:00`);
+                const selectedClosingTime = new Date(`${auctionDate}T${String(auctionHour).padStart(2, '0')}:${String(auctionMinute).padStart(2, '0')}:00+09:00`);
                 const minClosingTime = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 현재 시간 + 24시간
+                const maxClosingTime = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // +7일
 
                 if (selectedClosingTime.getTime() <= minClosingTime.getTime()) {
                     alert("마감 시간은 현재 시간 기준 24시간 이후로 설정해야 합니다.");
                     return;
+                }
+                if (selectedClosingTime.getTime() > maxClosingTime.getTime()) {
+                    alert("마감 시간은 현재 시간 기준 7일 이내로 설정해야 합니다.");
+                    return;
+                }
+
+                // ❌ 최소 입찰 단위 검증: 시작가 기준 10만원 미만은 10% 이하, 10만원 이상은 5% 이하
+                const intStartPrice = parseInt(startPrice);
+                if (minIncrement !== 100) {
+                    if (intStartPrice < 100000) {
+                        if (minIncrement > intStartPrice * 0.1) {
+                            alert("최소 입찰 단위는 시작가의 10% 이하로 설정 가능합니다.\n(시작가 기준 10만원 미만은 10% 이하)");
+                            return;
+                        }
+                    } else {
+                        if (minIncrement > intStartPrice * 0.05) {
+                            alert("최소 입찰 단위는 시작가의 5% 이하로 설정 가능합니다.\n(시작가 기준 10만원 이상은 5% 이하)");
+                            return;
+                        }
+                    }
                 }
 
                 // 등록 확인 후 전송
@@ -321,7 +349,7 @@
                     });
                     if (response.ok) {
                         alert("물품이 등록되었습니다!");
-                        // window.location.href = "/";
+                        window.location.href = "/";
                     } else {
                         alert("등록에 실패했습니다.");
                     }
