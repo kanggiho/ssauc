@@ -31,8 +31,14 @@ public class BidController {
         System.out.println(dto);
         System.out.println("=====================================");
 
+        // 표시할 정보 추가
         model.addAttribute("inform", dto);
+
+        // 캐러셀 이미지 추가
         model.addAttribute("carouselImages", carouselImages);
+
+
+
         return "bid/bid"; // 해당 페이지로 이동
     }
 
