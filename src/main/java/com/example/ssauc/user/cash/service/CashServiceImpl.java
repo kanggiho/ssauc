@@ -101,11 +101,11 @@ public class CashServiceImpl implements CashService {
             Payment payment = (order.getPayments() != null && !order.getPayments().isEmpty()) ? order.getPayments().get(0) : null;
             String paymentAmount = isSeller ? ("+" + order.getTotalPrice()) : ("-" + order.getTotalPrice());
             LocalDateTime paymentTime = isSeller ? order.getCompletedDate() : (payment != null ? payment.getPaymentDate() : null);
-            String paymentMethod = (payment != null ? payment.getPaymentMethod() : "");
+            String productName = order.getProduct().getName();  // productName은 주문의 product 엔티티에서 가져옴
             return CalculateDto.builder()
                     .orderId(order.getOrderId())
                     .paymentAmount(paymentAmount)
-                    .paymentMethod(paymentMethod)
+                    .productName(productName)
                     .paymentTime(paymentTime)
                     .orderStatus(order.getOrderStatus())
                     .build();
@@ -121,11 +121,11 @@ public class CashServiceImpl implements CashService {
             Payment payment = (order.getPayments() != null && !order.getPayments().isEmpty()) ? order.getPayments().get(0) : null;
             String paymentAmount = isSeller ? ("+" + order.getTotalPrice()) : ("-" + order.getTotalPrice());
             LocalDateTime paymentTime = isSeller ? order.getCompletedDate() : (payment != null ? payment.getPaymentDate() : null);
-            String paymentMethod = (payment != null ? payment.getPaymentMethod() : "");
+            String productName = order.getProduct().getName();
             return CalculateDto.builder()
                     .orderId(order.getOrderId())
                     .paymentAmount(paymentAmount)
-                    .paymentMethod(paymentMethod)
+                    .productName(productName)
                     .paymentTime(paymentTime)
                     .orderStatus(order.getOrderStatus())
                     .build();

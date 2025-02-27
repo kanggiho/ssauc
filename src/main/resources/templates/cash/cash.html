@@ -122,8 +122,8 @@
         <thead>
         <tr>
           <th>결제/정산 ID</th>
+          <th>거래 상품명</th>
           <th>결제/정산 금액</th>
-          <th>결제/정산 방식</th>
           <th>결제/정산 시간</th>
           <th>결제/정산 상태</th>
         </tr>
@@ -131,11 +131,11 @@
         <tbody>
         <tr th:each="calculate : ${calculateList}">
           <td th:text="${calculate.orderId}">1</td>
+          <td th:text="${calculate.productName}">상품명</td>
           <td th:text="${(calculate.paymentAmount.substring(0,1)) +
                T(java.lang.String).format('%,d', T(java.lang.Long).parseLong(calculate.paymentAmount.substring(1)))}">
             +1,600,000
           </td>
-          <td th:text="${calculate.paymentMethod}">신용카드</td>
           <td th:text="${#temporals.format(calculate.paymentTime, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30</td>
           <td th:text="${calculate.orderStatus}">완료</td>
         </tr>
@@ -155,21 +155,6 @@
     </div>
   </main>
 </div>
-
-<!-- 필터 버튼 클릭 이벤트 -->
-<!--<script layout:fragment="script">-->
-<!--  function setActiveFilter(selectedButton) {-->
-<!--    // 모든 버튼에서 active 클래스를 제거하여 기본 스타일(흰색 배경, 검은색 테두리 및 글씨)을 적용-->
-<!--    const buttons = document.querySelectorAll(".filter-btn");-->
-<!--    buttons.forEach(button => {-->
-<!--      button.classList.remove("active");-->
-<!--    });-->
-<!--    // 클릭한 버튼에만 active 클래스를 추가하여 검은색 배경, 흰색 글씨를 적용-->
-<!--    selectedButton.classList.add("active");-->
-
-<!--    // 이후 필터 조건에 따른 데이터를 가져오는 로직을 추가할 수 있습니다.-->
-<!--  }-->
-<!--</script>-->
 
 </body>
 </html>
