@@ -50,7 +50,7 @@ class ChatParticipantRepositoryTest {
 
         // When
         ChatParticipant savedParticipant = chatParticipantRepository.save(participant);
-        ChatParticipant foundParticipant = chatParticipantRepository.findById(savedParticipant.getChatParticipantId()).orElse(null);
+        ChatParticipant foundParticipant = chatParticipantRepository.findById(savedParticipant.getParticipantId()).orElse(null);
 
         // Then
         assertThat(foundParticipant).isNotNull();

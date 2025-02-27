@@ -4,6 +4,7 @@ import com.example.ssauc.user.bid.entity.Bid;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.main.entity.ProductLike;
 import com.example.ssauc.user.main.entity.RecentlyViewed;
+import com.example.ssauc.user.order.entity.Orders;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -76,4 +77,7 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bid> bids;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Orders> orders;
 }
