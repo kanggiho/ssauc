@@ -145,14 +145,22 @@
 
     <!-- 페이지네이션 -->
     <div class="pagination">
-      <button><</button>
-      <button class="active">1</button>
-      <button>2</button>
-      <button>3</button>
-      <button>4</button>
-      <button>5</button>
-      <button>></button>
+      <!-- 이전 페이지 버튼 (현재 페이지가 1보다 클 때만 표시) -->
+      <a th:if="${currentPage > 1}"
+         th:href="@{/cash/cash(filter=${filter}, page=${currentPage - 1}, startDate=${startDate}, endDate=${endDate})}"><button><</button></a>
+
+      <!-- 페이지 번호 버튼 -->
+      <span th:each="i : ${#numbers.sequence(1, totalPages)}">
+    <a th:href="@{/cash/cash(filter=${filter}, page=${i}, startDate=${startDate}, endDate=${endDate})}">
+      <button th:text="${i}" th:classappend="${i == currentPage} ? ' active'"></button>
+    </a>
+  </span>
+
+      <!-- 다음 페이지 버튼 (현재 페이지가 총 페이지 수보다 작을 때만 표시) -->
+      <a th:if="${currentPage < totalPages}"
+         th:href="@{/cash/cash(filter=${filter}, page=${currentPage + 1}, startDate=${startDate}, endDate=${endDate})}"><button>></button></a>
     </div>
+
   </main>
 </div>
 

@@ -12,6 +12,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,6 +33,7 @@ public class CashController {
     public String cashPage(@RequestParam(value = "filter", required = false, defaultValue = "calculate") String filter,
                            @RequestParam(value = "startDate", required = false) String startDateStr,
                            @RequestParam(value = "endDate", required = false) String endDateStr,
+                           @RequestParam(value = "page", required = false, defaultValue = "1") int page,
                            HttpSession session,
                            Model model) {
 
@@ -47,24 +51,46 @@ public class CashController {
             endDate = LocalDate.parse(endDateStr).atTime(23, 59, 59);
         }
 
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+
+        // 날짜 필터가 있는 경우와 없는 경우를 분기해서 처리
         if ("charge".equals(filter)) {
-            // 날짜 필터가 있는 경우와 없는 경우를 분기해서 처리
-            List<ChargeDto> chargeList = (startDate != null && endDate != null)
-                    ? cashService.getChargesByUser(user, startDate, endDate)
-                    : cashService.getChargesByUser(user);
-            model.addAttribute("chargeList", chargeList);
+            Page<ChargeDto> chargePage;
+            if(startDate != null && endDate != null){
+                chargePage = cashService.getChargesByUser(user, startDate, endDate, pageable);
+            } else {
+                chargePage = cashService.getChargesByUser(user, pageable);
+            }
+            model.addAttribute("chargeList", chargePage.getContent());
+            model.addAttribute("totalPages", chargePage.getTotalPages());
+            model.addAttribute("currentPage", page);
         } else if ("withdraw".equals(filter)) {
-            List<WithdrawDto> withdrawList = (startDate != null && endDate != null)
-                    ? cashService.getWithdrawsByUser(user, startDate, endDate)
-                    : cashService.getWithdrawsByUser(user);
-            model.addAttribute("withdrawList", withdrawList);
+            Page<WithdrawDto> withdrawPage;
+            if(startDate != null && endDate != null){
+                withdrawPage = cashService.getWithdrawsByUser(user, startDate, endDate, pageable);
+            } else {
+                withdrawPage = cashService.getWithdrawsByUser(user, pageable);
+            }
+            model.addAttribute("withdrawList", withdrawPage.getContent());
+            model.addAttribute("totalPages", withdrawPage.getTotalPages());
+            model.addAttribute("currentPage", page);
         } else if ("calculate".equals(filter)) {
-            List<CalculateDto> calculateList = (startDate != null && endDate != null)
-                    ? cashService.getCalculateByUser(user, startDate, endDate)
-                    : cashService.getCalculateByUser(user);
-            model.addAttribute("calculateList", calculateList);
+            Page<CalculateDto> calculatePage;
+            if(startDate != null && endDate != null){
+                calculatePage = cashService.getCalculateByUser(user, startDate, endDate, pageable);
+            } else {
+                calculatePage = cashService.getCalculateByUser(user, pageable);
+            }
+            model.addAttribute("calculateList", calculatePage.getContent());
+            model.addAttribute("totalPages", calculatePage.getTotalPages());
+            model.addAttribute("currentPage", page);
         }
 
-        return "/cash/cash";  // templates/cash/cash.html
+        // startDateStr와 endDateStr도 모델에 담으면 페이지 링크에 유지할 수 있음
+        model.addAttribute("startDate", startDateStr);
+        model.addAttribute("endDate", endDateStr);
+
+        return "/cash/cash";
     }
 }
