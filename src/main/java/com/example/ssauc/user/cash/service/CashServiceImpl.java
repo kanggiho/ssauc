@@ -43,6 +43,20 @@ public class CashServiceImpl implements CashService {
     }
 
     @Override
+    public List<ChargeDto> getChargesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate) {
+        List<Charge> charges = chargeRepository.findByUserAndCreatedAtBetween(user, startDate, endDate);
+        return charges.stream().map(ch -> ChargeDto.builder()
+                .chargeId(ch.getChargeId())
+                .chargeType(ch.getChargeType())
+                .amount(ch.getAmount())
+                .status(ch.getStatus())
+                .createdAt(ch.getCreatedAt())
+                .receiptUrl(ch.getReceiptUrl())
+                .build()).collect(Collectors.toList());
+    }
+
+
+    @Override
     public List<WithdrawDto> getWithdrawsByUser(Users user) {
         List<Withdraw> withdraws = withdrawRepository.findByUser(user);
         return withdraws.stream().map(w -> {
@@ -58,6 +72,24 @@ public class CashServiceImpl implements CashService {
                     .build();
         }).collect(Collectors.toList());
     }
+
+    @Override
+    public List<WithdrawDto> getWithdrawsByUser(Users user, LocalDateTime startDate, LocalDateTime endDate) {
+        List<Withdraw> withdraws = withdrawRepository.findByUserAndWithdrawAtBetween(user, startDate, endDate);
+        return withdraws.stream().map(w -> {
+            String status = (w.getWithdrawAt() != null) ? "완료" : "처리중";
+            long netAmount = (w.getAmount() != null && w.getCommission() != null) ? w.getAmount() - w.getCommission() : 0;
+            return WithdrawDto.builder()
+                    .withdrawId(w.getWithdrawId())
+                    .bank(w.getBank())
+                    .account(w.getAccount())
+                    .netAmount(netAmount)
+                    .withdrawAt(w.getWithdrawAt())
+                    .requestStatus(status)
+                    .build();
+        }).collect(Collectors.toList());
+    }
+
 
     @Override
     public List<CalculateDto> getCalculateByUser(Users user) {
@@ -79,4 +111,25 @@ public class CashServiceImpl implements CashService {
                     .build();
         }).collect(Collectors.toList());
     }
+
+    @Override
+    public List<CalculateDto> getCalculateByUser(Users user, LocalDateTime startDate, LocalDateTime endDate) {
+        // 예시: OrdersRepository에 기간 조건을 추가한 메서드를 새로 정의한다고 가정
+        List<Orders> orders = ordersRepository.findBySellerOrBuyerAndPaymentTimeBetween(user, user, startDate, endDate);
+        return orders.stream().map(order -> {
+            boolean isSeller = order.getSeller().getUserId().equals(user.getUserId());
+            Payment payment = (order.getPayments() != null && !order.getPayments().isEmpty()) ? order.getPayments().get(0) : null;
+            String paymentAmount = isSeller ? ("+" + order.getTotalPrice()) : ("-" + order.getTotalPrice());
+            LocalDateTime paymentTime = isSeller ? order.getCompletedDate() : (payment != null ? payment.getPaymentDate() : null);
+            String paymentMethod = (payment != null ? payment.getPaymentMethod() : "");
+            return CalculateDto.builder()
+                    .orderId(order.getOrderId())
+                    .paymentAmount(paymentAmount)
+                    .paymentMethod(paymentMethod)
+                    .paymentTime(paymentTime)
+                    .orderStatus(order.getOrderStatus())
+                    .build();
+        }).collect(Collectors.toList());
+    }
+
 }

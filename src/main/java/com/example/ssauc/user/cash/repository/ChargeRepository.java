@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface ChargeRepository extends JpaRepository<Charge, Long> {
     List<Charge> findByUser(Users user);
-
+    List<Charge> findByUserAndCreatedAtBetween(Users user, LocalDateTime start, LocalDateTime end);
 }

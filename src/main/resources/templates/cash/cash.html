@@ -35,9 +35,15 @@
     <div class="history-header">
       <h2> 쏙머니 내역</h2>
       <div class="date-filter">
-        <label>조회 기간</label>
-        <input type="date"> ~ <input type="date">
-        <button class="search-btn">조회</button>
+        <form action="/cash/cash" method="get">
+          <!-- 현재 선택된 필터 유지 (예: charge, withdraw, calculate) -->
+          <input type="hidden" name="filter" th:value="${filter}">
+          <label>조회 기간</label>
+          <input type="date" name="startDate" value="" placeholder="시작일">
+          ~
+          <input type="date" name="endDate" value="" placeholder="종료일">
+          <button type="submit" class="search-btn">조회</button>
+        </form>
       </div>
     </div>
     <!--        <button class="filter-btn active" onclick="setActiveFilter(this)">결제 / 정산</button>-->

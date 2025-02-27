@@ -10,5 +10,5 @@ import java.util.List;
 
 public interface WithdrawRepository extends JpaRepository<Withdraw, Long> {
     List<Withdraw> findByUser(Users user);
-
+    List<Withdraw> findByUserAndWithdrawAtBetween(Users user, LocalDateTime start, LocalDateTime end);
 }
