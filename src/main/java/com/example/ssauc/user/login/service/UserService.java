@@ -37,6 +37,7 @@ public class UserService {
             // 비밀번호 일치 확인 (평문 비교)
             if (password.equals(user.getPassword())) {
                 session.setAttribute("user", user); // 세션에 저장
+                session.setAttribute("userId", user.getUserId()); // UserId 세션에 저장
                 return true;
             }
         }

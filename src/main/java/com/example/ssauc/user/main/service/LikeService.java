@@ -8,30 +8,42 @@ import com.example.ssauc.user.product.entity.Product;
 import com.example.ssauc.user.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class LikeService {
 
     private final ProductLikeRepository productLikeRepository;
-    private final UsersRepository userRepository;
     private final ProductRepository productRepository;
+    private final UsersRepository usersRepository;
 
+    @Transactional // ?
     public boolean toggleLike(Long userId, Long productId) {
-        Users user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+        Users users = usersRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
 
-        if (productLikeRepository.existsByUserAndProduct(user, product)) {
-            // 좋아요 삭제
-            productLikeRepository.deleteByUserAndProduct(user, product);
-            return false;  // 좋아요 취소됨
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("상품이 존재하지 않습니다."));
+
+        Optional<ProductLike> existingLike = productLikeRepository.findByUserAndProduct(users, product); // 좋아요 여부 체크
+
+        if(existingLike.isPresent()) {
+            // 이미 좋아요를 눌렀다면 취소
+            productLikeRepository.delete(existingLike.get());
+            return false;
         } else {
-            // 좋아요 추가
-            ProductLike like = new ProductLike(user, product);
-            productLikeRepository.save(like);
-            return true;  // 좋아요 눌림
+            ProductLike newLike = ProductLike.builder().
+                    user(users)
+                    .product(product)
+                    .likedAt(LocalDateTime.now())
+                    .build();
+
+            productLikeRepository.save(newLike);
+            return true;
         }
     }
 }
