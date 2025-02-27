@@ -22,7 +22,7 @@ class AdminRepositoryTest {
     void testSaveAndFindAdmin() {
         // Given
         Admin admin = Admin.builder()
-                .userName("superadmin")
+                .adminName("superadmin")
                 .email("admin@example.com")
                 .password("securepassword")
                 .build();
@@ -34,6 +34,6 @@ class AdminRepositoryTest {
         // Then
         assertThat(foundAdmin).isPresent();
         assertThat(foundAdmin.get().getAdminId()).isEqualTo(savedAdmin.getAdminId());
-        assertThat(foundAdmin.get().getUserName()).isEqualTo("superadmin");
+        assertThat(foundAdmin.get().getAdminName()).isEqualTo("superadmin");
     }
 }

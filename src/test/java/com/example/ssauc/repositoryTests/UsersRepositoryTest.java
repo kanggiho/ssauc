@@ -23,7 +23,7 @@ class UsersRepositoryTest {
         user.setUserName("kanggiho");
         user.setEmail("test@example.com");
         user.setPassword("securepassword");
-        user.setPhone("010-1234-5678");
+        user.setPhone("010-8685-5678");
         user.setProfileImage("https://example.com/profile.jpg");
         user.setReputation(4.5);
         user.setCreatedAt(LocalDateTime.now());

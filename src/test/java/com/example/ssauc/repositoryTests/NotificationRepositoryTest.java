@@ -25,8 +25,8 @@ public class NotificationRepositoryTest {
     void testSaveAndFindNotification() {
         // 유저 생성 및 저장
         Users user = Users.builder()
-                .userName("user1")
-                .email("user1@example.com")
+                .userName("user989")
+                .email("user2423@example.com")
                 .password("pass")
                 .createdAt(LocalDateTime.now())
                 .build();
