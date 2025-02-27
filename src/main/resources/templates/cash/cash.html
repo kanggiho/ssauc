@@ -35,9 +35,15 @@
     <div class="history-header">
       <h2> 쏙머니 내역</h2>
       <div class="date-filter">
-        <label>조회 기간</label>
-        <input type="date"> ~ <input type="date">
-        <button class="search-btn">조회</button>
+        <form action="/cash/cash" method="get">
+          <!-- 현재 선택된 필터 유지 (예: charge, withdraw, calculate) -->
+          <input type="hidden" name="filter" th:value="${filter}">
+          <label>조회 기간</label>
+          <input type="date" name="startDate" value="" placeholder="시작일">
+          ~
+          <input type="date" name="endDate" value="" placeholder="종료일">
+          <button type="submit" class="search-btn">조회</button>
+        </form>
       </div>
     </div>
     <!--        <button class="filter-btn active" onclick="setActiveFilter(this)">결제 / 정산</button>-->
@@ -116,8 +122,8 @@
         <thead>
         <tr>
           <th>결제/정산 ID</th>
+          <th>거래 상품명</th>
           <th>결제/정산 금액</th>
-          <th>결제/정산 방식</th>
           <th>결제/정산 시간</th>
           <th>결제/정산 상태</th>
         </tr>
@@ -125,11 +131,11 @@
         <tbody>
         <tr th:each="calculate : ${calculateList}">
           <td th:text="${calculate.orderId}">1</td>
+          <td th:text="${calculate.productName}">상품명</td>
           <td th:text="${(calculate.paymentAmount.substring(0,1)) +
                T(java.lang.String).format('%,d', T(java.lang.Long).parseLong(calculate.paymentAmount.substring(1)))}">
             +1,600,000
           </td>
-          <td th:text="${calculate.paymentMethod}">신용카드</td>
           <td th:text="${#temporals.format(calculate.paymentTime, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30</td>
           <td th:text="${calculate.orderStatus}">완료</td>
         </tr>
@@ -139,31 +145,24 @@
 
     <!-- 페이지네이션 -->
     <div class="pagination">
-      <button><</button>
-      <button class="active">1</button>
-      <button>2</button>
-      <button>3</button>
-      <button>4</button>
-      <button>5</button>
-      <button>></button>
+      <!-- 이전 페이지 버튼 (현재 페이지가 1보다 클 때만 표시) -->
+      <a th:if="${currentPage > 1}"
+         th:href="@{/cash/cash(filter=${filter}, page=${currentPage - 1}, startDate=${startDate}, endDate=${endDate})}"><button><</button></a>
+
+      <!-- 페이지 번호 버튼 -->
+      <span th:each="i : ${#numbers.sequence(1, totalPages)}">
+    <a th:href="@{/cash/cash(filter=${filter}, page=${i}, startDate=${startDate}, endDate=${endDate})}">
+      <button th:text="${i}" th:classappend="${i == currentPage} ? ' active'"></button>
+    </a>
+  </span>
+
+      <!-- 다음 페이지 버튼 (현재 페이지가 총 페이지 수보다 작을 때만 표시) -->
+      <a th:if="${currentPage < totalPages}"
+         th:href="@{/cash/cash(filter=${filter}, page=${currentPage + 1}, startDate=${startDate}, endDate=${endDate})}"><button>></button></a>
     </div>
+
   </main>
 </div>
-
-<!-- 필터 버튼 클릭 이벤트 -->
-<!--<script layout:fragment="script">-->
-<!--  function setActiveFilter(selectedButton) {-->
-<!--    // 모든 버튼에서 active 클래스를 제거하여 기본 스타일(흰색 배경, 검은색 테두리 및 글씨)을 적용-->
-<!--    const buttons = document.querySelectorAll(".filter-btn");-->
-<!--    buttons.forEach(button => {-->
-<!--      button.classList.remove("active");-->
-<!--    });-->
-<!--    // 클릭한 버튼에만 active 클래스를 추가하여 검은색 배경, 흰색 글씨를 적용-->
-<!--    selectedButton.classList.add("active");-->
-
-<!--    // 이후 필터 조건에 따른 데이터를 가져오는 로직을 추가할 수 있습니다.-->
-<!--  }-->
-<!--</script>-->
 
 </body>
 </html>
