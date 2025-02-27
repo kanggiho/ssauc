@@ -48,6 +48,7 @@ public class LoginController {
     public String login(@RequestParam String username,
                         @RequestParam String password,
                         HttpSession session) {
+
         if (userService.login(username, password, session)) {
             return "redirect:/"; // 로그인 성공 시 index.html로 이동
         } else {
