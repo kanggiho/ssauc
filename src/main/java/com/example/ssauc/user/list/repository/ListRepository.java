@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ListRepository extends JpaRepository<Product, Long> {
 
@@ -28,6 +30,15 @@ public interface ListRepository extends JpaRepository<Product, Long> {
             "FROM Product p " +
             "LEFT JOIN p.likedProducts pl ON pl.user.userId = :userId " +
             "JOIN p.seller u")
-    Page<WithLikeDto> getProductListWithLike(@Param("userId") Long userId, Pageable pageable);
+    Page<WithLikeDto> getWithLikeProductList(@Param("userId") Long userId, Pageable pageable);
 
+    @Query("SELECT new com.example.ssauc.user.list.dto.WithLikeDto(" +
+            "p.productId, p.imageUrl, p.name, p.price, p.bidCount," +
+            "p.endAt, p.createdAt, u.location, p.likeCount," +
+            "CASE WHEN pl.user.userId IS NOT NULL THEN true ELSE false END" +
+            ") " +
+            "FROM Product p " +
+            "JOIN p.likedProducts pl ON pl.user.userId = :userId " +
+            "JOIN p.seller u")
+    Page<WithLikeDto> getLikeList(@Param("userId") Long userId, Pageable pageable);
 }

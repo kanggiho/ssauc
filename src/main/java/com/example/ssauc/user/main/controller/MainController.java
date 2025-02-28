@@ -29,9 +29,4 @@ public class MainController {
     public String cart() {
         return "product/cart";
     }
-
-    @GetMapping("likelist")
-    public String like() {
-        return "likelist/likelist";
-    }
 }

@@ -34,6 +34,10 @@ public class LikeService {
         if(existingLike.isPresent()) {
             // 이미 좋아요를 눌렀다면 취소
             productLikeRepository.delete(existingLike.get());
+            productRepository.findById(productId).ifPresent(item -> {
+                item.setLikeCount(item.getLikeCount() - 1);
+                productRepository.save(item);
+            });
             return false;
         } else {
             ProductLike newLike = ProductLike.builder().
@@ -43,6 +47,11 @@ public class LikeService {
                     .build();
 
             productLikeRepository.save(newLike);
+            productRepository.findById(productId).ifPresent(item -> {
+                item.setLikeCount(item.getLikeCount() + 1);
+                productRepository.save(item);
+            });
+
             return true;
         }
     }
