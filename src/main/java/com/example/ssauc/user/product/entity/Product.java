@@ -1,6 +1,7 @@
 package com.example.ssauc.user.product.entity;
 
 import com.example.ssauc.user.bid.entity.Bid;
+import com.example.ssauc.user.bid.entity.ProductReport;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.main.entity.ProductLike;
 import com.example.ssauc.user.main.entity.RecentlyViewed;
@@ -74,6 +75,9 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductLike> likedProducts;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductReport> ReportProducts;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bid> bids;
