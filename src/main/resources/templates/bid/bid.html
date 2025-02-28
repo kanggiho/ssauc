@@ -255,11 +255,16 @@
                 var autoBidBtn = document.getElementById("autoBidBtn");
 
                 bidBtn.addEventListener("click", function (){
+                    var sessionId = "[[${sessionId}]]";
+                    var sellerId = "[[${sellerId}]]";
 
+                    if (sessionId === sellerId) {
+                        alert("안됨");
+                    }
                 });
 
                 autoBidBtn.addEventListener("click", function (){
-
+                    // 자동입찰하기
                 });
 
 
@@ -273,7 +278,8 @@
                 var tempBuyBtn = document.getElementById("tempBuyBtn");
 
                 tempBuyBtn.addEventListener("click", function (){
-
+                    // 즉시구매
+                    window.location.href = "/order/order?productId="+[[${productId}]];
                 });
 
 
@@ -295,16 +301,6 @@
             });
 
         }
-
-
-
-
-
-
-
-
-
-
 
 
     </script>

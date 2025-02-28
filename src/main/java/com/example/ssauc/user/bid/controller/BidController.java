@@ -32,6 +32,15 @@ public class BidController {
         List<CarouselImage> carouselImages = bidService.getCarouselImages(productId);
 
 
+
+
+        Users user = (Users) session.getAttribute("user");
+        model.addAttribute("sessionId",user.getUserId());
+
+        Product product = bidService.getProduct(productId);
+        model.addAttribute("sellerId",product.getSeller().getUserId());
+
+
         // 표시할 정보 추가
         model.addAttribute("inform", dto);
 
