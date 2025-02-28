@@ -60,11 +60,11 @@
                     <h2 class="fw-bold" th:text="${inform.getName()}" id="product_na">상품명</h2>
                     <div>
                         <!-- 관심품목: 채워진 별 아이콘 -->
-                        <button class="btn btn-outline-secondary btn-sm me-2" title="관심품목">
+                        <button class="btn btn-outline-secondary btn-sm me-2" title="관심품목" id="interestBtn">
                             <i class="bi bi-star-fill"></i>
                         </button>
                         <!-- 신고하기: 경고 삼각형 아이콘 (사이렌 대체) -->
-                        <button class="btn btn-outline-danger btn-sm" title="신고하기">
+                        <button class="btn btn-outline-danger btn-sm" title="신고하기" id="reportBtn">
                             <i class="bi bi-exclamation-triangle-fill"></i>
                         </button>
                     </div>
@@ -83,14 +83,16 @@
                             <p class="mb-0"><strong>입찰 수 :</strong> <span th:text="${inform.getBidCount()}+'회'">0회</span></p>
                         </div>
                         <div>
-                            <div class="form-check form-check-inline" th:if="${inform.dealType==0||inform.dealType==2}">
-                                <input class="form-check-input" type="radio" name="deliveryOption" id="directOption" value="direct">
-                                <label class="form-check-label" for="directOption">직거래</label>
+                            <div class="form-check form-check-inline" th:if="${inform.dealType==0}">
+                                <a>🧑🏻 직거래 가능</a>
                             </div>
-                            <div class="form-check form-check-inline" th:if="${inform.dealType==1||inform.dealType==2}">
-                                <input class="form-check-input" type="radio" name="deliveryOption" id="parcelOption" value="parcel">
-                                <label class="form-check-label" for="parcelOption">택배</label>
+                            <div class="form-check form-check-inline" th:if="${inform.dealType==1}">
+                                <a>🚚 택배거래 가능</a>
                             </div>
+                            <div class="form-check form-check-inline" th:if="${inform.dealType==2}">
+                                <a>🧑🏻🚚 직거래, 택배거래 가능</a>
+                            </div>
+
                         </div>
                     </div>
 
@@ -210,6 +212,8 @@
 
         calculateFee()
         bid()
+        buy()
+        report()
 
 
 
@@ -243,30 +247,60 @@
 
         }
 
+        // 입찰기능 구현
         function bid(){
             document.addEventListener("DOMContentLoaded", function() {
 
-                var tempBuyBtn = document.getElementById("tempBuyBtn");
                 var bidBtn = document.getElementById("bidBtn");
                 var autoBidBtn = document.getElementById("autoBidBtn");
 
-                tempBuyBtn.addEventListener("click", function (){
+                bidBtn.addEventListener("click", function (){
+                    var sessionId = "[[${sessionId}]]";
+                    var sellerId = "[[${sellerId}]]";
 
+                    if (sessionId === sellerId) {
+                        alert("안됨");
+                    }
+                });
+
+                autoBidBtn.addEventListener("click", function (){
+                    // 자동입찰하기
                 });
 
 
             });
         }
 
+        // 즉시 구매하기 기능 구현
+        function buy(){
+            document.addEventListener("DOMContentLoaded", function() {
+
+                var tempBuyBtn = document.getElementById("tempBuyBtn");
+
+                tempBuyBtn.addEventListener("click", function (){
+                    // 즉시구매
+                    window.location.href = "/order/order?productId="+[[${productId}]];
+                });
 
 
+            });
+        }
+
+        // 신고하기 기능 구현
+        function report() {
+
+            document.addEventListener("DOMContentLoaded", function() {
+
+                var reportBtn = document.getElementById("reportBtn");
+
+                reportBtn.addEventListener("click", function (){
+                    window.location.href = "/bid/report?reported="+[[${productId}]];
+                });
 
 
+            });
 
-
-
-
-
+        }
 
 
     </script>

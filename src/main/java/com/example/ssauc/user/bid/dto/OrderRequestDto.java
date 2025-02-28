@@ -8,9 +8,6 @@ import lombok.*;
 @Builder
 public class OrderRequestDto {
     private Long productId;
-    private String productName;
-    private Long immediatePrice;
-    private String imageUrl;
-
-
+    private Long buyerId;
+    private Long sellerId;
 }
