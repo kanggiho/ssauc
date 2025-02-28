@@ -41,4 +41,26 @@ public interface ListRepository extends JpaRepository<Product, Long> {
             "JOIN p.likedProducts pl ON pl.user.userId = :userId " +
             "JOIN p.seller u")
     Page<WithLikeDto> getLikeList(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("SELECT new com.example.ssauc.user.list.dto.WithLikeDto(" +
+            "p.productId, p.imageUrl, p.name, p.price, p.bidCount," +
+            "p.endAt, p.createdAt, u.location, p.likeCount," +
+            "CASE WHEN pl.user.userId IS NOT NULL THEN true ELSE false END" +
+            ") " +
+            "FROM Product p " +
+            "LEFT JOIN p.likedProducts pl ON pl.user.userId = :userId " +
+            "JOIN p.seller u " +
+            "WHERE p.category.categoryId = :categoryId")
+    Page<WithLikeDto> getCategoryList(@Param("userId") Long userId, @Param("categoryId") Long categoryId, Pageable pageable);
+
+    @Query("SELECT new com.example.ssauc.user.list.dto.WithLikeDto(" +
+            "p.productId, p.imageUrl, p.name, p.price, p.bidCount," +
+            "p.endAt, p.createdAt, u.location, p.likeCount," +
+            "CASE WHEN pl.user.userId IS NOT NULL THEN true ELSE false END" +
+            ") " +
+            "FROM Product p " +
+            "LEFT JOIN p.likedProducts pl ON pl.user.userId = :userId " +
+            "JOIN p.seller u " +
+            "WHERE p.price BETWEEN :minPrice AND :maxPrice")
+    Page<WithLikeDto> findByPriceRange(@Param("userId") Long userId, @Param("minPrice") int minPrice, @Param("maxPrice") int maxPrice, Pageable pageable);
 }

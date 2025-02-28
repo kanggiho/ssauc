@@ -8,6 +8,7 @@ import com.example.ssauc.user.list.repository.ListRepository;
 import java.time.Duration;
 
 import jakarta.servlet.http.HttpSession;
+import lombok.With;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -97,6 +98,68 @@ public class ListService {
 
     public Page<TempDto> likelist(Pageable pageable, HttpSession session) {
         Page<WithLikeDto> list =  listRepository.getLikeList((Long) session.getAttribute("userId"), pageable);
+
+        List<TempDto> tempList = list.getContent().stream().map(listDto -> {
+            Duration duration = Duration.between(listDto.getCreatedAt(), listDto.getEndAt());
+
+            int days = (int) duration.toDays();
+            int hours = (int) duration.toHours() % 24;
+            String bidCount = "입찰 %d회".formatted(listDto.getBidCount());
+            String inform = "⏳ %d일 %d시간".formatted(days, hours);
+            String like = addCommas(String.valueOf(listDto.getLikeCount()));
+            String price = addCommas(listDto.getPrice().toString());
+            String[] mainImage = listDto.getImageUrl().split(",");
+
+            return TempDto.builder()
+                    .productId(listDto.getProductId())
+                    .imageUrl(mainImage[0])
+                    .name(listDto.getName())
+                    .price(price)
+                    .bidCount(bidCount)
+                    .gap(inform)
+                    .location(listDto.getLocation())
+                    .likeCount(like)
+                    .liked(listDto.isLiked())
+                    .build();
+        }).toList();
+
+        return new PageImpl<>(tempList, pageable, list.getTotalElements());
+    }
+
+    public Page<TempDto> categoryList(Pageable pageable, HttpSession session, Long categoryId) {
+        Long id = (Long)session.getAttribute("userId");
+        Page<WithLikeDto> list = listRepository.getCategoryList(id, categoryId, pageable);
+
+        List<TempDto> tempList = list.getContent().stream().map(listDto -> {
+            Duration duration = Duration.between(listDto.getCreatedAt(), listDto.getEndAt());
+
+            int days = (int) duration.toDays();
+            int hours = (int) duration.toHours() % 24;
+            String bidCount = "입찰 %d회".formatted(listDto.getBidCount());
+            String inform = "⏳ %d일 %d시간".formatted(days, hours);
+            String like = addCommas(String.valueOf(listDto.getLikeCount()));
+            String price = addCommas(listDto.getPrice().toString());
+            String[] mainImage = listDto.getImageUrl().split(",");
+
+            return TempDto.builder()
+                    .productId(listDto.getProductId())
+                    .imageUrl(mainImage[0])
+                    .name(listDto.getName())
+                    .price(price)
+                    .bidCount(bidCount)
+                    .gap(inform)
+                    .location(listDto.getLocation())
+                    .likeCount(like)
+                    .liked(listDto.isLiked())
+                    .build();
+        }).toList();
+
+        return new PageImpl<>(tempList, pageable, list.getTotalElements());
+    }
+
+    public Page<TempDto> getProductsByPrice(Pageable pageable, HttpSession session, int minPrice, int maxPrice) {
+        Long userId = (Long) session.getAttribute("userId");
+        Page<WithLikeDto> list = listRepository.findByPriceRange(userId, minPrice, maxPrice, pageable);
 
         List<TempDto> tempList = list.getContent().stream().map(listDto -> {
             Duration duration = Duration.between(listDto.getCreatedAt(), listDto.getEndAt());
