@@ -15,30 +15,31 @@
                 <div class="sidebar">
                     <h5>카테고리</h5>
                     <div class="category-list">
-                        <a href="#">디지털기기</a>
-                        <a href="#">가구/인테리어</a>
-                        <a href="#">유아동</a>
-                        <a href="#">여성의류</a>
-                        <a href="#">여성잡화</a>
-                        <a href="#">남성패션/잡화</a>
-                        <a href="#">생활가전</a>
-                        <a href="#">생활/주방</a>
+                        <a th:href="@{/list/category(categoryId=1)}">디지털기기</a>
+                        <a th:href="@{/list/category(categoryId=2)}">가구/인테리어</a>
+                        <a th:href="@{/list/category(categoryId=3)}">유아동</a>
+                        <a th:href="@{/list/category(categoryId=4)}">여성의류</a>
+                        <a th:href="@{/list/category(categoryId=5)}">여성잡화</a>
+                        <a th:href="@{/list/category(categoryId=6)}">남성패션/잡화</a>
+                        <a th:href="@{/list/category(categoryId=7)}">생활가전</a>
+                        <a th:href="@{/list/category(categoryId=8)}">생활/주방</a>
                     </div>
 
                     <h5 class="mt-4">가격</h5>
                     <div class="price-filter">
-                        <button>~2만원</button>
-                        <button>2만원 ~ 3만원</button>
-                        <button>3만원 ~ 4만원</button>
-                        <button>4만원 ~ 20만원</button>
+                        <button class="price-button" th:data-min-price="0" th:data-max-price="20000" onclick="filterByPrice(this)">~2만원</button>
+                        <button class="price-button" th:data-min-price="20000" th:data-max-price="30000" onclick="filterByPrice(this)">2만원 ~ 3만원</button>
+                        <button class="price-button" th:data-min-price="30000" th:data-max-price="40000" onclick="filterByPrice(this)">3만원 ~ 4만원</button>
+                        <button class="price-button" th:data-min-price="40000" th:data-max-price="200000" onclick="filterByPrice(this)">4만원 ~ 20만원</button>
                     </div>
 
                     <div class="price-input">
-                        <input type="text" placeholder="원">
+                        <input type="text" id="minPrice" placeholder="최소 가격 (원)">
                         <span>~</span>
-                        <input type="text" placeholder="원">
-                        <button>🔍</button>
+                        <input type="text" id="maxPrice" placeholder="최대 가격 (원)">
+                        <button onclick="filterByInputPrice()">🔍</button>
                     </div>
+
                 </div>
             </div>
 
@@ -117,7 +118,7 @@
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    productId: productId,
+                    productId: productId
                 })
             })
                 .then(response => response.json())
@@ -136,6 +137,45 @@
                 })
                 .catch(error => console.error("Error:", error));
         }
+
+        function filterByPrice(button) {
+            const minPrice = button.getAttribute("data-min-price");
+            const maxPrice = button.getAttribute("data-max-price");
+
+            // GET 요청을 보낼 URL 생성
+            const url = `/list/price?minPrice=${minPrice}&maxPrice=${maxPrice}`;
+
+            // 페이지 이동
+            window.location.href = url;
+        }
+
+        function filterByInputPrice() {
+            const minPrice = document.getElementById("minPrice").value;
+            const maxPrice = document.getElementById("maxPrice").value;
+
+            // 입력값이 없을 경우 기본값 설정
+            if (!minPrice || !maxPrice) {
+                alert("최소 가격과 최대 가격을 입력해주세요.");
+                return;
+            }
+
+            if (isNaN(minPrice) || isNaN(maxPrice)) {
+                alert("숫자만 입력 가능합니다.");
+                return;
+            }
+
+            if (parseInt(minPrice) > parseInt(maxPrice)) {
+                alert("최소 가격이 최대 가격보다 클 수 없습니다.");
+                return;
+            }
+
+            // GET 요청을 보낼 URL 생성
+            const url = `/list/price?minPrice=${minPrice}&maxPrice=${maxPrice}`;
+
+            // 페이지 이동
+            window.location.href = url;
+        }
+
     </script>
 
 </div>

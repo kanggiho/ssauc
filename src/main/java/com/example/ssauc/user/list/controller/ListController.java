@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -55,5 +56,22 @@ public class ListController {
         model.addAttribute("likelist", likelist);
 
         return "likelist/likelist";
+    }
+
+    @GetMapping("/category")
+    public String category(Model model, @RequestParam("categoryId") Long categoryId, @PageableDefault(size = 30) Pageable pageable, HttpSession session) {
+            Page<TempDto> categoryList = listService.categoryList(pageable, session, categoryId);
+            model.addAttribute("secondList", categoryList);
+
+            return "list/list";
+    }
+
+    @GetMapping("/price")
+    public String getProductsByPrice(@RequestParam("minPrice") int minPrice, @RequestParam("maxPrice") int maxPrice,
+                                     @PageableDefault(size = 30) Pageable pageable, HttpSession session,
+                                     Model model) {
+        Page<TempDto> priceFilteredList = listService.getProductsByPrice(pageable, session, minPrice, maxPrice);
+        model.addAttribute("secondList", priceFilteredList);
+        return "list/list"; // 가격별 상품 리스트 페이지
     }
 }
