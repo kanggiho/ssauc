@@ -48,8 +48,7 @@
                     <div class="col" th:each="product : ${secondList}">
                             <div class="card product-card">
                                 <button class="icon-btn" th:data-product-id="${product.productId}" onclick="toggleHeart(this)">
-                                    <!-- ✅ liked가 true면 빨간 하트, false면 빈 하트 -->
-                                    <i th:class="${product.liked} ? 'bi bi-heart-fill text-danger' : 'bi bi-heart'"></i>
+                                    <i th:class="${product.liked} ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
                                 </button>
                                 <a th:href="@{/bid/bid(productId=${product.productId})}">
                                 <img th:src="${product.imageUrl}" alt="시계">
@@ -58,7 +57,9 @@
                                     <p class="product-title" th:text="${product.name}"></p>
                                     <p class="product-price" th:text="${product.price}"></p>
                                     <p class="product-info">[[${product.bidCount}]] | [[${product.gap}]]</p>
-                                    <p class="product-info">[[${product.location}]] | [[${product.likeCount}]]</p>
+                                    <p class="product-info">
+                                        [[${product.location}]] | ❤️ <span class="like-count" th:text="${product.likeCount}"></span>
+                                    </p>
                                 </div>
                                 </a>
                             </div>
@@ -105,9 +106,12 @@
             }
 
             const productId = button.getAttribute("data-product-id"); // 상품 아이디 받기
-
             const icon = button.querySelector("i");
-            let liked = icon.classList.contains("bi-heart-fill");
+            const card = button.closest(".product-card");
+            const likeCountElement = card.querySelector(".like-count");
+
+            // 현재 좋아요 수 파싱 (쉼표 제거 후 정수 변환)
+            let currentCount = parseInt(likeCountElement.textContent.replace(/,/g, ''), 10) || 0;
 
             fetch("/api/like", {
                 method: "POST",
@@ -120,13 +124,15 @@
                 .then(data => {
                     if (data.liked) {
                         icon.classList.remove("bi-heart");
-                        icon.classList.add("bi-heart-fill");
-                        icon.style.color = "red";
+                        icon.classList.add("bi-heart-fill")
+                        currentCount++;
                     } else {
                         icon.classList.remove("bi-heart-fill");
                         icon.classList.add("bi-heart");
-                        icon.style.color = "black";
+                        currentCount = Math.max(0, currentCount - 1);
                     }
+
+                    likeCountElement.textContent = currentCount.toLocaleString();
                 })
                 .catch(error => console.error("Error:", error));
         }

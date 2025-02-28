@@ -90,7 +90,7 @@
                             </ul>
                         </div>
                         <!-- 좋아요 아이콘 -->
-                        <a th:href="${session.user != null} ? @{/likelist} : @{/login}" class="me-3 text-dark">
+                        <a th:href="${session.user != null} ? @{/list/likelist} : @{/login}" class="me-3 text-dark">
                             <i class="bi bi-heart"></i>
                         </a>
 
