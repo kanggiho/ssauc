@@ -3,166 +3,416 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="layout.html">
 <head>
-  <meta charset="UTF-8">
-  <title>SSAUC 머니 페이지</title>
-  <!-- 스타일시트 연결 -->
-  <link rel="stylesheet" th:href="@{/css/mypage.css}">
-  <link rel="stylesheet" th:href="@{/css/cash.css}">
+    <meta charset="UTF-8">
+    <title>SSAUC 머니 페이지</title>
+    <!-- 스타일시트 연결 -->
+    <link rel="stylesheet" th:href="@{/css/mypage.css}">
+    <link rel="stylesheet" th:href="@{/css/cash.css}">
+    <!-- PortOne V2 SDK 로드 -->
+    <script src="https://cdn.portone.io/v2/browser-sdk.js" async defer></script>
 </head>
 <body>
 
 <div class="cash-container" layout:fragment="content">
-  <!-- 왼쪽 사이드바 (mypage와 동일) -->
-  <div th:replace="~{mypage/mypage :: sidebar}"></div>
+    <!-- 왼쪽 사이드바 (mypage와 동일) -->
+    <div th:replace="~{mypage/mypage :: sidebar}"></div>
 
-  <!-- 메인 컨텐츠 -->
-  <main class="cash-main">
-    <!-- SSAUC 머니 요약 -->
-    <div class="cash-summary">
-      <div class="cash-box">
-        <p class="cash-title"> SSAUC 머니 ></p>
-        <div class="cash-box-content">
-          <h2 class="cash-amount" th:text="${T(java.lang.String).format('%,d 원', session.user.cash)}">0 원</h2>
-          <div class="cash-buttons">
-            <button class="charge">충전</button>
-            <button class="refund">환급</button>
-          </div>
+    <!-- 메인 컨텐츠 -->
+    <main class="cash-main">
+        <!-- SSAUC 머니 요약 -->
+        <div class="cash-summary">
+            <div class="cash-box">
+                <p class="cash-title"> SSAUC 머니 ></p>
+                <div class="cash-box-content">
+                    <h2 class="cash-amount" th:text="${T(java.lang.String).format('%,d 원', session.user.cash)}">0 원</h2>
+                    <div class="cash-buttons">
+                        <button class="charge" id="openChargeModal">충전</button>
+                        <button class="refund">환급</button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
 
-    <!-- 사용 내역 섹션 -->
-    <div class="history-header">
-      <h2> 쏙머니 내역</h2>
-      <div class="date-filter">
-        <form action="/cash/cash" method="get">
-          <!-- 현재 선택된 필터 유지 (예: charge, withdraw, calculate) -->
-          <input type="hidden" name="filter" th:value="${filter}">
-          <label>조회 기간</label>
-          <input type="date" name="startDate" value="" placeholder="시작일">
-          ~
-          <input type="date" name="endDate" value="" placeholder="종료일">
-          <button type="submit" class="search-btn">조회</button>
-        </form>
-      </div>
-    </div>
-    <!--        <button class="filter-btn active" onclick="setActiveFilter(this)">결제 / 정산</button>-->
-    <!--        <button class="filter-btn" onclick="setActiveFilter(this)">충전</button>-->
-    <!--        <button class="filter-btn" onclick="setActiveFilter(this)">환급</button>-->
-    <!-- 사용 내역 필터 -->
-    <div class="filter-section">
-      <div class="filter-buttons">
-        <!-- 결제/정산은 나중 처리 -->
-        <a th:href="@{/cash/cash(filter='calculate')}" class="filter-btn"
-           th:classappend="${filter=='calculate'} ? ' active' : ''">결제 / 정산</a>
-        <a th:href="@{/cash/cash(filter='charge')}" class="charge filter-btn"
-           th:classappend="${filter=='charge'} ? ' active' : ''">충전</a>
-        <a th:href="@{/cash/cash(filter='withdraw')}" class="refund filter-btn"
-           th:classappend="${filter=='withdraw'} ? ' active' : ''">환급</a>
-      </div>
-    </div>
+        <!-- 사용 내역 섹션 -->
+        <div class="history-header">
+            <h2> 쏙머니 내역</h2>
+            <div class="date-filter">
+                <form action="/cash/cash" method="get">
+                    <!-- 현재 선택된 필터 유지 (예: charge, withdraw, calculate) -->
+                    <input type="hidden" name="filter" th:value="${filter}">
+                    <label>조회 기간</label>
+                    <input type="date" name="startDate" value="" placeholder="시작일">
+                    ~
+                    <input type="date" name="endDate" value="" placeholder="종료일">
+                    <button type="submit" class="search-btn">조회</button>
+                </form>
+            </div>
+        </div>
 
-    <!-- 사용 내역 테이블 -->
-    <!-- 내역 테이블: filter 값에 따라 다른 테이블 출력 -->
-    <div th:if="${filter == 'charge'}">
-      <table class="cash-table">
-        <thead>
-        <tr>
-          <th>충전 ID</th>
-          <th>충전 방식</th>
-          <th>충전 금액</th>
-          <th>충전 상태</th>
-          <th>충전 시간</th>
-          <th>영수증</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="charge : ${chargeList}">
-          <td th:text="${charge.chargeId}">1</td>
-          <td th:text="${charge.chargeType}">계좌이체</td>
-          <td th:text="${T(java.lang.String).format('%,d', charge.amount)}">50,000</td>
-          <td th:text="${charge.status}">완료</td>
-          <td th:text="${#temporals.format(charge.createdAt, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30:00</td>
-          <td>
-            <a th:href="${charge.receiptUrl}" target="_blank">영수증 보기</a>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
+        <!-- 내역 필터 -->
+        <div class="filter-section">
+            <div class="filter-buttons">
+                <!-- 결제/정산은 나중 처리 -->
+                <a th:href="@{/cash/cash(filter='calculate')}" class="filter-btn"
+                   th:classappend="${filter=='calculate'} ? ' active' : ''">결제 / 정산</a>
+                <a th:href="@{/cash/cash(filter='charge')}" class="charge filter-btn"
+                   th:classappend="${filter=='charge'} ? ' active' : ''">충전</a>
+                <a th:href="@{/cash/cash(filter='withdraw')}" class="refund filter-btn"
+                   th:classappend="${filter=='withdraw'} ? ' active' : ''">환급</a>
+            </div>
+        </div>
 
-    <div th:if="${filter == 'withdraw'}">
-      <table class="cash-table">
-        <thead>
-        <tr>
-          <th>환급 ID</th>
-          <th>환급 은행</th>
-          <th>환급 계좌</th>
-          <th>실 환급 금액</th>
-          <th>완료 시간</th>
-          <th>결과</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="withdraw : ${withdrawList}">
-          <td th:text="${withdraw.withdrawId}">1</td>
-          <td th:text="${withdraw.bank}">KB은행</td>
-          <td th:text="${withdraw.account}">123-456-789</td>
-          <td th:text="${T(java.lang.String).format('%,d', withdraw.netAmount)}">29,500</td>
-          <td th:text="${#temporals.format(withdraw.withdrawAt, 'yyyy-MM-dd HH:mm')}">2025-02-26 11:00:00</td>
-          <td th:text="${withdraw.requestStatus}">완료</td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
+        <!-- 내역 테이블: filter 값에 따라 다른 테이블 출력 -->
+        <div th:if="${filter == 'charge'}">
+            <table class="cash-table">
+                <thead>
+                <tr>
+                    <th>충전 ID</th>
+                    <th>충전 방식</th>
+                    <th>충전 금액</th>
+                    <th>충전 상태</th>
+                    <th>충전 시간</th>
+                    <th>영수증</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="charge : ${chargeList}">
+                    <td th:text="${charge.chargeId}">1</td>
+                    <td th:text="${charge.chargeType}">계좌이체</td>
+                    <td th:text="${T(java.lang.String).format('%,d', charge.amount)}">50,000</td>
+                    <td th:text="${charge.status}">완료</td>
+                    <td th:text="${#temporals.format(charge.createdAt, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30:00</td>
+                    <td>
+                        <a th:href="${charge.receiptUrl}" target="_blank">영수증 보기</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
-    <!-- 결제/정산: 아직 미구현 -->
-    <div th:if="${filter == 'calculate'}">
-      <table class="cash-table">
-        <thead>
-        <tr>
-          <th>결제/정산 ID</th>
-          <th>거래 상품명</th>
-          <th>결제/정산 금액</th>
-          <th>결제/정산 시간</th>
-          <th>결제/정산 상태</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="calculate : ${calculateList}">
-          <td th:text="${calculate.orderId}">1</td>
-          <td th:text="${calculate.productName}">상품명</td>
-          <td th:text="${(calculate.paymentAmount.substring(0,1)) +
+        <div th:if="${filter == 'withdraw'}">
+            <table class="cash-table">
+                <thead>
+                <tr>
+                    <th>환급 ID</th>
+                    <th>환급 은행</th>
+                    <th>환급 계좌</th>
+                    <th>실 환급 금액</th>
+                    <th>완료 시간</th>
+                    <th>결과</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="withdraw : ${withdrawList}">
+                    <td th:text="${withdraw.withdrawId}">1</td>
+                    <td th:text="${withdraw.bank}">KB은행</td>
+                    <td th:text="${withdraw.account}">123-456-789</td>
+                    <td th:text="${T(java.lang.String).format('%,d', withdraw.netAmount)}">29,500</td>
+                    <td th:text="${#temporals.format(withdraw.withdrawAt, 'yyyy-MM-dd HH:mm')}">2025-02-26 11:00:00</td>
+                    <td th:text="${withdraw.requestStatus}">완료</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 결제/정산: 아직 미구현 -->
+        <div th:if="${filter == 'calculate'}">
+            <table class="cash-table">
+                <thead>
+                <tr>
+                    <th>결제/정산 ID</th>
+                    <th>거래 상품명</th>
+                    <th>결제/정산 금액</th>
+                    <th>결제/정산 시간</th>
+                    <th>결제/정산 상태</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="calculate : ${calculateList}">
+                    <td th:text="${calculate.orderId}">1</td>
+                    <td th:text="${calculate.productName}">상품명</td>
+                    <td th:text="${(calculate.paymentAmount.substring(0,1)) +
                T(java.lang.String).format('%,d', T(java.lang.Long).parseLong(calculate.paymentAmount.substring(1)))}">
-            +1,600,000
-          </td>
-          <td th:text="${#temporals.format(calculate.paymentTime, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30</td>
-          <td th:text="${calculate.orderStatus}">완료</td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
+                        +1,600,000
+                    </td>
+                    <td th:text="${#temporals.format(calculate.paymentTime, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30</td>
+                    <td th:text="${calculate.orderStatus}">완료</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
-    <!-- 페이지네이션 -->
-    <div class="pagination">
-      <!-- 이전 페이지 버튼 (현재 페이지가 1보다 클 때만 표시) -->
-      <a th:if="${currentPage > 1}"
-         th:href="@{/cash/cash(filter=${filter}, page=${currentPage - 1}, startDate=${startDate}, endDate=${endDate})}"><button><</button></a>
+        <!-- 페이지네이션 -->
+        <div class="pagination">
+            <!-- 이전 페이지 버튼 (현재 페이지가 1보다 클 때만 표시) -->
+            <a th:if="${currentPage > 1}"
+               th:href="@{/cash/cash(filter=${filter}, page=${currentPage - 1}, startDate=${startDate}, endDate=${endDate})}">
+                <button><</button>
+            </a>
 
-      <!-- 페이지 번호 버튼 -->
-      <span th:each="i : ${#numbers.sequence(1, totalPages)}">
-    <a th:href="@{/cash/cash(filter=${filter}, page=${i}, startDate=${startDate}, endDate=${endDate})}">
-      <button th:text="${i}" th:classappend="${i == currentPage} ? ' active'"></button>
-    </a>
-  </span>
+            <!-- 페이지 번호 버튼 -->
+            <span th:each="i : ${#numbers.sequence(1, totalPages)}">
+                <a th:href="@{/cash/cash(filter=${filter}, page=${i}, startDate=${startDate}, endDate=${endDate})}">
+                    <button th:text="${i}" th:classappend="${i == currentPage} ? ' active'"></button>
+                </a>
+            </span>
 
-      <!-- 다음 페이지 버튼 (현재 페이지가 총 페이지 수보다 작을 때만 표시) -->
-      <a th:if="${currentPage < totalPages}"
-         th:href="@{/cash/cash(filter=${filter}, page=${currentPage + 1}, startDate=${startDate}, endDate=${endDate})}"><button>></button></a>
-    </div>
-
-  </main>
+            <!-- 다음 페이지 버튼 (현재 페이지가 총 페이지 수보다 작을 때만 표시) -->
+            <a th:if="${currentPage < totalPages}"
+               th:href="@{/cash/cash(filter=${filter}, page=${currentPage + 1}, startDate=${startDate}, endDate=${endDate})}">
+                <button>></button>
+            </a>
+        </div>
+    </main>
 </div>
+
+
+<!-- 모달: 충전 금액 선택 + PortOne 결제 로직 -->
+<dialog id="chargeModal" layout:fragment="dialog">
+
+    <!-- 모달 닫기 버튼 -->
+    <button type="button" id="closeModalBtn" style="float: right;">X</button>
+    <h2> SSAUC 머니 충전</h2>
+
+    <!-- 로딩 표시 (모달 내부 로딩 다이얼로그) -->
+    <dialog id="loadingDialog" open>
+        <article aria-busy="true">결제 정보를 불러오는 중입니다.</article>
+    </dialog>
+
+    <main id="checkoutDialog" style="display: none">
+        <form id="checkoutForm">
+            <article>
+                <h3 id="itemName"></h3>
+                <!-- 드롭다운으로 충전 금액 선택 -->
+                <div>
+                    <label for="amountSelect">충전 금액 선택:</label><br/>
+                    <select id="amountSelect">
+                        <option value="">선택하세요</option>
+                        <option value="5000">5,000원</option>
+                        <option value="10000">10,000원</option>
+                        <option value="30000">30,000원</option>
+                        <option value="50000">50,000원</option>
+                        <option value="100000">100,000원</option>
+                        <option value="custom">직접 입력</option>
+                    </select>
+                    <!-- 직접 입력 필드 (1000원 단위) -->
+                    <input
+                            type="number"
+                            id="customAmount"
+                            class="hidden2"
+                            placeholder="1000원 단위 입력"
+                            step="1000"
+                            min="1000"
+                    />
+                </div>
+
+                <div style="margin-top: 10px;">
+                    <label>충전 후 SSAUC 머니:</label>
+                    <span id="displayPrice">0원</span>
+                </div>
+            </article>
+            <button id="checkoutButton" type="submit">충전하기</button>
+        </form>
+    </main>
+
+    <!-- 실패 다이얼로그 (간단 표시용) -->
+    <dialog id="failDialog">
+        <header><h1>결제 실패</h1></header>
+        <p id="failMessage"></p>
+        <button type="button" class="closeDialog">닫기</button>
+    </dialog>
+
+    <!-- 성공 다이얼로그 (간단 표시용) -->
+    <dialog id="successDialog">
+        <header><h1>결제 성공</h1></header>
+        <p>결제에 성공했습니다.</p>
+        <button type="button" class="closeDialog">닫기</button>
+    </dialog>
+</dialog>
+
+
+<script layout:fragment="script" th:inline="javascript">
+    // ====== 모달 열고 닫는 부분 ======
+    const openChargeModalBtn = document.getElementById("openChargeModal");
+    const chargeModal = document.getElementById("chargeModal");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    let currentCash = /*[[${session.user.cash}]]*/ 0;
+
+    openChargeModalBtn.addEventListener("click", () => {
+        // 모달 열기
+        chargeModal.showModal();
+        // PortOne 결제 로직 실행
+        checkout.load();
+    });
+
+    closeModalBtn.addEventListener("click", () => {
+        chargeModal.close();
+        resetModal(); // 선택값 초기화
+    });
+
+    function resetModal() {
+        document.getElementById("amountSelect").value = "";
+        document.getElementById("customAmount").value = "";
+        document.getElementById("customAmount").classList.add("hidden2");
+        document.getElementById("displayPrice").textContent = "0원";
+    }
+
+    // ====== 모달 안에서 실행 ======
+    const checkout = new Checkout();
+
+    function Checkout() {
+        let item = null;
+        const amountSelect = document.getElementById("amountSelect");
+        const customAmount = document.getElementById("customAmount");
+        const displayPrice = document.getElementById("displayPrice");
+
+        const failDialog = document.getElementById("failDialog");
+        const failMessage = document.getElementById("failMessage");
+        const successDialog = document.getElementById("successDialog");
+
+        // 1. SDK, API 데이터 로드
+        this.load = async () => {
+            // PortOne 로딩 대기
+            const waitPortOne = new Promise((resolve) => {
+                const polling = setInterval(() => {
+                    if (window.PortOne != null) {
+                        clearInterval(polling);
+                        resolve();
+                    }
+                }, 50);
+            });
+
+            // /cash/api/info 엔드포인트로부터 아이템 정보 로드
+            let data;
+            try {
+                const res = await fetch("/cash/api/info");
+                data = await res.json();
+            } catch (err) {
+                console.error(err);
+            }
+            item = data || { name: "쏙머니 충전", currency: "KRW"};
+
+            await waitPortOne;
+
+            // 로딩 다이얼로그 닫고 메인 표시
+            document.getElementById("loadingDialog").open = false;
+            document.getElementById("checkoutDialog").style.display = "block";
+
+            // 화면 초기화
+            showCheckout();
+        }
+
+        // 2. 결제 화면 초기화
+        const showCheckout = () => {
+            document.getElementById("itemName").textContent = item.name || "쏙머니 충전";
+            // 초기화
+            item.price = 0;
+            // 표시: 현재 보유 쏙머니 + 충전할 금액 (초기엔 0)
+            displayPrice.textContent = (currentCash).toLocaleString() + "원";
+
+            // 드롭다운 이벤트
+            amountSelect.addEventListener("change", handleAmountChange);
+            customAmount.addEventListener("input", handleAmountChange);
+
+            // 폼 제출 이벤트
+            document.getElementById("checkoutDialog").onsubmit = async (e) => {
+                e.preventDefault();
+                await handlePayment();
+            };
+
+            // 실패/성공 다이얼로그 닫기 버튼
+            for (const dialogButton of document.getElementsByClassName("closeDialog")) {
+                dialogButton.onclick = () => {
+                    dialogButton.parentElement.parentElement.open = false;
+                };
+            }
+        }
+
+        // 3. 금액 변경 로직
+        function handleAmountChange() {
+            let baseAmount = 0;
+            if (amountSelect.value === "") {
+                baseAmount = 0;
+            } else if (amountSelect.value === "custom") {
+                customAmount.classList.remove("hidden2");
+                baseAmount = parseInt(customAmount.value) || 0;
+            } else {
+                customAmount.classList.add("hidden2");
+                baseAmount = parseInt(amountSelect.value);
+            }
+
+            item.price = baseAmount > 0 ? baseAmount : 0;
+            displayPrice.textContent = (currentCash + item.price).toLocaleString() + "원";
+        }
+
+        // 4. 결제 요청
+        async function handlePayment() {
+            if (item.price <= 0) {
+                alert("충전 금액을 선택해주세요.");
+                return;
+            }
+            setWaitingPayment(true);
+
+            // 먼저 모달을 완전히 닫음(숨김)
+            chargeModal.close(); // chargeModal은 모달 dialog 요소
+
+            // 고유 paymentId
+            function randomId() {
+                return [...crypto.getRandomValues(new Uint32Array(2))]
+                    .map((word) => word.toString(16).padStart(8, "0"))
+                    .join("");
+            }
+            const paymentId = randomId();
+
+            // PortOne.requestPayment()
+            const payment = await PortOne.requestPayment({
+                storeId: "store-ed1c07e7-1d27-45f6-8265-15ae6fbe6383",
+                channelKey: "channel-key-d906dd09-8d9f-4658-8ccd-c1b7b69be824",
+                paymentId: paymentId,
+                orderName: item.name,
+                totalAmount: item.price,
+                currency: item.currency || "KRW",
+                payMethod: "CARD",
+            });
+
+            if (payment.code !== undefined) {
+                // 결제 실패
+                setWaitingPayment(false);
+                failMessage.textContent = payment.message;
+                // failDialog.open = true;
+                alert("결제 실패: \n" + payment.message);
+                return;
+            }
+
+            // 결제 성공 → 서버에 결제 완료 요청
+            const completeResponse = await fetch("/cash/api/complete", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    paymentId: payment.paymentId,
+                    amount: item.price  // 사용자가 선택한 충전 금액
+                })
+            });
+
+            setWaitingPayment(false);
+            if (completeResponse.ok) {
+                // 결제 완료
+                // successDialog.open = true;
+                alert("결제 성공!");
+            } else {
+                const errText = await completeResponse.text();
+                // failMessage.textContent = errText;
+                alert("결제 실패: \n" + errText);
+                // failDialog.open = true;
+            }
+        }
+
+        // 버튼 비활성화/활성화
+        function setWaitingPayment(isWaiting) {
+            document.getElementById("checkoutButton").disabled = isWaiting;
+        }
+    }
+</script>
 
 </body>
 </html>

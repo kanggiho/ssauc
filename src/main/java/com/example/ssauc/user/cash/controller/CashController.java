@@ -1,20 +1,26 @@
 package com.example.ssauc.user.cash.controller;
 
+import com.example.ssauc.exception.PortoneVerificationException;
 import com.example.ssauc.user.cash.dto.CalculateDto;
 import com.example.ssauc.user.cash.dto.ChargeDto;
+import com.example.ssauc.user.cash.dto.ChargingDto;
 import com.example.ssauc.user.cash.dto.WithdrawDto;
+import com.example.ssauc.user.cash.entity.Charge;
 import com.example.ssauc.user.cash.service.CashService;
 import com.example.ssauc.user.login.entity.Users;
 import jakarta.servlet.http.HttpSession;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -92,5 +98,69 @@ public class CashController {
         model.addAttribute("endDate", endDateStr);
 
         return "/cash/cash";
+    }
+
+
+    // 충전 옵션 정보 (예: 기본 충전 옵션)
+    @GetMapping("/api/info")
+    @ResponseBody
+    public ChargingDto getChargingInfo() {
+        // 필요에 따라 동적으로 변경 가능
+        return ChargingDto.builder()
+                .id("charge")
+                .name("쏙머니 충전")
+                .price(10000)
+                .currency("KRW")
+                .build();
+    }
+
+    // 결제 완료 처리 엔드포인트
+    @PostMapping("/api/complete")
+    @ResponseBody
+    public ResponseEntity<?> completePayment(@RequestBody PaymentCompleteRequest request, HttpSession session) {
+        Users user = (Users) session.getAttribute("user");
+        if(user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+        try {
+            // 결제 검증 및 완료 처리 (사용자 충전 기록 업데이트)
+            Charge charge = cashService.verifyAndCompletePayment(request.getPaymentId(), request.getAmount(), user);
+            return ResponseEntity.ok(new PaymentResponse("PAID", charge.getChargeId()));
+        } catch (PortoneVerificationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+//    // 웹훅 처리 엔드포인트 (선택사항)
+//    @PostMapping("/api/webhook")
+//    @ResponseBody
+//    public ResponseEntity<?> handleWebhook(@RequestHeader("webhook-id") String webhookId,
+//                                           @RequestHeader("webhook-timestamp") String webhookTimestamp,
+//                                           @RequestHeader("webhook-signature") String webhookSignature,
+//                                           @RequestBody String body) {
+//        try {
+//            cashService.handleWebhook(body, webhookId, webhookTimestamp, webhookSignature);
+//            return ResponseEntity.ok("Webhook processed");
+//        } catch (PortoneVerificationException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+//        }
+//    }
+
+    // DTOs for 결제 완료 처리
+    @Setter
+    @Getter
+    public static class PaymentCompleteRequest {
+        private String paymentId;
+        private Long amount;
+    }
+
+    @Getter
+    public static class PaymentResponse {
+        private String status;
+        private Long chargeId;
+        public PaymentResponse(String status, Long chargeId) {
+            this.status = status;
+            this.chargeId = chargeId;
+        }
     }
 }
