@@ -114,7 +114,7 @@ public class CashController {
     // 결제 완료 처리 엔드포인트
     @PostMapping("/api/complete")
     @ResponseBody
-    public ResponseEntity<?> completePayment(@RequestBody PaymentCompleteRequest request, HttpSession session) {
+    public ResponseEntity<?> completePayment(@RequestBody ChargeRequestDto request, HttpSession session) {
         Users user = (Users) session.getAttribute("user");
         if(user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
@@ -122,7 +122,7 @@ public class CashController {
         try {
             // 결제 검증 및 완료 처리 (사용자 충전 기록 업데이트)
             Charge charge = cashService.verifyAndCompletePayment(request.getPaymentId(), request.getAmount(), user);
-            return ResponseEntity.ok(new PaymentResponse("PAID", charge.getChargeId()));
+            return ResponseEntity.ok(new ChargeResponseDto("PAID", charge.getChargeId()));
         } catch (PortoneVerificationException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -146,7 +146,7 @@ public class CashController {
     // 환급 신청 처리 엔드포인트 추가
     @PostMapping("/api/withdraw")
     @ResponseBody
-    public ResponseEntity<?> requestWithdraw(@RequestBody WithdrawRequest request, HttpSession session) {
+    public ResponseEntity<?> requestWithdraw(@RequestBody WithdrawRequestDto request, HttpSession session) {
         Users user = (Users) session.getAttribute("user");
         if(user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
