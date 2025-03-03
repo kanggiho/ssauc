@@ -71,7 +71,7 @@
                         <th:block th:if="${session.user != null}">
                             <a th:href="@{/mypage}">
 
-                                <img src="/img/profile.png" style="height: 20px; width: 20px; margin-right: 10px">
+                                <img th:src="${session.user.getProfileImage()}" style="height: 30px; width: 30px; margin-right: 5px; border-radius: 50%; object-fit: cover;">
                             </a>
                             <!-- 로그인한 상태 -->
                             <span class="me-3 text-dark fw-bold" th:text="'환영합니다, ' + ${session.user.userName} + ' 님'"></span>
