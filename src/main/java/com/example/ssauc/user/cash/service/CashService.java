@@ -4,6 +4,7 @@ import com.example.ssauc.user.cash.dto.CalculateDto;
 import com.example.ssauc.user.cash.dto.ChargeDto;
 import com.example.ssauc.user.cash.dto.WithdrawDto;
 import com.example.ssauc.user.cash.entity.Charge;
+import com.example.ssauc.user.cash.entity.Withdraw;
 import com.example.ssauc.user.login.entity.Users;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CashService {
+
+    // 환급 신청 처리 (수수료 계산 포함)
+    Withdraw requestWithdraw(Users user, Long amount, String bank, String account);
+    // 이번 달 환급 신청 횟수를 반환하는 메서드 추가
+    int getCurrentWithdrawCount(Users user);
 
     Page<ChargeDto> getChargesByUser(Users user, Pageable pageable);
     Page<ChargeDto> getChargesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);

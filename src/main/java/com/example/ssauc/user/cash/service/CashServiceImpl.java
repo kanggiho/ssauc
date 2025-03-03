@@ -165,7 +165,7 @@ public class CashServiceImpl implements CashService {
     }
 
 
-    // ===================== 결제(Portone) 관련 기능 =====================
+    // ===================== 결제(Portone) =====================
     @Override
     public Charge verifyAndCompletePayment(String paymentId, Long providedAmount, Users user) throws PortoneVerificationException {
         // 1. 결제 정보 사전 등록(pre‑register) API 호출 (POST)
@@ -339,6 +339,48 @@ public class CashServiceImpl implements CashService {
         return charge;
     }
 
+
+    // ===================== 환급 신청 =====================
+    @Override
+    public Withdraw requestWithdraw(Users user, Long amount, String bank, String account) {
+        // 서버 측 검증: 환급 요청 금액이 사용자의 잔액 이하인지 확인
+        if(amount > user.getCash()){
+            throw new IllegalArgumentException("환급 신청 금액이 보유한 머니를 초과합니다.");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        // 이번 달의 시작과 끝 구하기
+        LocalDateTime startOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime endOfMonth = now.withDayOfMonth(now.toLocalDate().lengthOfMonth())
+                .withHour(23).withMinute(59).withSecond(59);
+        // 이번 달 환급 신청 건수 확인
+        int withdrawCount = withdrawRepository.countByUserAndRequestedAtBetween(user, startOfMonth, endOfMonth);
+        // 월 3회까지 무료, 초과부터 1,000원 수수료 적용
+        long commission = withdrawCount < 3 ? 0 : 1000;
+
+        Withdraw withdraw = Withdraw.builder()
+                .user(user)
+                .amount(amount)
+                .commission(commission)
+                .bank(bank)
+                .account(account)
+                .requestedAt(now)
+                .withdrawAt(null)  // 아직 환급 완료되지 않았으므로 null
+                .build();
+        withdrawRepository.save(withdraw);
+        return withdraw;
+    }
+
+    // ===================== 환급 신청 횟수 =====================
+    @Override
+    public int getCurrentWithdrawCount(Users user) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime endOfMonth = now.withDayOfMonth(now.toLocalDate().lengthOfMonth())
+                .withHour(23).withMinute(59).withSecond(59);
+        // requested_at 기준으로 환급 횟수 계산
+        return withdrawRepository.countByUserAndRequestedAtBetween(user, startOfMonth, endOfMonth);
+    }
 
 //    @Override
 //    public void handleWebhook(String body, String webhookId, String webhookTimestamp, String webhookSignature)

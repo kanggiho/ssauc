@@ -1,16 +1,12 @@
 package com.example.ssauc.user.cash.controller;
 
 import com.example.ssauc.exception.PortoneVerificationException;
-import com.example.ssauc.user.cash.dto.CalculateDto;
-import com.example.ssauc.user.cash.dto.ChargeDto;
-import com.example.ssauc.user.cash.dto.ChargingDto;
-import com.example.ssauc.user.cash.dto.WithdrawDto;
+import com.example.ssauc.user.cash.dto.*;
 import com.example.ssauc.user.cash.entity.Charge;
+import com.example.ssauc.user.cash.entity.Withdraw;
 import com.example.ssauc.user.cash.service.CashService;
 import com.example.ssauc.user.login.entity.Users;
 import jakarta.servlet.http.HttpSession;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("cash")
@@ -59,6 +51,11 @@ public class CashController {
 
         int pageSize = 10;
         Pageable pageable = PageRequest.of(page - 1, pageSize);
+
+        // 이번 달 환급 신청 횟수를 requested_at 기준으로 계산
+        // 이번 달 환급 신청 횟수를 서비스에서 가져옴
+        int currentWithdrawCount = cashService.getCurrentWithdrawCount(user);
+        model.addAttribute("currentWithdrawCount", currentWithdrawCount);
 
         // 날짜 필터가 있는 경우와 없는 경우를 분기해서 처리
         if ("charge".equals(filter)) {
@@ -146,21 +143,20 @@ public class CashController {
 //        }
 //    }
 
-    // DTOs for 결제 완료 처리
-    @Setter
-    @Getter
-    public static class PaymentCompleteRequest {
-        private String paymentId;
-        private Long amount;
-    }
-
-    @Getter
-    public static class PaymentResponse {
-        private String status;
-        private Long chargeId;
-        public PaymentResponse(String status, Long chargeId) {
-            this.status = status;
-            this.chargeId = chargeId;
+    // 환급 신청 처리 엔드포인트 추가
+    @PostMapping("/api/withdraw")
+    @ResponseBody
+    public ResponseEntity<?> requestWithdraw(@RequestBody WithdrawRequest request, HttpSession session) {
+        Users user = (Users) session.getAttribute("user");
+        if(user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+        try {
+            Withdraw withdraw = cashService.requestWithdraw(user, request.getAmount(), request.getBank(), request.getAccount());
+            return ResponseEntity.ok("환급 요청이 접수되었습니다.");
+        } catch(Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("환급 요청 처리 중 오류 발생");
         }
     }
+
 }

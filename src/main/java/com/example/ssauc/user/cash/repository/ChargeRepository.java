@@ -10,8 +10,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ChargeRepository extends JpaRepository<Charge, Long> {
-    List<Charge> findByUser(Users user);
-    List<Charge> findByUserAndCreatedAtBetween(Users user, LocalDateTime start, LocalDateTime end);
     // 페이징 처리 메서드 추가
     Page<Charge> findByUser(Users user, Pageable pageable);
     Page<Charge> findByUserAndCreatedAtBetween(Users user, LocalDateTime start, LocalDateTime end, Pageable pageable);

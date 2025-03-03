@@ -167,7 +167,7 @@
 </div>
 
 
-<!-- 모달: 충전 금액 선택 + PortOne 결제 로직 -->
+<!-- 충전 모달: 충전 금액 선택 + PortOne 결제 로직 -->
 <dialog id="chargeModal" layout:fragment="dialog">
 
     <!-- 모달 닫기 버튼 -->
@@ -187,19 +187,19 @@
                 <div>
                     <label for="amountSelect">충전 금액 선택:</label><br/>
                     <select id="amountSelect">
-                        <option value="">선택하세요</option>
+                        <option value="custom" selected>직접 입력</option>
                         <option value="5000">5,000원</option>
                         <option value="10000">10,000원</option>
                         <option value="30000">30,000원</option>
                         <option value="50000">50,000원</option>
                         <option value="100000">100,000원</option>
-                        <option value="custom">직접 입력</option>
+                        <option value="500000">500,000원</option>
                     </select>
                     <!-- 직접 입력 필드 (1000원 단위) -->
                     <input
                             type="number"
                             id="customAmount"
-                            class="hidden2"
+                            class=""
                             placeholder="1000원 단위 입력"
                             step="1000"
                             min="1000"
@@ -230,9 +230,67 @@
     </dialog>
 </dialog>
 
+<!-- 환급 모달 -->
+<dialog id="withdrawModal" layout:fragment="dialog2">
+    <!-- 모달 닫기 버튼 -->
+    <button type="button" id="closeWithdrawModalBtn" style="float: right;">X</button>
+    <h2> 환급 신청 </h2>
+    <div class="refund-cash-info">
+        현재 보유 중인 머니:
+        <span id="currentCashRefund" th:text="${T(java.lang.String).format('%,d 원', session.user.cash)}">0 원</span>
+    </div>
+    <div class="withdraw-info">
+        이번 달 환급 횟수:
+        <span id="currentWithdrawCount" th:text="${currentWithdrawCount != null ? currentWithdrawCount + '회' : '0회'}">0회</span>
+    </div>
+    <p>월 3회까지 무료 환급 제공, 이후부터 수수료 1,000원이 적용됩니다.</p>
+    <form id="withdrawForm">
+        <div>
+            <label for="withdrawAmountSelect">환급 금액 선택:</label><br/>
+            <select id="withdrawAmountSelect">
+                <option value="custom" selected>직접 입력</option>
+                <option value="5000">5,000원</option>
+                <option value="10000">10,000원</option>
+                <option value="30000">30,000원</option>
+                <option value="50000">50,000원</option>
+                <option value="100000">100,000원</option>
+            </select>
+            <input type="number" id="withdrawCustomAmount" class="" placeholder="1000원 단위 입력" step="1000" min="1000">
+        </div>
+        <div>
+            <label for="withdrawBank">환급 대상 은행:</label><br/>
+            <select id="withdrawBank" required>
+                <option value="">선택하세요</option>
+                <option value="KB국민은행">KB국민은행</option>
+                <option value="신한은행">신한은행</option>
+                <option value="하나은행">하나은행</option>
+                <option value="우리은행">우리은행</option>
+                <option value="NH농협은행">NH농협은행</option>
+                <option value="IBK기업은행">IBK기업은행</option>
+                <option value="SC제일은행">SC제일은행</option>
+                <option value="대구은행">대구은행</option>
+                <option value="부산은행">부산은행</option>
+                <option value="광주은행">광주은행</option>
+                <option value="전북은행">전북은행</option>
+                <option value="경남은행">경남은행</option>
+                <option value="수협은행">수협은행</option>
+                <option value="우체국">우체국</option>
+            </select>
+        </div>
+        <div>
+            <label for="withdrawAccount">환급 대상 계좌번호:</label><br/>
+            <input type="text" id="withdrawAccount" placeholder="계좌번호 입력" required>
+        </div>
+        <div style="margin-top:10px;">
+            <label>총 환급 금액:</label>
+            <span id="netWithdrawAmount">0원</span>
+        </div>
+        <button type="submit" id="withdrawSubmitButton">환급 신청</button>
+    </form>
+</dialog>
 
 <script layout:fragment="script" th:inline="javascript">
-    // ====== 모달 열고 닫는 부분 ======
+    // ====== 충전 모달 처리 ======
     const openChargeModalBtn = document.getElementById("openChargeModal");
     const chargeModal = document.getElementById("chargeModal");
     const closeModalBtn = document.getElementById("closeModalBtn");
@@ -251,15 +309,14 @@
     });
 
     function resetModal() {
-        document.getElementById("amountSelect").value = "";
+        document.getElementById("amountSelect").value = "custom";
         document.getElementById("customAmount").value = "";
-        document.getElementById("customAmount").classList.add("hidden2");
-        document.getElementById("displayPrice").textContent = "0원";
+        document.getElementById("customAmount").classList.remove("hidden2");
+        document.getElementById("displayPrice").textContent = currentCash.toLocaleString() + "원";
     }
 
-    // ====== 모달 안에서 실행 ======
+    // ====== 충전 모달 안에서 실행 ======
     const checkout = new Checkout();
-
     function Checkout() {
         let item = null;
         const amountSelect = document.getElementById("amountSelect");
@@ -412,6 +469,100 @@
             document.getElementById("checkoutButton").disabled = isWaiting;
         }
     }
+
+
+    // ====== 환급 모달 처리 ======
+    const refundButton = document.querySelector(".refund"); // 환급 버튼 (cash-box 내)
+    const withdrawModal = document.getElementById("withdrawModal");
+    const closeWithdrawModalBtn = document.getElementById("closeWithdrawModalBtn");
+    const withdrawForm = document.getElementById("withdrawForm");
+    const withdrawAmountSelect = document.getElementById("withdrawAmountSelect");
+    const withdrawCustomAmount = document.getElementById("withdrawCustomAmount");
+    const netWithdrawAmountSpan = document.getElementById("netWithdrawAmount");
+
+    // 환급 버튼 클릭 시 환급 모달 열기
+    refundButton.addEventListener("click", () => {
+        withdrawModal.showModal();
+    });
+
+    // 모달 닫기 버튼
+    closeWithdrawModalBtn.addEventListener("click", () => {
+        withdrawModal.close();
+        resetWithdrawModal();
+    });
+
+    function resetWithdrawModal() {
+        withdrawAmountSelect.value = "custom";
+        withdrawCustomAmount.value = "";
+        netWithdrawAmountSpan.textContent = "0원";
+    }
+
+    // 환급 금액 선택 변경 이벤트 등록
+    withdrawAmountSelect.addEventListener("change", handleWithdrawAmountChange);
+    withdrawCustomAmount.addEventListener("input", handleWithdrawAmountChange);
+
+    function handleWithdrawAmountChange() {
+        let baseAmount = 0;
+        if (withdrawAmountSelect.value === "custom") {
+            withdrawCustomAmount.classList.remove("hidden2");
+            baseAmount = parseInt(withdrawCustomAmount.value) || 0;
+        } else {
+            withdrawCustomAmount.classList.add("hidden2");
+            baseAmount = parseInt(withdrawAmountSelect.value);
+        }
+        // 월 3회까지 무료, 3회 이상이면 수수료 1000원 적용 (즉, 현재 횟수가 3 이상이면)
+        let currentCount = parseInt(document.getElementById("currentWithdrawCount").textContent) || 0;
+        let commission = currentCount >= 3 ? 1000 : 0;
+        let net = baseAmount - commission;
+        netWithdrawAmountSpan.textContent = net.toLocaleString() + "원";
+    }
+
+    // 환급 신청 폼 제출 처리
+    withdrawForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        let amount = 0;
+        if (withdrawAmountSelect.value === "custom") {
+            amount = parseInt(withdrawCustomAmount.value) || 0;
+        } else {
+            amount = parseInt(withdrawAmountSelect.value);
+        }
+
+        // 환급 금액이 사용자가 가진 머니(currentCash)보다 초과하면 안 됨.
+        if (amount > currentCash) {
+            alert("환급 신청 금액은 보유한 머니 이하이어야 합니다.");
+            return;
+        }
+
+        const bank = document.getElementById("withdrawBank").value;
+        const account = document.getElementById("withdrawAccount").value;
+        if(amount <= 0 || bank === "" || account.trim() === "") {
+            alert("모든 항목을 정확히 입력해주세요.");
+            return;
+        }
+        // POST 요청으로 환급 신청
+        try {
+            const response = await fetch("/cash/api/withdraw", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    amount: amount,
+                    bank: bank,
+                    account: account
+                })
+            });
+            if(response.ok) {
+                alert("환급 요청이 접수되었습니다.");
+                withdrawModal.close();
+                location.reload(); // 내역 갱신 등 필요 시
+            } else {
+                const errText = await response.text();
+                alert("환급 요청 실패: " + errText);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("환급 요청 중 오류가 발생했습니다.");
+        }
+    });
 </script>
 
 </body>
