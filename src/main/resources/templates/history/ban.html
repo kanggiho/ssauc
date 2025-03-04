@@ -24,55 +24,60 @@
         <table class="ban-table">
             <thead>
             <tr>
-                <th>차단당한 회원</th>
+                <th>대상 회원</th>
                 <th>차단 시간</th>
                 <th>조치</th>
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td>홍길동</td>
-                <td>2025-02-05 18:36:27</td>
+            <tr th:each="ban : ${banList}">
+                <td th:text="${ban.blockedUserName}">회원명</td>
+                <td th:text="${#temporals.format(ban.blockedAt, 'yyyy-MM-dd HH:mm')}">차단시간</td>
                 <td>
-                    <button class="unban-btn">차단 해제</button>
+                    <!-- 차단 해제 폼 -->
+                    <form class="unbanForm" th:action="@{/history/ban/unban}" method="post">
+                        <input type="hidden" name="banId" th:value="${ban.banId}" />
+                        <button type="submit" class="unban-btn">차단 해제</button>
+                    </form>
                 </td>
             </tr>
-            <tr>
-                <td>김철수</td>
-                <td>2025-02-04 15:20:10</td>
-                <td>
-                    <button class="unban-btn">차단 해제</button>
-                </td>
-            </tr>
-            <!-- 추가 데이터 행은 백엔드 연동에 따라 동적으로 채워짐 -->
             </tbody>
         </table>
 
         <!-- 페이지네이션 (필요시) -->
         <div class="pagination">
-            <button><</button>
-            <button class="active">1</button>
-            <button>2</button>
-            <button>3</button>
-            <button>4</button>
-            <button>5</button>
-            <button>></button>
+            <!-- 이전 페이지 버튼 (현재 페이지가 1보다 클 때만 표시) -->
+            <a th:if="${currentPage > 1}" th:href="@{/history/ban(page=${currentPage - 1})}">
+                <button><</button>
+            </a>
+
+            <!-- 페이지 번호 버튼 -->
+            <span th:each="i : ${#numbers.sequence(1, totalPages)}">
+                <a th:href="@{/history/ban(page=${i})}">
+                    <button th:text="${i}" th:classappend="${i == currentPage} ? ' active'"></button>
+                </a>
+            </span>
+
+            <!-- 다음 페이지 버튼 (현재 페이지가 총 페이지 수보다 작을 때만 표시) -->
+            <a th:if="${currentPage < totalPages}" th:href="@{/history/ban(page=${currentPage + 1})}">
+                <button>></button>
+            </a>
         </div>
     </main>
 </div>
 
 <!-- 차단 해제 버튼 클릭 이벤트 스크립트 -->
-<script>
-    function confirmUnban(event) {
-        if (confirm("차단 해제 하시겠습니까?")) {
-            alert("차단 해제가 완료되었습니다.");
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const unbanButtons = document.querySelectorAll(".unban-btn");
-        unbanButtons.forEach(button => {
-            button.addEventListener("click", confirmUnban);
+<script layout:fragment="script" th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        const unbanForms = document.querySelectorAll("form.unbanForm");
+        unbanForms.forEach(form => {
+            form.addEventListener("submit", function(event) {
+                if (!confirm("차단 해제 하시겠습니까?")) {
+                    event.preventDefault();
+                } else {
+                    alert("차단 해제가 완료되었습니다.");
+                }
+            });
         });
     });
 </script>
