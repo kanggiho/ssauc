@@ -195,3 +195,110 @@
     background-color: black;
     color: white;
 }
+
+/* 모달(dialog) 스타일 */
+/* 모달(dialog) 스타일: 중앙 정렬 및 아름다운 디자인 */
+#chargeModal, #withdrawModal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    max-width: 90%;
+    background-color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1050; /* 다른 요소보다 위에 표시 */
+}
+
+/* 모달 백드롭 스타일 */
+#chargeModal::backdrop,
+#withdrawModal::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* 충전 모달 내부 폼 요소 */
+#chargeModal label,
+#withdrawModal label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: inline-block;
+}
+
+#chargeModal select,
+#chargeModal input[type="number"],
+#withdrawModal select,
+#withdrawModal input[type="number"],
+#withdrawModal input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#checkoutButton,
+#withdrawSubmitButton {
+    width: 50%;
+    padding: 10px;
+    font-size: 1rem;
+    background-color: #000;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block;
+    margin: 0 auto;
+}
+
+#checkoutButton:disabled {
+    background-color: #888;
+    cursor: not-allowed;
+}
+
+dialog {
+    width: 500px;
+    max-width: 90%;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 20px;
+}
+dialog::backdrop {
+    background: rgba(0,0,0,0.3);
+    pointer-events: none;
+}
+.hidden2 {
+    display: none;
+}
+#amountSelect, #customAmount {
+    width: 200px;
+    margin-top: 10px;
+    font-size: 1rem;
+}
+#checkoutButton {
+    margin-top: 20px;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+#loadingDialog {
+    border: 1px solid #aaa;
+    padding: 20px;
+}
+
+#closeModalBtn,
+#closeWithdrawModalBtn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    font-size: 1.5rem;
+    text-align: center;
+    line-height: 40px; /* 버튼 높이와 동일 */
+    cursor: pointer;
+}
+
+

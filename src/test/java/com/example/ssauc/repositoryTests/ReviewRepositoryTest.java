@@ -7,10 +7,15 @@ import com.example.ssauc.user.order.entity.Orders;
 import com.example.ssauc.user.order.repository.OrdersRepository;
 import com.example.ssauc.user.pay.entity.Review;
 import com.example.ssauc.user.pay.repository.ReviewRepository;
+import com.example.ssauc.user.product.entity.Category;
+import com.example.ssauc.user.product.entity.Product;
+import com.example.ssauc.user.product.repository.CategoryRepository;
+import com.example.ssauc.user.product.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
@@ -27,6 +32,12 @@ class ReviewRepositoryTest {
 
     @Autowired
     private OrdersRepository ordersRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Test
     void testSaveAndFindReview() {
@@ -45,7 +56,29 @@ class ReviewRepositoryTest {
                 .createdAt(LocalDateTime.now())
                 .build());
 
+
+        Category category = new Category();
+        category.setName("categoryTest");
+        Category savedCategory = categoryRepository.save(category);
+
+
+        Product product = new Product();
+        product.setSeller(reviewee);
+        product.setCategory(savedCategory);
+        product.setName("Sample Product");
+        product.setDescription("This is a sample product.");
+        product.setPrice(5000L);
+        product.setImageUrl("http://example.com/product.jpg");
+        product.setStatus("Available");
+        product.setStartPrice(1000L);
+        product.setCreatedAt(LocalDateTime.now());
+        product.setEndAt(LocalDateTime.now());
+        product.setViewCount(0);
+        Product savedProduct = productRepository.save(product);
+
+
         Orders order = ordersRepository.save(Orders.builder()
+                .product(savedProduct)
                 .buyer(reviewer)
                 .seller(reviewee)
                 .totalPrice(5000L)

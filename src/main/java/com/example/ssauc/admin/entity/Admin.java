@@ -17,8 +17,8 @@ public class Admin {
     @Column(name = "admin_id")
     private Long adminId;
 
-    @Column(name = "user_name", length = 50, nullable = false)
-    private String userName;
+    @Column(name = "admin_name", length = 50, nullable = false)
+    private String adminName;
 
     @Column(name = "email", length = 100, nullable = false, unique = true)
     private String email;

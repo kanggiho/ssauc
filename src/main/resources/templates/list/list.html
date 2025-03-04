@@ -15,41 +15,41 @@
                 <div class="sidebar">
                     <h5>카테고리</h5>
                     <div class="category-list">
-                        <a href="#">디지털기기</a>
-                        <a href="#">가구/인테리어</a>
-                        <a href="#">유아동</a>
-                        <a href="#">여성의류</a>
-                        <a href="#">여성잡화</a>
-                        <a href="#">남성패션/잡화</a>
-                        <a href="#">생활가전</a>
-                        <a href="#">생활/주방</a>
+                        <a th:href="@{/list/category(categoryId=1)}">디지털기기</a>
+                        <a th:href="@{/list/category(categoryId=2)}">가구/인테리어</a>
+                        <a th:href="@{/list/category(categoryId=3)}">유아동</a>
+                        <a th:href="@{/list/category(categoryId=4)}">여성의류</a>
+                        <a th:href="@{/list/category(categoryId=5)}">여성잡화</a>
+                        <a th:href="@{/list/category(categoryId=6)}">남성패션/잡화</a>
+                        <a th:href="@{/list/category(categoryId=7)}">생활가전</a>
+                        <a th:href="@{/list/category(categoryId=8)}">생활/주방</a>
                     </div>
 
                     <h5 class="mt-4">가격</h5>
                     <div class="price-filter">
-                        <button>~2만원</button>
-                        <button>2만원 ~ 3만원</button>
-                        <button>3만원 ~ 4만원</button>
-                        <button>4만원 ~ 20만원</button>
+                        <button class="price-button" th:data-min-price="0" th:data-max-price="20000" onclick="filterByPrice(this)">~2만원</button>
+                        <button class="price-button" th:data-min-price="20000" th:data-max-price="30000" onclick="filterByPrice(this)">2만원 ~ 3만원</button>
+                        <button class="price-button" th:data-min-price="30000" th:data-max-price="40000" onclick="filterByPrice(this)">3만원 ~ 4만원</button>
+                        <button class="price-button" th:data-min-price="40000" th:data-max-price="200000" onclick="filterByPrice(this)">4만원 ~ 20만원</button>
                     </div>
 
                     <div class="price-input">
-                        <input type="text" placeholder="원">
+                        <input type="text" id="minPrice" placeholder="최소 가격 (원)">
                         <span>~</span>
-                        <input type="text" placeholder="원">
-                        <button>🔍</button>
+                        <input type="text" id="maxPrice" placeholder="최대 가격 (원)">
+                        <button onclick="filterByInputPrice()">🔍</button>
                     </div>
+
                 </div>
             </div>
 
             <!-- 상품 리스트 -->
             <div class="col-lg-10">
-                <p th:if="${session.user != null}">사용자 이름: <span th:text="${session.user.getUserId()}"></span></p>
                 <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
                     <div class="col" th:each="product : ${secondList}">
                             <div class="card product-card">
                                 <button class="icon-btn" th:data-product-id="${product.productId}" onclick="toggleHeart(this)">
-                                    <i class="bi bi-heart"></i>
+                                    <i th:class="${product.liked} ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
                                 </button>
                                 <a th:href="@{/bid/bid(productId=${product.productId})}">
                                 <img th:src="${product.imageUrl}" alt="시계">
@@ -58,7 +58,9 @@
                                     <p class="product-title" th:text="${product.name}"></p>
                                     <p class="product-price" th:text="${product.price}"></p>
                                     <p class="product-info">[[${product.bidCount}]] | [[${product.gap}]]</p>
-                                    <p class="product-info">[[${product.location}]] | [[${product.likeCount}]]</p>
+                                    <p class="product-info">
+                                        [[${product.location}]] | ❤️ <span class="like-count" th:text="${product.likeCount}"></span>
+                                    </p>
                                 </div>
                                 </a>
                             </div>
@@ -91,7 +93,6 @@
 
     <script th:inline="javascript">
         var isLoggedIn = /*[[${session.user != null}]]*/ false;
-        var isLogin = /*[[${session.user != null ? session.user.getUserId() : 'huge'}]]*/ 'guest';
 
         function toggleHeart(button) {
             // 로그인 여부 체크: 로그인 안 되어 있으면 메시지 표시 후 리턴
@@ -105,23 +106,76 @@
                 return; // 로그인하지 않았다면 이후 동작 중단
             }
 
+            const productId = button.getAttribute("data-product-id"); // 상품 아이디 받기
             const icon = button.querySelector("i");
-            let liked;
+            const card = button.closest(".product-card");
+            const likeCountElement = card.querySelector(".like-count");
 
-            if (icon.classList.contains("bi-heart-fill")) {
-                // 이미 채워져 있으면 빈 하트로 전환 및 검정색
-                icon.classList.remove("bi-heart-fill");
-                icon.classList.add("bi-heart");
-                icon.style.color = "black";
-                liked = false;
-            } else {
-                // 빈 하트면 꽉 찬 빨간 하트로 전환
-                icon.classList.remove("bi-heart");
-                icon.classList.add("bi-heart-fill");
-                icon.style.color = "red";
-                liked = true;
-            }
+            // 현재 좋아요 수 파싱 (쉼표 제거 후 정수 변환)
+            let currentCount = parseInt(likeCountElement.textContent.replace(/,/g, ''), 10) || 0;
+
+            fetch("/api/like", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    productId: productId
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.liked) {
+                        icon.classList.remove("bi-heart");
+                        icon.classList.add("bi-heart-fill")
+                        currentCount++;
+                    } else {
+                        icon.classList.remove("bi-heart-fill");
+                        icon.classList.add("bi-heart");
+                        currentCount = Math.max(0, currentCount - 1);
+                    }
+
+                    likeCountElement.textContent = currentCount.toLocaleString();
+                })
+                .catch(error => console.error("Error:", error));
         }
+
+        function filterByPrice(button) {
+            const minPrice = button.getAttribute("data-min-price");
+            const maxPrice = button.getAttribute("data-max-price");
+
+            // GET 요청을 보낼 URL 생성
+            const url = `/list/price?minPrice=${minPrice}&maxPrice=${maxPrice}`;
+
+            // 페이지 이동
+            window.location.href = url;
+        }
+
+        function filterByInputPrice() {
+            const minPrice = document.getElementById("minPrice").value;
+            const maxPrice = document.getElementById("maxPrice").value;
+
+            // 입력값이 없을 경우 기본값 설정
+            if (!minPrice || !maxPrice) {
+                alert("최소 가격과 최대 가격을 입력해주세요.");
+                return;
+            }
+
+            if (isNaN(minPrice) || isNaN(maxPrice)) {
+                alert("숫자만 입력 가능합니다.");
+                return;
+            }
+
+            if (parseInt(minPrice) > parseInt(maxPrice)) {
+                alert("최소 가격이 최대 가격보다 클 수 없습니다.");
+                return;
+            }
+
+            // GET 요청을 보낼 URL 생성
+            const url = `/list/price?minPrice=${minPrice}&maxPrice=${maxPrice}`;
+
+            // 페이지 이동
+            window.location.href = url;
+        }
+
     </script>
 
 </div>

@@ -3,6 +3,7 @@ package com.example.ssauc.user.order.entity;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.pay.entity.Payment;
 import com.example.ssauc.user.pay.entity.Review;
+import com.example.ssauc.user.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,6 +23,11 @@ public class Orders {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id")
     private Long orderId;
+
+    // 주문 한 상품
+    @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
     // 주문 한 구매자
     @ManyToOne

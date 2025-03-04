@@ -15,64 +15,98 @@
         <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
 
             <!-- 상품 1 -->
-            <div class="col">
+            <div class="col" th:each="product : ${likelist}">
                 <div class="card product-card">
-                    <button class="icon-btn" data-product-id="1" onclick="toggleHeart(this)">
-                        <i class="bi bi-heart"></i>
+                    <button class="icon-btn" th:data-product-id="${product.productId}" onclick="toggleHeart(this)">
+                        <i th:class="${product.liked} ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
                     </button>
-                    <img th:src="@{/img/index/time.jpg}" alt="시계">
-                    <div class="card-body">
-                        <p class="product-title">시계왕 싸게 판매합니다</p>
-                        <p class="product-price">400,000</p>
-                        <p class="product-info">입찰 42회 | ⏳ 5일 22시간</p>
-                        <p class="product-info">영국 | ❤️ 3,810</p>
-                    </div>
+                    <a th:href="@{/bid/bid(productId=${product.productId})}">
+                        <img th:src="${product.imageUrl}">
+                        <div class="card-body">
+                            <p class="product-title" th:text="${product.name}"></p>
+                            <p class="product-price" th:text="${product.price}"></p>
+                            <p class="product-info">[[${product.bidCount}]] | [[${product.gap}]]</p>
+                            <p class="product-info">
+                                [[${product.location}]] | ❤️ <span class="like-count" th:text="${product.likeCount}"></span>
+                            </p>
+                        </div>
+                    </a>
                 </div>
             </div>
-
-
         </div>
 
         <!-- ✅ 페이지네이션을 상품 리스트 바깥으로 이동 -->
+        <div class="pagination-container" th:if="${!likelist.isEmpty()}">
+            <div class="pagination">
+                <!-- 이전 페이지 버튼 -->
+                <a th:if="${likelist.hasPrevious()}" th:href="@{/list/list(page=${likelist.number - 1})}" class="page-link">&lt;</a>
+
+                <!-- 페이지 번호 (5개씩 표시) -->
+                <th:block th:with="start=${(likelist.number / 5) * 5}, end=${T(java.lang.Math).min(start + 4, likelist.totalPages - 1)}">
+                    <a th:each="i : ${#numbers.sequence(start, end)}"
+                       th:href="@{/list/list(page=${i})}"
+                       th:text="${i + 1}"
+                       th:classappend="${i == likelist.number} ? 'active' : ''"
+                       class="page-link">
+                    </a>
+                </th:block>
+
+                <!-- 다음 페이지 버튼 -->
+                <a th:if="${likelist.hasNext()}" th:href="@{/list/list(page=${likelist.number + 1})}" class="page-link">&gt;</a>
+            </div>
+        </div>
+
+        <div th:if="${likelist.isEmpty()}">
+            <h4 class="likelist-none">좋아요 한 항목이 없습니다.</h4>
+        </div>
+
     </div>
 
-    <script>
+    <script th:inline="javascript">
+        var isLoggedIn = /*[[${session.user != null}]]*/ false;
+
         function toggleHeart(button) {
-            const icon = button.querySelector("i");
-            if (icon.classList.contains("bi-heart-fill")) {
-                // 이미 채워져 있으면 빈 하트로 전환하고 색상은 검정으로 변경
-                icon.classList.remove("bi-heart-fill");
-                icon.classList.add("bi-heart");
-                icon.style.color = "black";
-            } else {
-                // 빈 하트면 꽉 찬 하트로 전환하고 빨간색으로 변경
-                icon.classList.remove("bi-heart");
-                icon.classList.add("bi-heart-fill");
-                icon.style.color = "red";
+            // 로그인 여부 체크: 로그인 안 되어 있으면 메시지 표시 후 리턴
+            if (!isLoggedIn || isLoggedIn === "false") {
+                // confirm 창의 기본 버튼은 브라우저에 따라 "확인"/"취소"로 표시됩니다.
+                // "확인"을 누르면 true, "취소"(혹은 아니오)를 누르면 false 반환.
+                if (confirm("로그인 후 이용할 수 있습니다.\n로그인 페이지로 이동하시겠습니까?")) {
+                    // 사용자가 확인을 누른 경우 로그인 페이지로 이동
+                    window.location.href = '/login';
+                }
+                return; // 로그인하지 않았다면 이후 동작 중단
             }
 
-            // 여기서 서버 API로 좋아요 상태 변경을 요청합니다.
-            // 예를 들어, productId를 데이터 속성(data-product-id)에서 가져온다고 가정합니다.
-            const productId = button.getAttribute("data-product-id");
+            const productId = button.getAttribute("data-product-id"); // 상품 아이디 받기
+            const icon = button.querySelector("i");
+            const card = button.closest(".product-card");
+            const likeCountElement = card.querySelector(".like-count");
 
-            // AJAX 요청: fetch API를 사용하여 POST 요청 전송
-            fetch(`/api/like/${productId}`, {
+            // 현재 좋아요 수 파싱 (쉼표 제거 후 정수 변환)
+            let currentCount = parseInt(likeCountElement.textContent.replace(/,/g, ''), 10) || 0;
+
+            fetch("/api/like", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ liked: liked })
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    productId: productId,
+                })
             })
                 .then(response => response.json())
                 .then(data => {
-                    // 서버로부터 받은 응답을 확인하고 UI를 업데이트할 수 있습니다.
-                    // 예: 서버가 성공적으로 저장되었는지 여부에 따라 처리
-                    console.log("서버 응답:", data);
+                    if (data.liked) {
+                        icon.classList.remove("bi-heart");
+                        icon.classList.add("bi-heart-fill")
+                        currentCount++;
+                    } else {
+                        icon.classList.remove("bi-heart-fill");
+                        icon.classList.add("bi-heart");
+                        currentCount = Math.max(0, currentCount - 1);
+                    }
+
+                    likeCountElement.textContent = currentCount.toLocaleString();
                 })
-                .catch(error => {
-                    console.error("Error:", error);
-                    // 에러가 발생하면 UI 상태를 원복하거나 에러 메시지를 표시할 수 있습니다.
-                });
+                .catch(error => console.error("Error:", error));
         }
     </script>
 

@@ -55,8 +55,23 @@
 
             <!-- 상품 정보 및 경매 상세 -->
             <div class="col-md-6">
-                <h2 class="fw-bold" th:text="${inform.getName()}" id="product_na">상품명</h2>
-                <p class="text-muted fs-5">현재가 <strong class="text-danger" th:text="${inform.getTempPrice()+' 원'}">0원</strong></p>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="fw-bold" th:text="${inform.getName()}" id="product_na">상품명</h2>
+                    <div>
+                        <!-- 관심품목: 채워진 별 아이콘 -->
+                        <button class="btn btn-outline-secondary btn-sm me-2" title="관심품목" id="interestBtn">
+                            <i class="bi bi-star-fill"></i>
+                        </button>
+                        <!-- 신고하기: 경고 삼각형 아이콘 (사이렌 대체) -->
+                        <button class="btn btn-outline-danger btn-sm" title="신고하기" id="reportBtn">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </button>
+                    </div>
+                </div>
+
+
+                <p class="text-muted fs-5">현재가 <strong class="text-danger" th:text="${T(java.lang.String).format('%,d 원', inform.getTempPrice())}">0원</strong></p>
 
                 <div class="border p-3 rounded bg-light">
                     <br>
@@ -68,38 +83,43 @@
                             <p class="mb-0"><strong>입찰 수 :</strong> <span th:text="${inform.getBidCount()}+'회'">0회</span></p>
                         </div>
                         <div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="deliveryOption" id="directOption" value="direct">
-                                <label class="form-check-label" for="directOption">직거래</label>
+                            <div class="form-check form-check-inline" th:if="${inform.dealType==0}">
+                                <a>🧑🏻 직거래 가능</a>
                             </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="deliveryOption" id="parcelOption" value="parcel">
-                                <label class="form-check-label" for="parcelOption">택배</label>
+                            <div class="form-check form-check-inline" th:if="${inform.dealType==1}">
+                                <a>🚚 택배거래 가능</a>
                             </div>
+                            <div class="form-check form-check-inline" th:if="${inform.dealType==2}">
+                                <a>🧑🏻🚚 직거래, 택배거래 가능</a>
+                            </div>
+
                         </div>
                     </div>
 
                     <!-- 얇은 회색 선 -->
                     <hr class="my-2" style="border-color: #ddd;">
 
-                    <p class="mb-0"><strong>입찰 단위 : </strong><span th:text="${inform.getMinIncrement()}+'원'">1,000원</span></p>
+                    <p class="mb-0"><strong>최소 입찰 단위 : </strong><span th:text="${T(java.lang.String).format('%,d 원', inform.getMinIncrement())}">1,000원</span></p>
                     <br>
 
-                    <p><strong>즉시 구매가 : </strong><span th:text="${inform.getPrice()}+'원'">60,000원</span></p>
+                    <p><strong>즉시 구매가 : </strong><span th:text="${T(java.lang.String).format('%,d 원', inform.getPrice())}">60,000원</span></p>
                     <div class="mt-3 d-flex align-items-center">
                         <label for="desiredBid" class="me-2"><strong>희망 입찰가 :</strong></label>
                         <input type="number" id="desiredBid" class="form-control w-50" placeholder="입찰가 입력">
+                        <label style="margin-left: 20px" id="ableBid"></label>
                     </div>
-                    <p class="mt-2"><strong>예상 구매가 :</strong> 1265940원 (구매 수수료 포함)</p>
+                    <p class="mt-2"><strong>예상 구매가 : </strong><span id="estimatedPrice">0원</span>(구매 수수료 포함)</p>
                 </div>
 
 
                 <div class="mt-3">
-                    <button class="btn btn-dark w-100 py-2">입찰하기</button>
-                    <button class="btn btn-danger w-100 mt-2 py-2">즉시 구매하기</button>
-                    <div class="d-flex mt-2">
-                        <button class="btn btn-secondary flex-grow-1 py-2 me-2">관심상품</button>
-                        <button class="btn btn-outline-danger flex-grow-1 py-2">신고하기</button>
+                    <!-- 즉시 구매 버튼을 최상단으로 배치하여 우선순위 강조 -->
+                    <button class="btn btn-danger w-100 py-2 mb-2" id="tempBuyBtn">즉시 구매하기</button>
+
+                    <!-- 입찰 관련 버튼 그룹화 -->
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-dark flex-grow-1 py-2" id="bidBtn">입찰하기</button>
+                        <button class="btn btn-success flex-grow-1 py-2" id="autoBidBtn">자동입찰</button>
                     </div>
                 </div>
             </div>
@@ -149,18 +169,13 @@
                             </tr>
                             <tr>
                                 <th scope="row">좋아요 수</th>
-                                <td th:text="${inform.viewCount}">좋아요 수</td>
+                                <td th:text="${inform.likeCount}">좋아요 수</td>
                             </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-
-
-
-
-
         </div>
     </div>
     <script>
@@ -194,6 +209,100 @@
         // 페이지 로드 후 1초마다 updateTimer 함수 호출
         updateTimer(); // 첫 호출
         var timerInterval = setInterval(updateTimer, 1000);
+
+        calculateFee()
+        bid()
+        buy()
+        report()
+
+
+
+        function calculateFee(){
+
+            document.addEventListener("DOMContentLoaded", function() {
+                var bidInput = document.getElementById("desiredBid");
+                var estimatedPriceElement = document.getElementById("estimatedPrice");
+                var ableBid = document.getElementById("ableBid");
+
+
+                var immediatePrice = [[${inform.price}]];
+                var tempPrice = [[${inform.tempPrice}]];
+                var minIncrement = [[${inform.minIncrement}]];
+
+                // 입력 값이 변경될 때 예상 구매가 업데이트
+                bidInput.addEventListener("input", function() {
+                    var bidValue = parseInt(bidInput.value) || 0; // 값이 없으면 0 처리
+                    var estimatedPrice = parseInt(parseFloat(bidValue)*1.05); // 예상 가격 계산
+                    estimatedPriceElement.textContent = estimatedPrice.toLocaleString() + " 원"; // 콤마 포함한 숫자 표시
+                    if(bidValue<immediatePrice&&(tempPrice+minIncrement)<=bidValue){
+                        ableBid.innerText = "가능한 가격 입니다.";
+                        ableBid.style.color = "green";
+                    }else{
+                        ableBid.innerText = "불가능한 가격 입니다.";
+                        ableBid.style.color = "red";
+                    }
+
+                });
+            });
+
+        }
+
+        // 입찰기능 구현
+        function bid(){
+            document.addEventListener("DOMContentLoaded", function() {
+
+                var bidBtn = document.getElementById("bidBtn");
+                var autoBidBtn = document.getElementById("autoBidBtn");
+
+                bidBtn.addEventListener("click", function (){
+                    var sessionId = "[[${sessionId}]]";
+                    var sellerId = "[[${sellerId}]]";
+
+                    if (sessionId === sellerId) {
+                        alert("안됨");
+                    }
+                });
+
+                autoBidBtn.addEventListener("click", function (){
+                    // 자동입찰하기
+                });
+
+
+            });
+        }
+
+        // 즉시 구매하기 기능 구현
+        function buy(){
+            document.addEventListener("DOMContentLoaded", function() {
+
+                var tempBuyBtn = document.getElementById("tempBuyBtn");
+
+                tempBuyBtn.addEventListener("click", function (){
+                    // 즉시구매
+                    window.location.href = "/order/order?productId="+[[${productId}]];
+                });
+
+
+            });
+        }
+
+        // 신고하기 기능 구현
+        function report() {
+
+            document.addEventListener("DOMContentLoaded", function() {
+
+                var reportBtn = document.getElementById("reportBtn");
+
+                reportBtn.addEventListener("click", function (){
+                    window.location.href = "/bid/report?reported="+[[${productId}]];
+                });
+
+
+            });
+
+        }
+
+
     </script>
 
 </div>

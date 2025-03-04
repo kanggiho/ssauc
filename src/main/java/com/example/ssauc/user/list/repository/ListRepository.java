@@ -1,6 +1,7 @@
 package com.example.ssauc.user.list.repository;
 
 import com.example.ssauc.user.list.dto.ListDto;
+import com.example.ssauc.user.list.dto.WithLikeDto;
 import com.example.ssauc.user.product.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,4 +21,46 @@ public interface ListRepository extends JpaRepository<Product, Long> {
             + "FROM Product p "
             + "JOIN p.seller u")
     Page<ListDto> getProductList(Pageable pageable);
+
+    @Query("SELECT new com.example.ssauc.user.list.dto.WithLikeDto(" +
+            "p.productId, p.imageUrl, p.name, p.price, p.bidCount," +
+            "p.endAt, p.createdAt, u.location, p.likeCount," +
+            "CASE WHEN pl.user.userId IS NOT NULL THEN true ELSE false END" +
+            ") " +
+            "FROM Product p " +
+            "LEFT JOIN p.likedProducts pl ON pl.user.userId = :userId " +
+            "JOIN p.seller u")
+    Page<WithLikeDto> getWithLikeProductList(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("SELECT new com.example.ssauc.user.list.dto.WithLikeDto(" +
+            "p.productId, p.imageUrl, p.name, p.price, p.bidCount," +
+            "p.endAt, p.createdAt, u.location, p.likeCount," +
+            "CASE WHEN pl.user.userId IS NOT NULL THEN true ELSE false END" +
+            ") " +
+            "FROM Product p " +
+            "JOIN p.likedProducts pl ON pl.user.userId = :userId " +
+            "JOIN p.seller u")
+    Page<WithLikeDto> getLikeList(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("SELECT new com.example.ssauc.user.list.dto.WithLikeDto(" +
+            "p.productId, p.imageUrl, p.name, p.price, p.bidCount," +
+            "p.endAt, p.createdAt, u.location, p.likeCount," +
+            "CASE WHEN pl.user.userId IS NOT NULL THEN true ELSE false END" +
+            ") " +
+            "FROM Product p " +
+            "LEFT JOIN p.likedProducts pl ON pl.user.userId = :userId " +
+            "JOIN p.seller u " +
+            "WHERE p.category.categoryId = :categoryId")
+    Page<WithLikeDto> getCategoryList(@Param("userId") Long userId, @Param("categoryId") Long categoryId, Pageable pageable);
+
+    @Query("SELECT new com.example.ssauc.user.list.dto.WithLikeDto(" +
+            "p.productId, p.imageUrl, p.name, p.price, p.bidCount," +
+            "p.endAt, p.createdAt, u.location, p.likeCount," +
+            "CASE WHEN pl.user.userId IS NOT NULL THEN true ELSE false END" +
+            ") " +
+            "FROM Product p " +
+            "LEFT JOIN p.likedProducts pl ON pl.user.userId = :userId " +
+            "JOIN p.seller u " +
+            "WHERE p.price BETWEEN :minPrice AND :maxPrice")
+    Page<WithLikeDto> findByPriceRange(@Param("userId") Long userId, @Param("minPrice") int minPrice, @Param("maxPrice") int maxPrice, Pageable pageable);
 }

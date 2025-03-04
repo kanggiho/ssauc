@@ -1,34 +1,35 @@
 package com.example.ssauc.user.main.controller;
 
-import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.main.service.LikeService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Collections;
+import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/like")
+@RequestMapping("/api")
 @RequiredArgsConstructor
+@Slf4j
 public class LikeController {
-    private final LikeService likeService;
-    private final HttpSession httpSession;
 
-//    @PostMapping("/{productId}")
-//    public ResponseEntity<?> toggleLike(@PathVariable Long productId) {
-//        Users user = (Users) httpSession.getAttribute("user");
-//
-//        if (user == null) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
-//        }
-//
-////        boolean liked = likeService.toggleLike(user.getId(), productId);
-////        return ResponseEntity.ok(Collections.singletonMap("liked", liked));
-////    }
+    private final LikeService likeService;
+
+    @PostMapping("/like")
+    public ResponseEntity<Map<String, Object>> toggleLike(HttpSession session, @RequestBody Map<String, Object> requestData) {
+
+        Long userId = (Long) session.getAttribute("userId");
+        if(userId == null) {
+            return ResponseEntity.status(401).body(Map.of("success", false, "message", "로그인이 필요합니다."));
+        }
+
+        Long productId = Long.parseLong(requestData.get("productId").toString());
+        boolean isLiked = likeService.toggleLike(userId, productId);
+
+        return ResponseEntity.ok().body(Map.of(
+                "success", true,
+                "liked", isLiked,
+                "message", isLiked ? "좋아요 추가됨" : "좋아요 취소됨"));
+    }
 }

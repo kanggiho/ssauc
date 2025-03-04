@@ -71,7 +71,7 @@
                         <th:block th:if="${session.user != null}">
                             <a th:href="@{/mypage}">
 
-                                <img src="/img/profile.png" style="height: 20px; width: 20px; margin-right: 10px">
+                                <img th:src="${session.user.getProfileImage()}" style="height: 30px; width: 30px; margin-right: 5px; border-radius: 50%; object-fit: cover;">
                             </a>
                             <!-- 로그인한 상태 -->
                             <span class="me-3 text-dark fw-bold" th:text="'환영합니다, ' + ${session.user.userName} + ' 님'"></span>
@@ -90,11 +90,11 @@
                             </ul>
                         </div>
                         <!-- 좋아요 아이콘 -->
-                        <a th:href="${session.user != null} ? @{/likelist} : @{/login}" class="me-3 text-dark">
+                        <a th:href="${session.user != null} ? @{/list/likelist} : @{/login}" class="me-3 text-dark">
                             <i class="bi bi-heart"></i>
                         </a>
 
-                        <a th:href="@{/comment}" class="me-3 text-dark">
+                        <a th:href="@{/chat/chat}" class="me-3 text-dark">
                             <i class="bi bi-chat-dots"></i>
                         </a>
                     </div>
@@ -116,8 +116,9 @@
                             <div class="lnb-container">
                                 <div class="lnb-category">
                                     <ul>
-                                        <li><a href="#">카테고리</a></li>
-                                        <li><a href="#">전체보기</a></li>
+
+                                        <li><a th:href="@{/list/list}">카테고리</a></li>
+                                        <li><a th:href="@{/list/list}">전체보기</a></li>
                                         <li id="shalom"><a href="#">추천경매</a></li>
                                         <li><a href="#">인기경매</a></li>
                                         <li><a href="#">마감임박</a></li>
@@ -125,31 +126,31 @@
                                 </div>
                                 <div class="lnb-list">
                                     <ul>
-                                        <li><a href="#">디지털기기</a></li>
-                                        <li><a href="#">가구/인테리어</a></li>
-                                        <li><a href="#">유아동</a></li>
-                                        <li><a href="#">여성의류</a></li>
-                                        <li><a href="#">여성잡화</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=1)}">디지털기기</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=2)}">가구/인테리어</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=3)}">유아동</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=4)}">여성의류</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=5)}">여성잡화</a></li>
                                     </ul>
                                     <ul>
-                                        <li><a href="#">남성패션/잡화</a></li>
-                                        <li><a href="#">생활가전</a></li>
-                                        <li><a href="#">생활/주방</a></li>
-                                        <li><a href="#">스포츠/레저</a></li>
-                                        <li><a href="#">취미/게임/음반</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=6)}">남성패션/잡화</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=7)}">생활가전</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=8)}">생활/주방</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=9)}">스포츠/레저</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=10)}">취미/게임/음반</a></li>
                                     </ul>
                                     <ul>
-                                        <li><a href="#">뷰티/미용</a></li>
-                                        <li><a href="#">식품</a></li>
-                                        <li><a href="#">가공식품</a></li>
-                                        <li><a href="#">건강기능식품</a></li>
-                                        <li><a href="#">반려동물용품</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=11)}">뷰티/미용</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=12)}">식품</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=13)}">가공식품</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=14)}">건강기능식품</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=15)}">반려동물용품</a></li>
                                     </ul>
                                     <ul>
-                                        <li><a href="#">티켓/교환권</a></li>
-                                        <li><a href="#">도서</a></li>
-                                        <li><a href="#">유아도서</a></li>
-                                        <li><a href="#">기타 중고물품</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=16)}">티켓/교환권</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=17)}">도서</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=18)}">유아도서</a></li>
+                                        <li><a th:href="@{/list/category(categoryId=19)}">기타 중고물품</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -203,7 +204,10 @@
         </div>
     </div>
 </footer>
+
 <!-- 페이지별 스크립트 삽입 영역 추가 -->
+<div layout:fragment="dialog"></div>
+<div layout:fragment="dialog2"></div>
 <div layout:fragment="script"></div>
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
