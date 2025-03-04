@@ -55,6 +55,126 @@ public class CashServiceImpl implements CashService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
+    // ===================== 결제/정산 내역 =====================
+    @Override
+    public Page<CalculateDto> getCalculateByUser(Users user, Pageable pageable) {
+        // ※ OrdersRepository에 Page<Orders> findBySellerOrBuyer(Users seller, Users buyer, Pageable pageable) 메서드 필요
+        Page<Orders> ordersPage = ordersRepository.findBySellerOrBuyer(user, user, pageable);
+        return ordersPage.map(order -> {
+            boolean isSeller = order.getSeller().getUserId().equals(user.getUserId());
+            Payment payment = (order.getPayments() != null && !order.getPayments().isEmpty())
+                    ? order.getPayments().get(0) : null;
+            String paymentAmount = isSeller ? ("+" + order.getTotalPrice()) : ("-" + order.getTotalPrice());
+            LocalDateTime paymentTime = isSeller ? order.getCompletedDate() :
+                    (payment != null ? payment.getPaymentDate() : null);
+            String productName = order.getProduct().getName();
+            return CalculateDto.builder()
+                    .orderId(order.getOrderId())
+                    .paymentAmount(paymentAmount)
+                    .productName(productName)
+                    .paymentTime(paymentTime)
+                    .orderStatus(order.getOrderStatus())
+                    .build();
+        });
+    }
+
+    @Override
+    public Page<CalculateDto> getCalculateByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+        Page<Orders> ordersPage = ordersRepository.findBySellerOrBuyerAndPaymentTimeBetween(user, user, startDate, endDate, pageable);
+        return ordersPage.map(order -> {
+            boolean isSeller = order.getSeller().getUserId().equals(user.getUserId());
+            Payment payment = (order.getPayments() != null && !order.getPayments().isEmpty())
+                    ? order.getPayments().get(0) : null;
+            String paymentAmount = isSeller ? ("+" + order.getTotalPrice()) : ("-" + order.getTotalPrice());
+            LocalDateTime paymentTime = isSeller ? order.getCompletedDate() :
+                    (payment != null ? payment.getPaymentDate() : null);
+            String productName = order.getProduct().getName();
+            return CalculateDto.builder()
+                    .orderId(order.getOrderId())
+                    .paymentAmount(paymentAmount)
+                    .productName(productName)
+                    .paymentTime(paymentTime)
+                    .orderStatus(order.getOrderStatus())
+                    .build();
+        });
+    }
+
+    // ===================== 결제 내역 =====================
+    @Override
+    public Page<CalculateDto> getPaymentCalculatesByUser(Users user, Pageable pageable) {
+        // 주문 중 구매자인 경우 (user가 buyer)
+        Page<Orders> ordersPage = ordersRepository.findByBuyer(user, pageable);
+        return ordersPage.map(order -> {
+            Payment payment = (order.getPayments() != null && !order.getPayments().isEmpty())
+                    ? order.getPayments().get(0) : null;
+            String paymentAmount = "-" + order.getTotalPrice();
+            LocalDateTime paymentTime = (payment != null) ? payment.getPaymentDate() : null;
+            String productName = order.getProduct().getName();
+            return CalculateDto.builder()
+                    .orderId(order.getOrderId())
+                    .paymentAmount(paymentAmount)
+                    .productName(productName)
+                    .paymentTime(paymentTime)
+                    .orderStatus(order.getOrderStatus())
+                    .build();
+        });
+    }
+
+    @Override
+    public Page<CalculateDto> getPaymentCalculatesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+        Page<Orders> ordersPage = ordersRepository.findByBuyerAndPaymentTimeBetween(user, startDate, endDate, pageable);
+        return ordersPage.map(order -> {
+            Payment payment = (order.getPayments() != null && !order.getPayments().isEmpty())
+                    ? order.getPayments().get(0) : null;
+            String paymentAmount = "-" + order.getTotalPrice();
+            LocalDateTime paymentTime = (payment != null) ? payment.getPaymentDate() : null;
+            String productName = order.getProduct().getName();
+            return CalculateDto.builder()
+                    .orderId(order.getOrderId())
+                    .paymentAmount(paymentAmount)
+                    .productName(productName)
+                    .paymentTime(paymentTime)
+                    .orderStatus(order.getOrderStatus())
+                    .build();
+        });
+    }
+
+    // ===================== 정산 내역 =====================
+    @Override
+    public Page<CalculateDto> getSettlementCalculatesByUser(Users user, Pageable pageable) {
+        // 주문 중 판매자인 경우 (user가 seller)
+        Page<Orders> ordersPage = ordersRepository.findBySeller(user, pageable);
+        return ordersPage.map(order -> {
+            String paymentAmount = "+" + order.getTotalPrice();
+            LocalDateTime paymentTime = order.getCompletedDate();
+            String productName = order.getProduct().getName();
+            return CalculateDto.builder()
+                    .orderId(order.getOrderId())
+                    .paymentAmount(paymentAmount)
+                    .productName(productName)
+                    .paymentTime(paymentTime)
+                    .orderStatus(order.getOrderStatus())
+                    .build();
+        });
+    }
+
+    @Override
+    public Page<CalculateDto> getSettlementCalculatesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+        Page<Orders> ordersPage = ordersRepository.findBySellerAndCompletedDateBetween(user, startDate, endDate, pageable);
+        return ordersPage.map(order -> {
+            String paymentAmount = "+" + order.getTotalPrice();
+            LocalDateTime paymentTime = order.getCompletedDate();
+            String productName = order.getProduct().getName();
+            return CalculateDto.builder()
+                    .orderId(order.getOrderId())
+                    .paymentAmount(paymentAmount)
+                    .productName(productName)
+                    .paymentTime(paymentTime)
+                    .orderStatus(order.getOrderStatus())
+                    .build();
+        });
+    }
+
     // ===================== 충전 내역 =====================
     @Override
     public Page<ChargeDto> getChargesByUser(Users user, Pageable pageable) {
@@ -118,49 +238,6 @@ public class CashServiceImpl implements CashService {
         });
     }
 
-    // ===================== 결제/정산 내역 =====================
-    @Override
-    public Page<CalculateDto> getCalculateByUser(Users user, Pageable pageable) {
-        // ※ OrdersRepository에 Page<Orders> findBySellerOrBuyer(Users seller, Users buyer, Pageable pageable) 메서드 필요
-        Page<Orders> ordersPage = ordersRepository.findBySellerOrBuyer(user, user, pageable);
-        return ordersPage.map(order -> {
-            boolean isSeller = order.getSeller().getUserId().equals(user.getUserId());
-            Payment payment = (order.getPayments() != null && !order.getPayments().isEmpty())
-                    ? order.getPayments().get(0) : null;
-            String paymentAmount = isSeller ? ("+" + order.getTotalPrice()) : ("-" + order.getTotalPrice());
-            LocalDateTime paymentTime = isSeller ? order.getCompletedDate() :
-                    (payment != null ? payment.getPaymentDate() : null);
-            String productName = order.getProduct().getName();
-            return CalculateDto.builder()
-                    .orderId(order.getOrderId())
-                    .paymentAmount(paymentAmount)
-                    .productName(productName)
-                    .paymentTime(paymentTime)
-                    .orderStatus(order.getOrderStatus())
-                    .build();
-        });
-    }
-
-    @Override
-    public Page<CalculateDto> getCalculateByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
-        Page<Orders> ordersPage = ordersRepository.findBySellerOrBuyerAndPaymentTimeBetween(user, user, startDate, endDate, pageable);
-        return ordersPage.map(order -> {
-            boolean isSeller = order.getSeller().getUserId().equals(user.getUserId());
-            Payment payment = (order.getPayments() != null && !order.getPayments().isEmpty())
-                    ? order.getPayments().get(0) : null;
-            String paymentAmount = isSeller ? ("+" + order.getTotalPrice()) : ("-" + order.getTotalPrice());
-            LocalDateTime paymentTime = isSeller ? order.getCompletedDate() :
-                    (payment != null ? payment.getPaymentDate() : null);
-            String productName = order.getProduct().getName();
-            return CalculateDto.builder()
-                    .orderId(order.getOrderId())
-                    .paymentAmount(paymentAmount)
-                    .productName(productName)
-                    .paymentTime(paymentTime)
-                    .orderStatus(order.getOrderStatus())
-                    .build();
-        });
-    }
 
 
     // ===================== 결제(Portone) =====================
@@ -288,7 +365,20 @@ public class CashServiceImpl implements CashService {
         // 결제 상태 (예: "PAID")
         String status = (String) responseMap.get("status");
         // 결제 상세 메시지
-        String ResultMsg = (String) responseMap.get("pgResponse.ResultMsg");
+        String pgResultMsg = null;
+        Object pgResponseObj = responseMap.get("pgResponse");
+        if (pgResponseObj instanceof Map) {
+            Map<String, Object> pgResponseMap = (Map<String, Object>) pgResponseObj;
+            pgResultMsg = (String) pgResponseMap.get("ResultMsg");
+        } else if (pgResponseObj instanceof String) {
+            try {
+                // JSON 문자열을 Map으로 변환
+                Map<String, Object> pgResponseMap = mapper.readValue((String) pgResponseObj, new TypeReference<Map<String, Object>>() {});
+                pgResultMsg = (String) pgResponseMap.get("ResultMsg");
+            } catch (Exception e) {
+                throw new PortoneVerificationException("pgResponse 파싱 실패", e);
+            }
+        }
         // 영수증 URL
         String receiptUrl = (String) responseMap.get("receiptUrl");
 
@@ -315,7 +405,7 @@ public class CashServiceImpl implements CashService {
                 .chargeType(payMethod)
                 .amount(parsedAmount)
                 .status(status)
-                .details(ResultMsg)
+                .details(pgResultMsg)
                 .receiptUrl(receiptUrl)
                 .createdAt(paidAt)
                 .build();

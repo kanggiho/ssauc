@@ -55,14 +55,94 @@
                 <!-- 결제/정산은 나중 처리 -->
                 <a th:href="@{/cash/cash(filter='calculate')}" class="filter-btn"
                    th:classappend="${filter=='calculate'} ? ' active' : ''">결제 / 정산</a>
+                <!-- 결제 (구매) 내역 -->
+                <a th:href="@{/cash/cash(filter='payment')}" class="filter-btn"
+                   th:classappend="${filter=='payment'} ? ' active' : ''">결제</a>
+                <!-- 정산 (판매) 내역 -->
+                <a th:href="@{/cash/cash(filter='settlement')}" class="filter-btn"
+                   th:classappend="${filter=='settlement'} ? ' active' : ''">정산</a>
+                <!-- 충전 내역 -->
                 <a th:href="@{/cash/cash(filter='charge')}" class="charge filter-btn"
                    th:classappend="${filter=='charge'} ? ' active' : ''">충전</a>
+                <!-- 환급 내역 -->
                 <a th:href="@{/cash/cash(filter='withdraw')}" class="refund filter-btn"
                    th:classappend="${filter=='withdraw'} ? ' active' : ''">환급</a>
             </div>
         </div>
 
-        <!-- 내역 테이블: filter 값에 따라 다른 테이블 출력 -->
+        <!-- 결제/정산 내역 테이블 -->
+        <div th:if="${filter == 'calculate'}">
+            <table class="cash-table">
+                <thead>
+                <tr>
+                    <th>결제/정산 ID</th>
+                    <th>거래 상품명</th>
+                    <th>결제/정산 금액</th>
+                    <th>결제/정산 시간</th>
+                    <th>결제/정산 상태</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="calculate : ${calculateList}">
+                    <td th:text="${calculate.orderId}">1</td>
+                    <td th:text="${calculate.productName}">상품명</td>
+                    <td th:text="${(calculate.paymentAmount.substring(0,1)) +
+               T(java.lang.String).format('%,d', T(java.lang.Long).parseLong(calculate.paymentAmount.substring(1)))}">
+                        +1,600,000
+                    </td>
+                    <td th:text="${#temporals.format(calculate.paymentTime, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30</td>
+                    <td th:text="${calculate.orderStatus}">완료</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- 결제 내역 테이블 (User == 구매자) -->
+        <div th:if="${filter == 'payment'}">
+            <table class="cash-table">
+                <thead>
+                <tr>
+                    <th>결제 ID</th>
+                    <th>상품명</th>
+                    <th>결제 금액</th>
+                    <th>결제 시간</th>
+                    <th>상태</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="calculate : ${calculateList}">
+                    <td th:text="${calculate.orderId}">1</td>
+                    <td th:text="${calculate.productName}">상품명</td>
+                    <td th:text="${calculate.paymentAmount}">-1,000,000</td>
+                    <td th:text="${#temporals.format(calculate.paymentTime, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30</td>
+                    <td th:text="${calculate.orderStatus}">완료</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- 정산 내역 테이블 (User == 판매자) -->
+        <div th:if="${filter == 'settlement'}">
+            <table class="cash-table">
+                <thead>
+                <tr>
+                    <th>정산 ID</th>
+                    <th>상품명</th>
+                    <th>정산 금액</th>
+                    <th>정산 시간</th>
+                    <th>상태</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="calculate : ${calculateList}">
+                    <td th:text="${calculate.orderId}">1</td>
+                    <td th:text="${calculate.productName}">상품명</td>
+                    <td th:text="${calculate.paymentAmount}">+1,000,000</td>
+                    <td th:text="${#temporals.format(calculate.paymentTime, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30</td>
+                    <td th:text="${calculate.orderStatus}">완료</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- 충전 내역 테이블 -->
         <div th:if="${filter == 'charge'}">
             <table class="cash-table">
                 <thead>
@@ -89,7 +169,7 @@
                 </tbody>
             </table>
         </div>
-
+        <!-- 환급 내역 테이블 -->
         <div th:if="${filter == 'withdraw'}">
             <table class="cash-table">
                 <thead>
@@ -115,32 +195,7 @@
             </table>
         </div>
 
-        <!-- 결제/정산: 아직 미구현 -->
-        <div th:if="${filter == 'calculate'}">
-            <table class="cash-table">
-                <thead>
-                <tr>
-                    <th>결제/정산 ID</th>
-                    <th>거래 상품명</th>
-                    <th>결제/정산 금액</th>
-                    <th>결제/정산 시간</th>
-                    <th>결제/정산 상태</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="calculate : ${calculateList}">
-                    <td th:text="${calculate.orderId}">1</td>
-                    <td th:text="${calculate.productName}">상품명</td>
-                    <td th:text="${(calculate.paymentAmount.substring(0,1)) +
-               T(java.lang.String).format('%,d', T(java.lang.Long).parseLong(calculate.paymentAmount.substring(1)))}">
-                        +1,600,000
-                    </td>
-                    <td th:text="${#temporals.format(calculate.paymentTime, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30</td>
-                    <td th:text="${calculate.orderStatus}">완료</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+
 
         <!-- 페이지네이션 -->
         <div class="pagination">

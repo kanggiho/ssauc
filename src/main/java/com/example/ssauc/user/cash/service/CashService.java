@@ -18,14 +18,21 @@ public interface CashService {
     // 이번 달 환급 신청 횟수를 반환하는 메서드 추가
     int getCurrentWithdrawCount(Users user);
 
+    Page<CalculateDto> getCalculateByUser(Users user, Pageable pageable);
+    Page<CalculateDto> getCalculateByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+
+    Page<CalculateDto> getPaymentCalculatesByUser(Users user, Pageable pageable);
+    Page<CalculateDto> getPaymentCalculatesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+
+    Page<CalculateDto> getSettlementCalculatesByUser(Users user, Pageable pageable);
+    Page<CalculateDto> getSettlementCalculatesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+
     Page<ChargeDto> getChargesByUser(Users user, Pageable pageable);
     Page<ChargeDto> getChargesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
     Page<WithdrawDto> getWithdrawsByUser(Users user, Pageable pageable);
     Page<WithdrawDto> getWithdrawsByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
-    Page<CalculateDto> getCalculateByUser(Users user, Pageable pageable);
-    Page<CalculateDto> getCalculateByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
     // PortOne API를 통해 결제 정보를 검증, 결제 완료 처리.
     Charge verifyAndCompletePayment(String paymentId, Long amount, Users user) throws PortoneVerificationException;
