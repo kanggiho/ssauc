@@ -29,9 +29,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class CashServiceImpl implements CashService {
@@ -289,8 +287,8 @@ public class CashServiceImpl implements CashService {
 
         // 결제 상태 (예: "PAID")
         String status = (String) responseMap.get("status");
-        // 결제 실패 사유 (없을 수 있으므로 null 허용)
-        String failReason = (String) responseMap.get("fail_reason");
+        // 결제 상세 메시지
+        String ResultMsg = (String) responseMap.get("pgResponse.ResultMsg");
         // 영수증 URL
         String receiptUrl = (String) responseMap.get("receiptUrl");
 
@@ -317,7 +315,7 @@ public class CashServiceImpl implements CashService {
                 .chargeType(payMethod)
                 .amount(parsedAmount)
                 .status(status)
-                .details(failReason)
+                .details(ResultMsg)
                 .receiptUrl(receiptUrl)
                 .createdAt(paidAt)
                 .build();
