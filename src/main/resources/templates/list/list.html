@@ -13,6 +13,12 @@
             <!-- 왼쪽 사이드바 -->
             <div class="col-lg-2">
                 <div class="sidebar">
+                    <h5>필터</h5>
+                    <div class="canBid">
+                            <input class="form-check-input" id="filter_available_bid" type="checkbox" onchange="toggleCheckBox()">
+                            <span>경매 가능만 보기</span>
+                    </div>
+
                     <h5>카테고리</h5>
                     <div class="category-list">
                         <a th:href="@{/list/category(categoryId=1)}">디지털기기</a>
@@ -52,7 +58,10 @@
                                     <i th:class="${product.liked} ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
                                 </button>
                                 <a th:href="@{/bid/bid(productId=${product.productId})}">
-                                <img th:src="${product.imageUrl}" alt="시계">
+                                <img    class="product-img"
+                                        th:inline="text"
+                                        th:style="${product.getGap().equals('⏳ 입찰 마감') ? 'filter: opacity(0.5) drop-shadow(0 0 0 #808080);' : ''}"
+                                        th:src="${product.imageUrl}" alt="시계">
                                 <div class="card-body">
 
                                     <p class="product-title" th:text="${product.name}"></p>
@@ -175,6 +184,23 @@
             // 페이지 이동
             window.location.href = url;
         }
+
+        function toggleCheckBox() {
+            let checkbox = document.getElementById('filter_available_bid');
+            let url = checkbox.checked ? "/list/availableBid?filter=true" : "/list/list";
+
+            window.location.href = url;
+        }
+
+        // 페이지 로드 시 체크박스 상태 유지
+
+
+        window.onload = function() {
+            let params = new URLSearchParams(window.location.search);
+            let isFiltered = params.get("filter") === "true";
+
+            document.getElementById('filter_available_bid').checked = isFiltered;
+        };
 
     </script>
 

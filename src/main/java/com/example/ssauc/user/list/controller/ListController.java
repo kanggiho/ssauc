@@ -2,7 +2,6 @@ package com.example.ssauc.user.list.controller;
 
 import com.example.ssauc.user.list.Service.ListService;
 import com.example.ssauc.user.list.dto.TempDto;
-import com.example.ssauc.user.list.dto.WithLikeDto;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -73,5 +72,29 @@ public class ListController {
         Page<TempDto> priceFilteredList = listService.getProductsByPrice(pageable, session, minPrice, maxPrice);
         model.addAttribute("secondList", priceFilteredList);
         return "list/list"; // 가격별 상품 리스트 페이지
+    }
+
+    @GetMapping("/availableBid")
+    public String getAvailableBid(Pageable pageable, HttpSession session, Model model) {
+
+        if(session.getAttribute("userId") != null) {
+            Page<TempDto> availableBid = listService.getAvailableBidWithLike(pageable, session);
+            log.info("==============================");
+            List<TempDto> list = availableBid.getContent();
+            log.info("list size: withLike : " + list.size());
+            log.info("list content:" + list);
+            log.info("==============================");
+            model.addAttribute("secondList", availableBid);
+            return "list/list";
+        }
+
+        Page<TempDto> availableBid = listService.getAvailableBid(pageable);
+        log.info("==============================");
+        List<TempDto> list = availableBid.getContent();
+        log.info("list size:" + list.size());
+        log.info("list content:" + list);
+        log.info("==============================");
+        model.addAttribute("secondList", availableBid);
+        return "list/list";
     }
 }
