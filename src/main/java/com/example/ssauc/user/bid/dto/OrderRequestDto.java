@@ -6,6 +6,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class OrderRequestDto {
     private Long productId;
     private Long buyerId;
