@@ -35,7 +35,6 @@ public class OrderController {
         Long fee = (long) (product.getPrice() * 0.05);
         Long total = price + fee;
 
-
         model.addAttribute("orderRequestDto", dto);
         model.addAttribute("product", product);
 
