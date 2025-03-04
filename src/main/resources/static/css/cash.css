@@ -198,7 +198,7 @@
 
 /* 모달(dialog) 스타일 */
 /* 모달(dialog) 스타일: 중앙 정렬 및 아름다운 디자인 */
-#chargeModal {
+#chargeModal, #withdrawModal {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -214,19 +214,24 @@
 }
 
 /* 모달 백드롭 스타일 */
-#chargeModal::backdrop {
+#chargeModal::backdrop,
+#withdrawModal::backdrop {
     background: rgba(0, 0, 0, 0.5);
 }
 
-/* 모달 내부 폼 요소 스타일 개선 */
-#chargeModal label {
+/* 충전 모달 내부 폼 요소 */
+#chargeModal label,
+#withdrawModal label {
     font-weight: bold;
     margin-bottom: 5px;
     display: inline-block;
 }
 
 #chargeModal select,
-#chargeModal input[type="number"] {
+#chargeModal input[type="number"],
+#withdrawModal select,
+#withdrawModal input[type="number"],
+#withdrawModal input[type="text"] {
     width: 100%;
     padding: 8px;
     font-size: 1rem;
@@ -235,7 +240,8 @@
     border-radius: 4px;
 }
 
-#checkoutButton {
+#checkoutButton,
+#withdrawSubmitButton {
     width: 50%;
     padding: 10px;
     font-size: 1rem;
@@ -282,7 +288,8 @@ dialog::backdrop {
     padding: 20px;
 }
 
-#closeModalBtn {
+#closeModalBtn,
+#closeWithdrawModalBtn {
     width: 40px;
     height: 40px;
     padding: 0;
@@ -293,3 +300,5 @@ dialog::backdrop {
     line-height: 40px; /* 버튼 높이와 동일 */
     cursor: pointer;
 }
+
+
