@@ -456,6 +456,7 @@
                 // 결제 완료
                 // successDialog.open = true;
                 alert("결제 성공!");
+                location.reload();
             } else {
                 const errText = await completeResponse.text();
                 // failMessage.textContent = errText;
