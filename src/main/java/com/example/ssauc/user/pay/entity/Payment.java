@@ -42,4 +42,7 @@ public class Payment {
 
     @Column(name = "payment_date")
     private LocalDateTime paymentDate;
+
+    @Column(name = "payment_number")
+    private String paymentNumber;
 }
