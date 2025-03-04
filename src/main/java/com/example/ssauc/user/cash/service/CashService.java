@@ -10,7 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import com.example.ssauc.exception.PortoneVerificationException;
 import java.time.LocalDateTime;
-import java.util.List;
 
 public interface CashService {
 

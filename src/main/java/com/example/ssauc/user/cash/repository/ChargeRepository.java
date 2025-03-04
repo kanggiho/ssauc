@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public interface ChargeRepository extends JpaRepository<Charge, Long> {
     // 페이징 처리 메서드 추가
