@@ -30,6 +30,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class CashServiceImpl implements CashService {
@@ -162,7 +163,7 @@ public class CashServiceImpl implements CashService {
     public Page<WithdrawDto> getWithdrawsByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         Page<Withdraw> withdrawPage = withdrawRepository.findByUserAndWithdrawAtBetween(user, startDate, endDate, pageable);
         return withdrawPage.map(w -> {
-            String status = (w.getWithdrawAt() != null) ? "완료" : "처리중";
+            String status = (w.getWithdrawAt() != null) ? "환급완료" : "처리중";
             return WithdrawDto.builder()
                     .withdrawId(w.getWithdrawId())
                     .bank(w.getBank())
@@ -174,6 +175,51 @@ public class CashServiceImpl implements CashService {
         });
     }
 
+    
+    // ===================== 총합 계산 메서드 =====================
+    // 총 충전 금액
+    @Override
+    public long getTotalChargeAmount(Users user) {
+        return chargeRepository.sumAmountByUser(user);
+    }
+
+    @Override
+    public long getTotalChargeAmount(Users user, LocalDateTime startDate, LocalDateTime endDate) {
+        return chargeRepository.sumAmountByUserAndCreatedAtBetween(user, startDate, endDate);
+    }
+
+    // 총 환급 금액
+    @Override
+    public long getTotalWithdrawAmount(Users user) {
+        return withdrawRepository.sumNetAmountByUser(user);
+    }
+
+    @Override
+    public long getTotalWithdrawAmount(Users user, LocalDateTime startDate, LocalDateTime endDate) {
+        return withdrawRepository.sumNetAmountByUserAndWithdrawAtBetween(user, startDate, endDate);
+    }
+
+    // 총 결제 금액
+    @Override
+    public long getTotalPaymentAmount(Users user) {
+        return ordersRepository.sumTotalPriceByBuyer(user);
+    }
+
+    @Override
+    public long getTotalPaymentAmount(Users user, LocalDateTime startDate, LocalDateTime endDate) {
+        return ordersRepository.sumTotalPriceByBuyerAndPaymentDateBetween(user, startDate, endDate);
+    }
+
+    // 총 정산 금액
+    @Override
+    public long getTotalSettlementAmount(Users user) {
+        return ordersRepository.sumTotalPriceBySeller(user);
+    }
+
+    @Override
+    public long getTotalSettlementAmount(Users user, LocalDateTime startDate, LocalDateTime endDate) {
+        return ordersRepository.sumTotalPriceBySellerAndCompletedDateBetween(user, startDate, endDate);
+    }
 
 
     // ===================== 결제(Portone) =====================
@@ -232,7 +278,8 @@ public class CashServiceImpl implements CashService {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> responseMap;
         try {
-            responseMap = mapper.readValue(responseEntity.getBody(), new TypeReference<Map<String, Object>>() {});
+            responseMap = mapper.readValue(responseEntity.getBody(), new TypeReference<Map<String, Object>>() {
+            });
         } catch (Exception e) {
             throw new PortoneVerificationException("응답 파싱 실패", e);
         }
@@ -300,6 +347,11 @@ public class CashServiceImpl implements CashService {
 
         // 결제 상태 (예: "PAID")
         String status = (String) responseMap.get("status");
+        status = switch (status) {
+            case "PAID" -> "충전완료";
+            default -> "충전실패";
+        };
+
         // 결제 상세 메시지
         String pgResultMsg = null;
         Object pgResponseObj = responseMap.get("pgResponse");
@@ -309,7 +361,8 @@ public class CashServiceImpl implements CashService {
         } else if (pgResponseObj instanceof String) {
             try {
                 // JSON 문자열을 Map으로 변환
-                Map<String, Object> pgResponseMap = mapper.readValue((String) pgResponseObj, new TypeReference<Map<String, Object>>() {});
+                Map<String, Object> pgResponseMap = mapper.readValue((String) pgResponseObj, new TypeReference<Map<String, Object>>() {
+                });
                 pgResultMsg = (String) pgResponseMap.get("ResultMsg");
             } catch (Exception e) {
                 throw new PortoneVerificationException("pgResponse 파싱 실패", e);
@@ -363,12 +416,11 @@ public class CashServiceImpl implements CashService {
         return charge;
     }
 
-
     // ===================== 환급 신청 =====================
     @Override
     public Withdraw requestWithdraw(Users user, Long amount, String bank, String account) {
         // 서버 측 검증: 환급 요청 금액이 사용자의 잔액 이하인지 확인
-        if(amount > user.getCash()){
+        if (amount > user.getCash()) {
             throw new IllegalArgumentException("환급 신청 금액이 보유한 머니를 초과합니다.");
         }
 

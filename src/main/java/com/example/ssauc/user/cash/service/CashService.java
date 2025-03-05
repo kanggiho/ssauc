@@ -31,8 +31,17 @@ public interface CashService {
     Page<WithdrawDto> getWithdrawsByUser(Users user, Pageable pageable);
     Page<WithdrawDto> getWithdrawsByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
+    // 각 내역별 총합 계산 메서드 추가
+    long getTotalChargeAmount(Users user);
+    long getTotalChargeAmount(Users user, LocalDateTime startDate, LocalDateTime endDate);
+    long getTotalWithdrawAmount(Users user);
+    long getTotalWithdrawAmount(Users user, LocalDateTime startDate, LocalDateTime endDate);
+    long getTotalPaymentAmount(Users user);
+    long getTotalPaymentAmount(Users user, LocalDateTime startDate, LocalDateTime endDate);
+    long getTotalSettlementAmount(Users user);
+    long getTotalSettlementAmount(Users user, LocalDateTime startDate, LocalDateTime endDate);
 
-    // PortOne API를 통해 결제 정보를 검증, 결제 완료 처리.
+    // PortOne 결제 처리
     Charge verifyAndCompletePayment(String paymentId, Long amount, Users user) throws PortoneVerificationException;
 
     /**

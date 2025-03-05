@@ -6,8 +6,10 @@ import com.example.ssauc.user.cash.entity.Charge;
 import com.example.ssauc.user.cash.entity.Withdraw;
 import com.example.ssauc.user.cash.service.CashService;
 import com.example.ssauc.user.login.entity.Users;
+import com.example.ssauc.user.login.repository.UsersRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,11 +23,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Controller
-@RequestMapping("cash")
+@RequestMapping("/cash")
 public class CashController {
 
     @Autowired
     private CashService cashService;
+
+    @Autowired
+    private UsersRepository usersRepository;
 
     @GetMapping("/cash")
     public String cashPage(@RequestParam(value = "filter", required = false, defaultValue = "payment") String filter,
@@ -36,6 +41,10 @@ public class CashController {
                            Model model) {
 
         Users user = (Users) session.getAttribute("user");
+        Users latestUser = usersRepository.findById(user.getUserId())
+                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
+        model.addAttribute("user", latestUser);
+
         if (user == null) {
             return "redirect:/login";
         }
@@ -60,42 +69,68 @@ public class CashController {
         // 날짜 필터가 있는 경우와 없는 경우를 분기해서 처리
         if ("charge".equals(filter)) {
             // 충전 내역
+            pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "chargeId"));
             Page<ChargeDto> chargePage;
-            if (startDate != null && endDate != null) {
+            long totalAmount = 0;
+            if (startDate != null && endDate != null) { // 날짜 필터 적용 o
                 chargePage = cashService.getChargesByUser(user, startDate, endDate, pageable);
-            } else {
+                totalAmount = cashService.getTotalChargeAmount(user, startDate, endDate);
+            } else { // 날짜 필터 적용 x
                 chargePage = cashService.getChargesByUser(user, pageable);
+                totalAmount = cashService.getTotalChargeAmount(user);
             }
             model.addAttribute("chargeList", chargePage.getContent());
             model.addAttribute("totalPages", chargePage.getTotalPages());
             model.addAttribute("currentPage", page);
+            model.addAttribute("totalAmount", totalAmount);
         } else if ("withdraw".equals(filter)) {
             // 환급 내역
+            pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "withdrawId"));
             Page<WithdrawDto> withdrawPage;
+            long totalAmount = 0;
             if (startDate != null && endDate != null) {
                 withdrawPage = cashService.getWithdrawsByUser(user, startDate, endDate, pageable);
+                totalAmount = cashService.getTotalWithdrawAmount(user, startDate, endDate);
             } else {
                 withdrawPage = cashService.getWithdrawsByUser(user, pageable);
+                totalAmount = cashService.getTotalWithdrawAmount(user);
             }
             model.addAttribute("withdrawList", withdrawPage.getContent());
             model.addAttribute("totalPages", withdrawPage.getTotalPages());
             model.addAttribute("currentPage", page);
+            model.addAttribute("totalAmount", totalAmount);
         } else if ("payment".equals(filter)) {
             // 결제 내역 (구매한 주문만)
-            Page<CalculateDto> calculatePage = (startDate != null && endDate != null) ?
-                    cashService.getPaymentCalculatesByUser(user, startDate, endDate, pageable) :
-                    cashService.getPaymentCalculatesByUser(user, pageable);
+            pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "orderId"));
+            Page<CalculateDto> calculatePage;
+            long totalAmount = 0;
+            if (startDate != null && endDate != null) {
+                calculatePage = cashService.getPaymentCalculatesByUser(user, startDate, endDate, pageable);
+                totalAmount = cashService.getTotalPaymentAmount(user, startDate, endDate);
+            } else {
+                calculatePage = cashService.getPaymentCalculatesByUser(user, pageable);
+                totalAmount = cashService.getTotalPaymentAmount(user);
+            }
             model.addAttribute("calculateList", calculatePage.getContent());
             model.addAttribute("totalPages", calculatePage.getTotalPages());
             model.addAttribute("currentPage", page);
+            model.addAttribute("totalAmount", totalAmount);
         } else if ("settlement".equals(filter)) {
             // 정산 내역 (판매한 주문만)
-            Page<CalculateDto> calculatePage = (startDate != null && endDate != null) ?
-                    cashService.getSettlementCalculatesByUser(user, startDate, endDate, pageable) :
-                    cashService.getSettlementCalculatesByUser(user, pageable);
+            pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "orderId"));
+            Page<CalculateDto> calculatePage;
+            long totalAmount = 0;
+            if (startDate != null && endDate != null) {
+                calculatePage = cashService.getSettlementCalculatesByUser(user, startDate, endDate, pageable);
+                totalAmount = cashService.getTotalSettlementAmount(user, startDate, endDate);
+            } else {
+                calculatePage = cashService.getSettlementCalculatesByUser(user, pageable);
+                totalAmount = cashService.getTotalSettlementAmount(user);
+            }
             model.addAttribute("calculateList", calculatePage.getContent());
             model.addAttribute("totalPages", calculatePage.getTotalPages());
             model.addAttribute("currentPage", page);
+            model.addAttribute("totalAmount", totalAmount);
         }
 
         // startDateStr와 endDateStr도 모델에 담으면 페이지 링크에 유지할 수 있음

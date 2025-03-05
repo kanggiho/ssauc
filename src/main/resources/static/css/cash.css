@@ -167,6 +167,17 @@
     text-align: center;
 }
 
+.total-summary {
+    text-align: right;  /* 오른쪽 정렬 */
+    margin-top: 10px;   /* 테이블과 약간의 간격 */
+    padding-right: 20px; /* 오른쪽 여백 (원하는 만큼 조절) */
+    font-size: 16px;    /* 폰트 크기 */
+    font-weight: bold;  /* 강조 효과 */
+}
+.total-summary p {
+    margin: 0;
+}
+
 /* 테이블 정렬 */
 .cash-table th, .cash-table td {
     vertical-align: middle;
@@ -182,7 +193,7 @@
     display: flex;
     justify-content: center;
     gap: 5px;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 .pagination button {

@@ -12,21 +12,39 @@ import java.time.LocalDateTime;
 
 public interface OrdersRepository extends JpaRepository<Orders, Long> {
 
+    // 결제 내역
     // 결제 내역 (구매자 기준 주문) 조회
     Page<Orders> findByBuyer(Users buyer, Pageable pageable);
-    // 날짜 필터 포함한 페이징
     @Query("SELECT o FROM Orders o LEFT JOIN o.payments p " +
             "WHERE o.buyer = :buyer AND p.paymentDate BETWEEN :start AND :end")
     Page<Orders> findByBuyerAndPaymentTimeBetween(@Param("buyer") Users buyer,
                                                   @Param("start") LocalDateTime start,
                                                   @Param("end") LocalDateTime end,
                                                   Pageable pageable);
-
     // 정산 내역 (판매자 기준 주문) 조회
     Page<Orders> findBySeller(Users seller, Pageable pageable);
-    // 날짜 필터 포함한 페이징
     Page<Orders> findBySellerAndCompletedDateBetween(Users seller, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
+    // 기간 별 총 금액 계산
+    // 결제 내역 총 금액
+    @Query("SELECT COALESCE(SUM(o.totalPrice), 0) FROM Orders o " +
+            "WHERE o.buyer = :buyer  AND o.orderStatus = '거래완료'")
+    long sumTotalPriceByBuyer(Users buyer);
+
+    @Query("SELECT COALESCE(SUM(o.totalPrice), 0) FROM Orders o LEFT JOIN o.payments p " +
+            "WHERE o.buyer = :buyer AND p.paymentDate BETWEEN :start AND :end AND o.orderStatus = '거래완료'")
+    long sumTotalPriceByBuyerAndPaymentDateBetween(@Param("buyer") Users buyer,
+                                                   @Param("start") LocalDateTime start,
+                                                   @Param("end") LocalDateTime end);
+    // 정산 내역 총 금액
+    @Query("SELECT COALESCE(SUM(o.totalPrice), 0) FROM Orders o " +
+            "WHERE o.seller = :seller AND o.orderStatus = '거래완료'")
+    long sumTotalPriceBySeller(Users seller);
+    @Query("SELECT COALESCE(SUM(o.totalPrice), 0) FROM Orders o " +
+            "WHERE o.seller = :seller AND o.completedDate BETWEEN :start AND :end AND o.orderStatus = '거래완료'")
+    long sumTotalPriceBySellerAndCompletedDateBetween(@Param("seller") Users seller,
+                                                      @Param("start") LocalDateTime start,
+                                                      @Param("end") LocalDateTime end);
 
 
 }
