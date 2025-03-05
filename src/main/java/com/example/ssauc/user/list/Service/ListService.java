@@ -28,6 +28,9 @@ public class ListService {
 
         Page<ListDto> list = listRepository.getProductList(pageable);
 
+        log.info(String.valueOf(list.getContent().size()));
+        log.info("사이즈는 이정도 됩니다");
+
         // ✅ Stream을 사용하여 ListDto → TempDto 변환
         List<TempDto> tempList = list.getContent().stream().map(listDto -> {
             Duration duration = Duration.between(listDto.getCreatedAt(), listDto.getEndAt());
@@ -39,6 +42,10 @@ public class ListService {
             String like = addCommas(String.valueOf(listDto.getLikeCount()));
             String price = addCommas(listDto.getPrice().toString());
             String[] mainImage = listDto.getImageUrl().split(",");
+
+            if(days < 0 || hours < 0) { // 마감이 되었다면
+                inform = "⏳ 입찰 마감";
+            }
 
             return TempDto.builder()
                     .productId(listDto.getProductId())
@@ -69,6 +76,10 @@ public class ListService {
             String like = addCommas(String.valueOf(listDto.getLikeCount()));
             String price = addCommas(listDto.getPrice().toString());
             String[] mainImage = listDto.getImageUrl().split(",");
+
+            if(days < 0 || hours < 0) { // 마감이 되었다면
+                inform = "⏳ 입찰 마감";
+            }
 
             return TempDto.builder()
                     .productId(listDto.getProductId())
@@ -110,6 +121,10 @@ public class ListService {
             String price = addCommas(listDto.getPrice().toString());
             String[] mainImage = listDto.getImageUrl().split(",");
 
+            if(days < 0 || hours < 0) { // 마감이 되었다면
+                inform = "⏳ 입찰 마감";
+            }
+
             return TempDto.builder()
                     .productId(listDto.getProductId())
                     .imageUrl(mainImage[0])
@@ -140,6 +155,10 @@ public class ListService {
             String like = addCommas(String.valueOf(listDto.getLikeCount()));
             String price = addCommas(listDto.getPrice().toString());
             String[] mainImage = listDto.getImageUrl().split(",");
+
+            if(days < 0 || hours < 0) { // 마감이 되었다면
+                inform = "⏳ 입찰 마감";
+            }
 
             return TempDto.builder()
                     .productId(listDto.getProductId())
@@ -172,6 +191,10 @@ public class ListService {
             String price = addCommas(listDto.getPrice().toString());
             String[] mainImage = listDto.getImageUrl().split(",");
 
+            if(days < 0 || hours < 0) { // 마감이 되었다면
+                inform = "⏳ 입찰 마감";
+            }
+
             return TempDto.builder()
                     .productId(listDto.getProductId())
                     .imageUrl(mainImage[0])
@@ -185,6 +208,77 @@ public class ListService {
                     .build();
         }).toList();
 
+        return new PageImpl<>(tempList, pageable, list.getTotalElements());
+    }
+
+    public Page<TempDto> getAvailableBidWithLike(Pageable pageable, HttpSession session) {
+        Page<WithLikeDto> list = listRepository.getAvailableProductListWithLike((Long)session.getAttribute("userId"), pageable);
+
+        log.info("사이즈입니당~!~!");
+        log.info(list.getContent().toString());
+        log.info(String.valueOf(list.getContent().size()));
+
+        List<TempDto> tempList = list.getContent().stream()
+                .filter(listDto -> { // 마감되지 않은 상품만 필터링
+                    Duration duration = Duration.between(listDto.getCreatedAt(), listDto.getEndAt());
+                    int days = (int) duration.toDays();
+                    int hours = (int) duration.toHours() % 24;
+                    return days > 0 || (days == 0 && hours > 0);
+                })
+                .map(listDto -> {
+                    Duration duration = Duration.between(listDto.getCreatedAt(), listDto.getEndAt());
+                    int days = (int) duration.toDays();
+                    int hours = (int) duration.toHours() % 24;
+                    String bidCount = "입찰 %d회".formatted(listDto.getBidCount());
+                    String inform = "⏳ %d일 %d시간".formatted(days, hours);
+                    String like = addCommas(String.valueOf(listDto.getLikeCount()));
+                    String price = addCommas(listDto.getPrice().toString());
+                    String[] mainImage = listDto.getImageUrl().split(",");
+
+                    return TempDto.builder()
+                            .productId(listDto.getProductId())
+                            .imageUrl(mainImage[0])
+                            .name(listDto.getName())
+                            .price(price)
+                            .bidCount(bidCount)
+                            .gap(inform)
+                            .location(listDto.getLocation())
+                            .likeCount(like)
+                            .liked(listDto.isLiked())
+                            .build();
+                }).toList();
+
+        return new PageImpl<>(tempList, pageable, list.getTotalElements());
+    }
+
+    public Page<TempDto> getAvailableBid(Pageable pageable) {
+        // ✅ 마감되지 않은 상품만 가져오기 (DB에서 필터링 적용됨)
+        Page<ListDto> list = listRepository.getAvailableProductList(pageable);
+
+        List<TempDto> tempList = list.getContent().stream()
+                .map(listDto -> {
+                    Duration duration = Duration.between(listDto.getCreatedAt(), listDto.getEndAt());
+                    int days = (int) duration.toDays();
+                    int hours = (int) duration.toHours() % 24;
+                    String bidCount = "입찰 %d회".formatted(listDto.getBidCount());
+                    String inform = "⏳ %d일 %d시간".formatted(days, hours);
+                    String like = addCommas(String.valueOf(listDto.getLikeCount()));
+                    String price = addCommas(listDto.getPrice().toString());
+                    String[] mainImage = listDto.getImageUrl().split(",");
+
+                    return TempDto.builder()
+                            .productId(listDto.getProductId())
+                            .imageUrl(mainImage[0])
+                            .name(listDto.getName())
+                            .price(price)
+                            .bidCount(bidCount)
+                            .gap(inform)
+                            .location(listDto.getLocation())
+                            .likeCount(like)
+                            .build();
+                }).toList();
+
+        // ✅ DB에서 이미 필터링했으므로, 페이지네이션 적용된 데이터 그대로 반환
         return new PageImpl<>(tempList, pageable, list.getTotalElements());
     }
 }

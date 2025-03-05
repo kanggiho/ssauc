@@ -240,3 +240,12 @@ body {
     color: red;                        /* 내부 빨간색 */
     -webkit-text-fill-color: red;      /* 채움을 빨간색 */
 }
+
+.canBid {
+    flex-direction: column;
+    margin: 20px 0px 20px 0px;
+}
+
+.canBid span {
+    margin-left: 5px;
+}
