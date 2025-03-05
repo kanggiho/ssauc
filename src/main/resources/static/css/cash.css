@@ -107,6 +107,7 @@
     font-size: 15px;
     text-align: center;
     font-weight: bold;
+    text-decoration: none;
 }
 
 /* 활성화된 버튼 스타일: 검은색 배경, 흰색 글씨 */

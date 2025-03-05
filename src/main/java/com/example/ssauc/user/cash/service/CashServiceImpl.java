@@ -55,66 +55,18 @@ public class CashServiceImpl implements CashService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // ===================== 결제/정산 내역 =====================
-    @Override
-    public Page<CalculateDto> getCalculateByUser(Users user, Pageable pageable) {
-        // ※ OrdersRepository에 Page<Orders> findBySellerOrBuyer(Users seller, Users buyer, Pageable pageable) 메서드 필요
-        Page<Orders> ordersPage = ordersRepository.findBySellerOrBuyer(user, user, pageable);
-        return ordersPage.map(order -> {
-            boolean isSeller = order.getSeller().getUserId().equals(user.getUserId());
-            Payment payment = (order.getPayments() != null && !order.getPayments().isEmpty())
-                    ? order.getPayments().get(0) : null;
-            String paymentAmount = isSeller ? ("+" + order.getTotalPrice()) : ("-" + order.getTotalPrice());
-            LocalDateTime paymentTime = isSeller ? order.getCompletedDate() :
-                    (payment != null ? payment.getPaymentDate() : null);
-            String productName = order.getProduct().getName();
-            return CalculateDto.builder()
-                    .orderId(order.getOrderId())
-                    .paymentAmount(paymentAmount)
-                    .productName(productName)
-                    .paymentTime(paymentTime)
-                    .orderStatus(order.getOrderStatus())
-                    .build();
-        });
-    }
-
-    @Override
-    public Page<CalculateDto> getCalculateByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
-        Page<Orders> ordersPage = ordersRepository.findBySellerOrBuyerAndPaymentTimeBetween(user, user, startDate, endDate, pageable);
-        return ordersPage.map(order -> {
-            boolean isSeller = order.getSeller().getUserId().equals(user.getUserId());
-            Payment payment = (order.getPayments() != null && !order.getPayments().isEmpty())
-                    ? order.getPayments().get(0) : null;
-            String paymentAmount = isSeller ? ("+" + order.getTotalPrice()) : ("-" + order.getTotalPrice());
-            LocalDateTime paymentTime = isSeller ? order.getCompletedDate() :
-                    (payment != null ? payment.getPaymentDate() : null);
-            String productName = order.getProduct().getName();
-            return CalculateDto.builder()
-                    .orderId(order.getOrderId())
-                    .paymentAmount(paymentAmount)
-                    .productName(productName)
-                    .paymentTime(paymentTime)
-                    .orderStatus(order.getOrderStatus())
-                    .build();
-        });
-    }
-
     // ===================== 결제 내역 =====================
     @Override
     public Page<CalculateDto> getPaymentCalculatesByUser(Users user, Pageable pageable) {
         // 주문 중 구매자인 경우 (user가 buyer)
         Page<Orders> ordersPage = ordersRepository.findByBuyer(user, pageable);
         return ordersPage.map(order -> {
-            Payment payment = (order.getPayments() != null && !order.getPayments().isEmpty())
-                    ? order.getPayments().get(0) : null;
-            String paymentAmount = "-" + order.getTotalPrice();
-            LocalDateTime paymentTime = (payment != null) ? payment.getPaymentDate() : null;
-            String productName = order.getProduct().getName();
+            Payment payment = order.getPayments().get(0);
             return CalculateDto.builder()
                     .orderId(order.getOrderId())
-                    .paymentAmount(paymentAmount)
-                    .productName(productName)
-                    .paymentTime(paymentTime)
+                    .paymentAmount(order.getTotalPrice())
+                    .productName(order.getProduct().getName())
+                    .paymentTime(payment.getPaymentDate())
                     .orderStatus(order.getOrderStatus())
                     .build();
         });
@@ -124,16 +76,12 @@ public class CashServiceImpl implements CashService {
     public Page<CalculateDto> getPaymentCalculatesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         Page<Orders> ordersPage = ordersRepository.findByBuyerAndPaymentTimeBetween(user, startDate, endDate, pageable);
         return ordersPage.map(order -> {
-            Payment payment = (order.getPayments() != null && !order.getPayments().isEmpty())
-                    ? order.getPayments().get(0) : null;
-            String paymentAmount = "-" + order.getTotalPrice();
-            LocalDateTime paymentTime = (payment != null) ? payment.getPaymentDate() : null;
-            String productName = order.getProduct().getName();
+            Payment payment = order.getPayments().get(0);
             return CalculateDto.builder()
                     .orderId(order.getOrderId())
-                    .paymentAmount(paymentAmount)
-                    .productName(productName)
-                    .paymentTime(paymentTime)
+                    .paymentAmount(order.getTotalPrice())
+                    .productName(order.getProduct().getName())
+                    .paymentTime(payment.getPaymentDate())
                     .orderStatus(order.getOrderStatus())
                     .build();
         });
@@ -144,35 +92,25 @@ public class CashServiceImpl implements CashService {
     public Page<CalculateDto> getSettlementCalculatesByUser(Users user, Pageable pageable) {
         // 주문 중 판매자인 경우 (user가 seller)
         Page<Orders> ordersPage = ordersRepository.findBySeller(user, pageable);
-        return ordersPage.map(order -> {
-            String paymentAmount = "+" + order.getTotalPrice();
-            LocalDateTime paymentTime = order.getCompletedDate();
-            String productName = order.getProduct().getName();
-            return CalculateDto.builder()
-                    .orderId(order.getOrderId())
-                    .paymentAmount(paymentAmount)
-                    .productName(productName)
-                    .paymentTime(paymentTime)
-                    .orderStatus(order.getOrderStatus())
-                    .build();
-        });
+        return ordersPage.map(order -> CalculateDto.builder()
+                .orderId(order.getOrderId())
+                .paymentAmount(order.getTotalPrice())
+                .productName(order.getProduct().getName())
+                .paymentTime(order.getCompletedDate())
+                .orderStatus(order.getOrderStatus())
+                .build());
     }
 
     @Override
     public Page<CalculateDto> getSettlementCalculatesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         Page<Orders> ordersPage = ordersRepository.findBySellerAndCompletedDateBetween(user, startDate, endDate, pageable);
-        return ordersPage.map(order -> {
-            String paymentAmount = "+" + order.getTotalPrice();
-            LocalDateTime paymentTime = order.getCompletedDate();
-            String productName = order.getProduct().getName();
-            return CalculateDto.builder()
-                    .orderId(order.getOrderId())
-                    .paymentAmount(paymentAmount)
-                    .productName(productName)
-                    .paymentTime(paymentTime)
-                    .orderStatus(order.getOrderStatus())
-                    .build();
-        });
+        return ordersPage.map(order -> CalculateDto.builder()
+                .orderId(order.getOrderId())
+                .paymentAmount(order.getTotalPrice())
+                .productName(order.getProduct().getName())
+                .paymentTime(order.getCompletedDate())
+                .orderStatus(order.getOrderStatus())
+                .build());
     }
 
     // ===================== 충전 내역 =====================
@@ -209,12 +147,11 @@ public class CashServiceImpl implements CashService {
         Page<Withdraw> withdrawPage = withdrawRepository.findByUser(user, pageable);
         return withdrawPage.map(w -> {
             String status = (w.getWithdrawAt() != null) ? "완료" : "처리중";
-            long netAmount = (w.getAmount() != null && w.getCommission() != null) ? w.getAmount() - w.getCommission() : 0;
             return WithdrawDto.builder()
                     .withdrawId(w.getWithdrawId())
                     .bank(w.getBank())
                     .account(w.getAccount())
-                    .netAmount(netAmount)
+                    .netAmount(w.getAmount() - w.getCommission())
                     .withdrawAt(w.getWithdrawAt())
                     .requestStatus(status)
                     .build();
@@ -226,12 +163,11 @@ public class CashServiceImpl implements CashService {
         Page<Withdraw> withdrawPage = withdrawRepository.findByUserAndWithdrawAtBetween(user, startDate, endDate, pageable);
         return withdrawPage.map(w -> {
             String status = (w.getWithdrawAt() != null) ? "완료" : "처리중";
-            long netAmount = (w.getAmount() != null && w.getCommission() != null) ? w.getAmount() - w.getCommission() : 0;
             return WithdrawDto.builder()
                     .withdrawId(w.getWithdrawId())
                     .bank(w.getBank())
                     .account(w.getAccount())
-                    .netAmount(netAmount)
+                    .netAmount(w.getAmount() - w.getCommission())
                     .withdrawAt(w.getWithdrawAt())
                     .requestStatus(status)
                     .build();

@@ -18,18 +18,16 @@ public interface CashService {
     // 이번 달 환급 신청 횟수를 반환하는 메서드 추가
     int getCurrentWithdrawCount(Users user);
 
-    Page<CalculateDto> getCalculateByUser(Users user, Pageable pageable);
-    Page<CalculateDto> getCalculateByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
-
+    // 결제 내역
     Page<CalculateDto> getPaymentCalculatesByUser(Users user, Pageable pageable);
     Page<CalculateDto> getPaymentCalculatesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
-
+    // 정산 내역
     Page<CalculateDto> getSettlementCalculatesByUser(Users user, Pageable pageable);
     Page<CalculateDto> getSettlementCalculatesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
-
+    // 충전 내역
     Page<ChargeDto> getChargesByUser(Users user, Pageable pageable);
     Page<ChargeDto> getChargesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
-
+    // 환급 내역
     Page<WithdrawDto> getWithdrawsByUser(Users user, Pageable pageable);
     Page<WithdrawDto> getWithdrawsByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 

@@ -28,7 +28,7 @@ public class CashController {
     private CashService cashService;
 
     @GetMapping("/cash")
-    public String cashPage(@RequestParam(value = "filter", required = false, defaultValue = "calculate") String filter,
+    public String cashPage(@RequestParam(value = "filter", required = false, defaultValue = "payment") String filter,
                            @RequestParam(value = "startDate", required = false) String startDateStr,
                            @RequestParam(value = "endDate", required = false) String endDateStr,
                            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
@@ -93,17 +93,6 @@ public class CashController {
             Page<CalculateDto> calculatePage = (startDate != null && endDate != null) ?
                     cashService.getSettlementCalculatesByUser(user, startDate, endDate, pageable) :
                     cashService.getSettlementCalculatesByUser(user, pageable);
-            model.addAttribute("calculateList", calculatePage.getContent());
-            model.addAttribute("totalPages", calculatePage.getTotalPages());
-            model.addAttribute("currentPage", page);
-        } else if ("calculate".equals(filter)) {
-            // 결제/정산 내역
-            Page<CalculateDto> calculatePage;
-            if (startDate != null && endDate != null) {
-                calculatePage = cashService.getCalculateByUser(user, startDate, endDate, pageable);
-            } else {
-                calculatePage = cashService.getCalculateByUser(user, pageable);
-            }
             model.addAttribute("calculateList", calculatePage.getContent());
             model.addAttribute("totalPages", calculatePage.getTotalPages());
             model.addAttribute("currentPage", page);
