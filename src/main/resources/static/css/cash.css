@@ -313,6 +313,17 @@ dialog::backdrop {
     cursor: pointer;
 }
 
+/* 🌟 추가: 에러 메시지 스타일 */
+.error-msg {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    text-align: center;
+    min-height: 30px;
+    visibility: hidden;
+}
+
 .custom-alert {
     display: none; /* 기본은 숨김 */
     position: fixed;

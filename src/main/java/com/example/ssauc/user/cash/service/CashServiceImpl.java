@@ -389,7 +389,7 @@ public class CashServiceImpl implements CashService {
         chargeRepository.save(charge);
 
         // 7. 결제 성공 시 사용자 잔액 업데이트 (결과를 DB에 반영)
-        if ("PAID".equalsIgnoreCase(status)) {
+        if ("충전완료".equalsIgnoreCase(status)) {
             // 예시: 사용자 객체의 캐시 값을 업데이트하고, 세션에 다시 저장
             user.setCash(user.getCash() + parsedAmount);
             usersRepository.save(user);

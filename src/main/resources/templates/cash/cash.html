@@ -90,7 +90,7 @@
                 </tbody>
             </table>
             <div class="total-summary">
-                <p>기간 내 결제 금액: <span th:text="${T(java.lang.String).format('%,d 원', totalAmount)}">0 원</span></p>
+                <p>💶 기간 내 결제 금액: <span th:text="${T(java.lang.String).format('%,d 원', totalAmount)}">0 원</span></p>
             </div>
         </div>
         <!-- 정산 내역 테이블 (User == 판매자) -->
@@ -116,7 +116,7 @@
                 </tbody>
             </table>
             <div class="total-summary">
-                <p>기간 내 정산 금액: <span th:text="${T(java.lang.String).format('%,d 원', totalAmount)}">0 원</span></p>
+                <p>💷 기간 내 정산 금액: <span th:text="${T(java.lang.String).format('%,d 원', totalAmount)}">0 원</span></p>
             </div>
         </div>
         <!-- 충전 내역 테이블 -->
@@ -146,7 +146,7 @@
                 </tbody>
             </table>
             <div class="total-summary">
-                <p>기간 내 충전 금액: <span th:text="${T(java.lang.String).format('%,d 원', totalAmount)}">0 원</span></p>
+                <p>💵 기간 내 충전 금액: <span th:text="${T(java.lang.String).format('%,d 원', totalAmount)}">0 원</span></p>
             </div>
         </div>
         <!-- 환급 내역 테이블 -->
@@ -174,7 +174,7 @@
                 </tbody>
             </table>
             <div class="total-summary">
-                <p>기간 내 환급 금액: <span th:text="${T(java.lang.String).format('%,d 원', totalAmount)}">0 원</span></p>
+                <p>💴 기간 내 환급 금액: <span th:text="${T(java.lang.String).format('%,d 원', totalAmount)}">0 원</span></p>
             </div>
         </div>
 
@@ -247,23 +247,10 @@
                     <span id="displayPrice">0원</span>
                 </div>
             </article>
+            <div id="chargeErrorMsg" class="error-msg"></div>
             <button id="checkoutButton" type="submit">충전하기</button>
         </form>
     </main>
-
-    <!-- 실패 다이얼로그 (간단 표시용) -->
-    <dialog id="failDialog">
-        <header><h1>결제 실패</h1></header>
-        <p id="failMessage"></p>
-        <button type="button" class="closeDialog">닫기</button>
-    </dialog>
-
-    <!-- 성공 다이얼로그 (간단 표시용) -->
-    <dialog id="successDialog">
-        <header><h1>결제 성공</h1></header>
-        <p>결제에 성공했습니다.</p>
-        <button type="button" class="closeDialog">닫기</button>
-    </dialog>
 </dialog>
 
 <!-- 환급 모달 -->
@@ -321,6 +308,7 @@
             <label>총 환급 금액:</label>
             <span id="netWithdrawAmount">0원</span>
         </div>
+        <div id="withdrawErrorMsg" class="error-msg"></div>
         <button type="submit" id="withdrawSubmitButton">환급 신청</button>
     </form>
 </dialog>
@@ -335,8 +323,8 @@
 
 <script layout:fragment="script" th:inline="javascript">
 
-    // ❌ 추가: Custom Alert 함수 정의 (native alert 대신 사용)
-    function customAlert(message) {
+    // Custom Alert 함수 정의 (native alert 대신 사용)
+    function customAlert(message, callback) {
         const alertBox = document.getElementById("customAlert");
         const alertMessage = document.getElementById("customAlertMessage");
         const alertOk = document.getElementById("customAlertOk");
@@ -344,6 +332,9 @@
         alertBox.style.display = "block";
         alertOk.onclick = function() {
             alertBox.style.display = "none";
+            if (callback) {
+                callback();
+            }
         }
     }
 
@@ -358,6 +349,7 @@
         chargeModal.showModal();
         // PortOne 결제 로직 실행
         checkout.load();
+        document.getElementById("chargeErrorMsg").style.visibility = "hidden";
     });
 
     closeModalBtn.addEventListener("click", () => {
@@ -370,6 +362,7 @@
         document.getElementById("customAmount").value = "";
         document.getElementById("customAmount").classList.remove("hidden2");
         document.getElementById("displayPrice").textContent = currentCash.toLocaleString() + "원";
+        document.getElementById("chargeErrorMsg").style.visibility = "hidden";
     }
 
     // ====== 충전 모달 안에서 실행 ======
@@ -379,10 +372,7 @@
         const amountSelect = document.getElementById("amountSelect");
         const customAmount = document.getElementById("customAmount");
         const displayPrice = document.getElementById("displayPrice");
-
-        const failDialog = document.getElementById("failDialog");
         const failMessage = document.getElementById("failMessage");
-        const successDialog = document.getElementById("successDialog");
 
         // 1. SDK, API 데이터 로드
         this.load = async () => {
@@ -457,18 +447,20 @@
 
             item.price = baseAmount > 0 ? baseAmount : 0;
             displayPrice.textContent = (currentCash + item.price).toLocaleString() + "원";
+            document.getElementById("chargeErrorMsg").style.visibility = "hidden";
         }
 
         // 4. 결제 요청
         async function handlePayment() {
             if (item.price <= 0) {
-                customAlert("충전 금액을 선택해주세요.");
+                document.getElementById("chargeErrorMsg").innerText = "충전 금액을 선택해주세요.";
+                document.getElementById("chargeErrorMsg").style.visibility = "visible";
                 return;
             }
             setWaitingPayment(true);
 
             // 먼저 모달을 완전히 닫음(숨김)
-            chargeModal.close(); // chargeModal은 모달 dialog 요소
+            chargeModal.close();
 
             // 고유 paymentId
             function randomId() {
@@ -493,8 +485,8 @@
                 // 결제 실패
                 setWaitingPayment(false);
                 failMessage.textContent = payment.message;
-                // failDialog.open = true;
                 customAlert("결제 실패: \n" + payment.message);
+
                 return;
             }
 
@@ -511,14 +503,12 @@
             setWaitingPayment(false);
             if (completeResponse.ok) {
                 // 결제 완료
-                // successDialog.open = true;
-                customAlert("결제 성공!");
-                location.reload();
+                // customAlert에 콜백 함수를 추가하여, 사용자가 확인 버튼을 누른 후에 location.reload()가 실행
+                customAlert("결제 성공!", () => { location.reload(); });
             } else {
                 const errText = await completeResponse.text();
                 // failMessage.textContent = errText;
                 customAlert("결제 실패: \n" + errText);
-                // failDialog.open = true;
             }
         }
 
@@ -541,6 +531,7 @@
     // 환급 버튼 클릭 시 환급 모달 열기
     refundButton.addEventListener("click", () => {
         withdrawModal.showModal();
+        document.getElementById("withdrawErrorMsg").style.visibility = "hidden";
     });
 
     // 모달 닫기 버튼
@@ -553,6 +544,7 @@
         withdrawAmountSelect.value = "custom";
         withdrawCustomAmount.value = "";
         netWithdrawAmountSpan.textContent = "0원";
+        document.getElementById("withdrawErrorMsg").style.visibility = "hidden";
     }
 
     // 환급 금액 선택 변경 이벤트 등록
@@ -573,6 +565,7 @@
         let commission = currentCount >= 3 ? 1000 : 0;
         let net = baseAmount - commission;
         netWithdrawAmountSpan.textContent = net.toLocaleString() + "원";
+        document.getElementById("withdrawErrorMsg").style.visibility = "hidden";
     }
 
     // 환급 신청 폼 제출 처리
@@ -587,14 +580,16 @@
 
         // 환급 금액이 사용자가 가진 머니(currentCash)보다 초과하면 안 됨.
         if (amount > currentCash) {
-            customAlert("환급 신청 금액은 보유한 머니 이하이어야 합니다.");
+            document.getElementById("withdrawErrorMsg").innerText = "환급 신청 금액은 보유한 쏙머니 이하이어야 합니다.";
+            document.getElementById("withdrawErrorMsg").style.visibility = "visible";
             return;
         }
 
         const bank = document.getElementById("withdrawBank").value;
         const account = document.getElementById("withdrawAccount").value;
         if(amount <= 0 || bank === "" || account.trim() === "") {
-            customAlert("모든 항목을 정확히 입력해주세요.");
+            document.getElementById("withdrawErrorMsg").innerText = "모든 항목을 정확히 입력해주세요.";
+            document.getElementById("withdrawErrorMsg").style.visibility = "visible";
             return;
         }
         // POST 요청으로 환급 신청
@@ -609,16 +604,17 @@
                 })
             });
             if(response.ok) {
-                customAlert("환급 요청이 접수되었습니다.");
                 withdrawModal.close();
-                location.reload(); // 내역 갱신 등 필요 시
+                customAlert("환급 요청이 접수되었습니다.", () => { location.reload(); });
             } else {
                 const errText = await response.text();
                 customAlert("환급 요청 실패: " + errText);
             }
         } catch (error) {
+            withdrawModal.close();
+            location.reload(); // 내역 갱신 등 필요 시
             console.error(error);
-            customAlert("환급 요청 중 오류가 발생했습니다.");
+            customAlert("환급 요청 중 오류가 발생했습니다.", () => { location.reload(); });
         }
     });
 </script>
