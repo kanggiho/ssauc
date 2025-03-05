@@ -36,5 +36,4 @@ public class Bid {
     @Column(nullable = false)
     private LocalDateTime bidTime;
 
-    private Long autoBidMax;
 }

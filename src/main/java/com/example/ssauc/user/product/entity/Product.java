@@ -1,5 +1,6 @@
 package com.example.ssauc.user.product.entity;
 
+import com.example.ssauc.user.bid.entity.AutoBid;
 import com.example.ssauc.user.bid.entity.Bid;
 import com.example.ssauc.user.bid.entity.ProductReport;
 import com.example.ssauc.user.login.entity.Users;
@@ -83,5 +84,9 @@ public class Product {
     private List<Bid> bids;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AutoBid> autoBids;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Orders> orders;
+
 }
