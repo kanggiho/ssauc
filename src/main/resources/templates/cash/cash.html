@@ -203,7 +203,6 @@
     </main>
 </div>
 
-
 <!-- 충전 모달: 충전 금액 선택 + PortOne 결제 로직 -->
 <dialog id="chargeModal" layout:fragment="dialog">
 
@@ -326,7 +325,28 @@
     </form>
 </dialog>
 
+<!-- Custom Alert Modal Markup -->
+<div id="customAlert" class="custom-alert" layout:fragment="alert">
+    <div class="custom-alert-content">
+        <p id="customAlertMessage"></p>
+        <button id="customAlertOk">확인</button>
+    </div>
+</div>
+
 <script layout:fragment="script" th:inline="javascript">
+
+    // ❌ 추가: Custom Alert 함수 정의 (native alert 대신 사용)
+    function customAlert(message) {
+        const alertBox = document.getElementById("customAlert");
+        const alertMessage = document.getElementById("customAlertMessage");
+        const alertOk = document.getElementById("customAlertOk");
+        alertMessage.textContent = message;
+        alertBox.style.display = "block";
+        alertOk.onclick = function() {
+            alertBox.style.display = "none";
+        }
+    }
+
     // ====== 충전 모달 처리 ======
     const openChargeModalBtn = document.getElementById("openChargeModal");
     const chargeModal = document.getElementById("chargeModal");
@@ -442,7 +462,7 @@
         // 4. 결제 요청
         async function handlePayment() {
             if (item.price <= 0) {
-                alert("충전 금액을 선택해주세요.");
+                customAlert("충전 금액을 선택해주세요.");
                 return;
             }
             setWaitingPayment(true);
@@ -474,7 +494,7 @@
                 setWaitingPayment(false);
                 failMessage.textContent = payment.message;
                 // failDialog.open = true;
-                alert("결제 실패: \n" + payment.message);
+                customAlert("결제 실패: \n" + payment.message);
                 return;
             }
 
@@ -492,12 +512,12 @@
             if (completeResponse.ok) {
                 // 결제 완료
                 // successDialog.open = true;
-                alert("결제 성공!");
+                customAlert("결제 성공!");
                 location.reload();
             } else {
                 const errText = await completeResponse.text();
                 // failMessage.textContent = errText;
-                alert("결제 실패: \n" + errText);
+                customAlert("결제 실패: \n" + errText);
                 // failDialog.open = true;
             }
         }
@@ -567,14 +587,14 @@
 
         // 환급 금액이 사용자가 가진 머니(currentCash)보다 초과하면 안 됨.
         if (amount > currentCash) {
-            alert("환급 신청 금액은 보유한 머니 이하이어야 합니다.");
+            customAlert("환급 신청 금액은 보유한 머니 이하이어야 합니다.");
             return;
         }
 
         const bank = document.getElementById("withdrawBank").value;
         const account = document.getElementById("withdrawAccount").value;
         if(amount <= 0 || bank === "" || account.trim() === "") {
-            alert("모든 항목을 정확히 입력해주세요.");
+            customAlert("모든 항목을 정확히 입력해주세요.");
             return;
         }
         // POST 요청으로 환급 신청
@@ -589,16 +609,16 @@
                 })
             });
             if(response.ok) {
-                alert("환급 요청이 접수되었습니다.");
+                customAlert("환급 요청이 접수되었습니다.");
                 withdrawModal.close();
                 location.reload(); // 내역 갱신 등 필요 시
             } else {
                 const errText = await response.text();
-                alert("환급 요청 실패: " + errText);
+                customAlert("환급 요청 실패: " + errText);
             }
         } catch (error) {
             console.error(error);
-            alert("환급 요청 중 오류가 발생했습니다.");
+            customAlert("환급 요청 중 오류가 발생했습니다.");
         }
     });
 </script>
