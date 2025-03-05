@@ -102,7 +102,7 @@
                                 role="tab"
                                 aria-controls="category1"
                                 aria-selected="true">
-                            카테고리1
+                            회원 및 결제정보
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -115,7 +115,7 @@
                                 role="tab"
                                 aria-controls="category2"
                                 aria-selected="false">
-                            카테고리2
+                            배송문의
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -128,7 +128,7 @@
                                 role="tab"
                                 aria-controls="category3"
                                 aria-selected="false">
-                            카테고리3
+                            교환 및 반품
                         </button>
                     </li>
                 </ul>
@@ -167,6 +167,30 @@
                                     <td>2025-01-20</td>
                                     <td>47</td>
                                 </tr>
+
+                                <tr>
+                                    <td>3</td>
+                                    <td>결제</td>
+                                    <td>휴대폰결제/취소는 어떻게 되나요?</td>
+                                    <td>2025-01-23</td>
+                                    <td>45</td>
+                                </tr>
+
+                                <tr>
+                                    <td>4</td>
+                                    <td>회원</td>
+                                    <td>아이디 가입/탈퇴방법을 알려주세요 </td>
+                                    <td>2025-01-20</td>
+                                    <td>34</td>
+                                </tr>
+
+                                <tr>
+                                    <td>5</td>
+                                    <td>개인정보</td>
+                                    <td>회원정보를 수정하고 싶습니다</td>
+                                    <td>2025-01-20</td>
+                                    <td>22</td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -194,14 +218,145 @@
                          role="tabpanel"
                          aria-labelledby="category2-tab">
                         <p>카테고리2 FAQ 목록이 여기에 표시됩니다.</p>
+
+                    <!-- FAQ 테이블 -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle text-center">
+                            <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px;">No</th>
+                                <th style="width: 120px;">구분</th>
+                                <th>제목</th>
+                                <th style="width: 120px;">등록일</th>
+                                <th style="width: 80px;">조회</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            <tr>
+                                <td>1</td>
+                                <td>배송</td>
+                                <td>상품 배송기간은 얼마나 소요되나요? </td>
+                                <td>2025-01-26</td>
+                                <td>115</td>
+                            </tr>
+
+                            <tr>
+                                <td>2</td>
+                                <td>배송</td>
+                                <td>배송 마감 시간이 궁금해요.</td>
+                                <td>2025-02-23</td>
+                                <td>132</td>
+                            </tr>
+
+                            <tr>
+                                <td>3</td>
+                                <td>환불</td>
+                                <td>취소는 언제 되나요?</td>
+                                <td>2025-02-29</td>
+                                <td>232</td>
+                            </tr>
+
+                            <tr>
+                                <td>4</td>
+                                <td>배송</td>
+                                <td>다른 택배 회사로 받고 싶습니다.</td>
+                                <td>2025-02-11</td>
+                                <td>95</td>
+                            </tr>
+
+                            <tr>
+                                <td>5</td>
+                                <td>해외배송</td>
+                                <td>해외로 배송 가능한가요?</td>
+                                <td>2025-01-23</td>
+                                <td>142</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- 페이지네이션 -->
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">이전</a>
+                            </li>
+                            <li class="page-item active">
+                                <a class="page-link" href="#">1</a>
+                            </li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">다음</a>
+                            </li>
+                        </ul>
+                    </nav>
                     </div>
 
-                    <!-- 카테고리3 -->
+
+                            <!-- 카테고리3 -->
                     <div class="tab-pane fade p-3"
                          id="category3"
                          role="tabpanel"
                          aria-labelledby="category3-tab">
                         <p>카테고리3 FAQ 목록이 여기에 표시됩니다.</p>
+                        <!-- FAQ 테이블 -->
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle text-center">
+                                <thead class="table-light">
+                                <tr>
+                                    <th style="width: 80px;">No</th>
+                                    <th style="width: 120px;">구분</th>
+                                    <th>제목</th>
+                                    <th style="width: 120px;">등록일</th>
+                                    <th style="width: 80px;">조회</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                <tr>
+                                    <td>1</td>
+                                    <td>교환/반품</td>
+                                    <td>식품도 반품이 가능한가요? </td>
+                                    <td>2025-02-25</td>
+                                    <td>215</td>
+                                </tr>
+
+                                <tr>
+                                    <td>2</td>
+                                    <td>교환/반품</td>
+                                    <td>불량으로 인해 구매한 제품을 '교환 or 반품'하고 싶습니다..</td>
+                                    <td>2025-01-23</td>
+                                    <td>32</td>
+                                </tr>
+
+                                <tr>
+                                    <td>3</td>
+                                    <td>교환/반품</td>
+                                    <td>불량으로 인해 증빙자료를 전달하고 싶어요.</td>
+                                    <td>2025-01-29</td>
+                                    <td>82</td>
+                                </tr>
+
+                                <tr>
+                                    <td>4</td>
+                                    <td>A/S</td>
+                                    <td>구매한가전 A/S는 어디서 가능합니까?</td>
+                                    <td>2025-01-11</td>
+                                    <td>55</td>
+                                </tr>
+
+                                <tr>
+                                    <td>5</td>
+                                    <td>이벤트</td>
+                                    <td>이벤트 당첨여부는 어디서 확인하나요?</td>
+                                    <td>2025-01-15</td>
+                                    <td>42</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
                     </div>
                 </div>
 

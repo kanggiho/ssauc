@@ -3,6 +3,66 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="layout.html">
 <head>
+    <script>
+
+    function call() {
+        // 폼 요소와 입력창, 채팅영역 DOM 가져오기
+        //const chatForm = document.getElementById('chatForm');
+       // console.log("=====>>" + chatForm); // null인지, HTMLFormElement인지 확인!
+
+        const chatInput = document.getElementById('chatInput');
+        const chatBody = document.getElementById('chatBody');
+        //const submit_btn = document.getElementById("submit_btn");
+        //alert(submit_btn)
+        // 폼 전송 이벤트 처리
+        //submit_btn.addEventListener('click', function (event) {
+            //event.preventDefault(); // 기본 폼 제출 막기
+
+            console.log("=====================================>> " + chatInput.value)
+            // 입력값 가져오기
+            const message = chatInput.value.trim();
+            if (message === '') return; // 공백이면 무시
+
+            // 채팅에 추가할 HTML 요소 생성
+            // (오른쪽 정렬 - "나"가 보낸 메시지 형태)
+            const newMsg = document.createElement('div');
+            newMsg.classList.add('d-flex', 'mb-3', 'justify-content-end');
+            newMsg.innerHTML = `
+            <div>
+                <h6 class="mb-1 text-end">나</h6>
+                <div class="bg-primary text-white p-2 rounded" style="max-width: 70%;">
+                    ${message}
+                </div>
+                <small class="text-muted d-block text-end">${getCurrentTime()}</small>
+            </div>
+            <div class="flex-shrink-0 ms-2">
+                <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/penguin.png"
+                     alt="User" class="profile-img">
+            </div>
+        `;
+
+            // 채팅 메시지 영역에 새 메시지 추가
+            chatBody.appendChild(newMsg);
+
+            // 입력창 초기화
+            chatInput.value = '';
+
+            // 채팅 영역 스크롤을 맨 아래로
+            chatBody.scrollTop = chatBody.scrollHeight;
+        //});
+    }
+            // 간단한 시간 표시 함수(예: HH:MM 형식)
+            function getCurrentTime() {
+                    const now = new Date();
+                    let hours = now.getHours();
+                    let minutes = now.getMinutes();
+                    // 0~9 분은 앞에 0 붙이기
+                    if (minutes < 10) {
+                    minutes = '0' + minutes;
+                }
+                    return `${hours}:${minutes}`;
+        }
+    </script>
     <!-- 필요한 css, js, cdn 등 추가 -->
     <style>
         .chat-img {
@@ -33,6 +93,7 @@
             </div>
 
             <!-- 채팅 메시지 영역 (스크롤 가능) -->
+
             <!-- 여기 id="chatBody" 추가 -->
             <div class="card-body" id="chatBody" style="height: 500px; overflow-y: auto;">
                 <!-- 예시 메시지 (텍스트, 왼쪽: 상대방) -->
@@ -100,7 +161,7 @@
             <!-- 메시지 입력 영역 -->
             <!-- 여기 form에 id="chatForm", input에 id="chatInput" 추가 -->
             <div class="card-footer">
-                <form id="chatForm">
+                <form id="chatForm" onsubmit="event.preventDefault(); call();">
                     <div class="input-group">
                         <input type="text" id="chatInput" class="form-control" placeholder="메시지를 입력하세요" aria-label="메시지 입력">
                         <button class="btn btn-dark" type="submit">전송</button>
@@ -110,64 +171,6 @@
         </div>
     </div>
 </div>
-
-<!-- 아래에 JavaScript 추가 -->
-<script>
-    // 폼 요소와 입력창, 채팅영역 DOM 가져오기
-    const chatForm = document.getElementById('chatForm');
-    const chatInput = document.getElementById('chatInput');
-    const chatBody = document.getElementById('chatBody');
-
-    // 폼 전송 이벤트 처리
-    chatForm.addEventListener('submit', function(event) {
-        event.preventDefault(); // 기본 폼 제출 막기
-
-        // 입력값 가져오기
-        const message = chatInput.value.trim();
-        if (message === '') return; // 공백이면 무시
-
-        // 채팅에 추가할 HTML 요소 생성
-        // (오른쪽 정렬 - "나"가 보낸 메시지 형태)
-        const newMsg = document.createElement('div');
-        newMsg.classList.add('d-flex', 'mb-3', 'justify-content-end');
-        newMsg.innerHTML = `
-            <div>
-                <h6 class="mb-1 text-end">나</h6>
-                <div class="bg-primary text-white p-2 rounded" style="max-width: 70%;">
-                    ${message}
-                </div>
-                <small class="text-muted d-block text-end">${getCurrentTime()}</small>
-            </div>
-            <div class="flex-shrink-0 ms-2">
-                <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/penguin.png"
-                     alt="User" class="profile-img">
-            </div>
-        `;
-
-        // 채팅 메시지 영역에 새 메시지 추가
-        chatBody.appendChild(newMsg);
-
-        // 입력창 초기화
-        chatInput.value = '';
-
-        // 채팅 영역 스크롤을 맨 아래로
-        chatBody.scrollTop = chatBody.scrollHeight;
-    });
-
-    // 간단한 시간 표시 함수(예: HH:MM 형식)
-    function getCurrentTime() {
-        const now = new Date();
-        let hours = now.getHours();
-        let minutes = now.getMinutes();
-        // 0~9 분은 앞에 0 붙이기
-        if (minutes < 10) {
-            minutes = '0' + minutes;
-        }
-        // AM/PM 표시를 원한다면 변환 로직 추가 가능
-        return `${hours}:${minutes}`;
-    }
-</script>
-<script src="/js/chat.js" defer></script>
 
 
 </body>
