@@ -6,9 +6,8 @@ import com.example.ssauc.user.cash.entity.Charge;
 import com.example.ssauc.user.cash.entity.Withdraw;
 import com.example.ssauc.user.cash.service.CashService;
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.login.repository.UsersRepository;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,14 +22,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("/cash")
 public class CashController {
 
-    @Autowired
-    private CashService cashService;
-
-    @Autowired
-    private UsersRepository usersRepository;
+    private final CashService cashService;
 
     @GetMapping("/cash")
     public String cashPage(@RequestParam(value = "filter", required = false, defaultValue = "payment") String filter,
@@ -41,11 +37,10 @@ public class CashController {
                            Model model) {
 
         Users user = (Users) session.getAttribute("user");
-        Users latestUser = usersRepository.findById(user.getUserId())
-                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
+        Users latestUser = cashService.getCurrentUser(user.getUserId());
         model.addAttribute("user", latestUser);
 
-        if (user == null) {
+        if (latestUser == null) {
             return "redirect:/login";
         }
         model.addAttribute("filter", filter);
@@ -63,7 +58,7 @@ public class CashController {
 
         // 이번 달 환급 신청 횟수를 requested_at 기준으로 계산
         // 이번 달 환급 신청 횟수를 서비스에서 가져옴
-        int currentWithdrawCount = cashService.getCurrentWithdrawCount(user);
+        int currentWithdrawCount = cashService.getCurrentWithdrawCount(latestUser);
         model.addAttribute("currentWithdrawCount", currentWithdrawCount);
 
         // 날짜 필터가 있는 경우와 없는 경우를 분기해서 처리
@@ -73,11 +68,11 @@ public class CashController {
             Page<ChargeDto> chargePage;
             long totalAmount = 0;
             if (startDate != null && endDate != null) { // 날짜 필터 적용 o
-                chargePage = cashService.getChargesByUser(user, startDate, endDate, pageable);
-                totalAmount = cashService.getTotalChargeAmount(user, startDate, endDate);
+                chargePage = cashService.getChargesByUser(latestUser, startDate, endDate, pageable);
+                totalAmount = cashService.getTotalChargeAmount(latestUser, startDate, endDate);
             } else { // 날짜 필터 적용 x
-                chargePage = cashService.getChargesByUser(user, pageable);
-                totalAmount = cashService.getTotalChargeAmount(user);
+                chargePage = cashService.getChargesByUser(latestUser, pageable);
+                totalAmount = cashService.getTotalChargeAmount(latestUser);
             }
             model.addAttribute("chargeList", chargePage.getContent());
             model.addAttribute("totalPages", chargePage.getTotalPages());
@@ -89,11 +84,11 @@ public class CashController {
             Page<WithdrawDto> withdrawPage;
             long totalAmount = 0;
             if (startDate != null && endDate != null) {
-                withdrawPage = cashService.getWithdrawsByUser(user, startDate, endDate, pageable);
-                totalAmount = cashService.getTotalWithdrawAmount(user, startDate, endDate);
+                withdrawPage = cashService.getWithdrawsByUser(latestUser, startDate, endDate, pageable);
+                totalAmount = cashService.getTotalWithdrawAmount(latestUser, startDate, endDate);
             } else {
-                withdrawPage = cashService.getWithdrawsByUser(user, pageable);
-                totalAmount = cashService.getTotalWithdrawAmount(user);
+                withdrawPage = cashService.getWithdrawsByUser(latestUser, pageable);
+                totalAmount = cashService.getTotalWithdrawAmount(latestUser);
             }
             model.addAttribute("withdrawList", withdrawPage.getContent());
             model.addAttribute("totalPages", withdrawPage.getTotalPages());
@@ -105,11 +100,11 @@ public class CashController {
             Page<CalculateDto> calculatePage;
             long totalAmount = 0;
             if (startDate != null && endDate != null) {
-                calculatePage = cashService.getPaymentCalculatesByUser(user, startDate, endDate, pageable);
-                totalAmount = cashService.getTotalPaymentAmount(user, startDate, endDate);
+                calculatePage = cashService.getPaymentCalculatesByUser(latestUser, startDate, endDate, pageable);
+                totalAmount = cashService.getTotalPaymentAmount(latestUser, startDate, endDate);
             } else {
-                calculatePage = cashService.getPaymentCalculatesByUser(user, pageable);
-                totalAmount = cashService.getTotalPaymentAmount(user);
+                calculatePage = cashService.getPaymentCalculatesByUser(latestUser, pageable);
+                totalAmount = cashService.getTotalPaymentAmount(latestUser);
             }
             model.addAttribute("calculateList", calculatePage.getContent());
             model.addAttribute("totalPages", calculatePage.getTotalPages());
@@ -121,11 +116,11 @@ public class CashController {
             Page<CalculateDto> calculatePage;
             long totalAmount = 0;
             if (startDate != null && endDate != null) {
-                calculatePage = cashService.getSettlementCalculatesByUser(user, startDate, endDate, pageable);
-                totalAmount = cashService.getTotalSettlementAmount(user, startDate, endDate);
+                calculatePage = cashService.getSettlementCalculatesByUser(latestUser, startDate, endDate, pageable);
+                totalAmount = cashService.getTotalSettlementAmount(latestUser, startDate, endDate);
             } else {
-                calculatePage = cashService.getSettlementCalculatesByUser(user, pageable);
-                totalAmount = cashService.getTotalSettlementAmount(user);
+                calculatePage = cashService.getSettlementCalculatesByUser(latestUser, pageable);
+                totalAmount = cashService.getTotalSettlementAmount(latestUser);
             }
             model.addAttribute("calculateList", calculatePage.getContent());
             model.addAttribute("totalPages", calculatePage.getTotalPages());
@@ -195,7 +190,7 @@ public class CashController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
         try {
-            Withdraw withdraw = cashService.requestWithdraw(user, request.getAmount(), request.getBank(), request.getAccount());
+            cashService.requestWithdraw(user, request.getAmount(), request.getBank(), request.getAccount());
             return ResponseEntity.ok("환급 요청이 접수되었습니다.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("환급 요청 처리 중 오류 발생");

@@ -15,9 +15,9 @@ import com.example.ssauc.user.order.repository.OrdersRepository;
 import com.example.ssauc.user.pay.entity.Payment;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -30,22 +30,18 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class CashServiceImpl implements CashService {
 
-    @Autowired
-    private ChargeRepository chargeRepository;
+    private final ChargeRepository chargeRepository;
 
-    @Autowired
-    private WithdrawRepository withdrawRepository;
+    private final WithdrawRepository withdrawRepository;
 
-    @Autowired
-    private OrdersRepository ordersRepository;
+    private final OrdersRepository ordersRepository;
 
-    @Autowired
-    private UsersRepository usersRepository;
+    private final UsersRepository usersRepository;
 
     @Value("${portone.secret.api}")
     private String portoneApiSecret;
@@ -55,6 +51,13 @@ public class CashServiceImpl implements CashService {
     // private String portoneWebhookSecret;
 
     private final RestTemplate restTemplate = new RestTemplate();
+
+    // 세션에서 전달된 userId를 이용하여 DB에서 최신 사용자 정보를 조회합니다.
+    @Override
+    public Users getCurrentUser(Long userId) {
+        return usersRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
+    }
 
     // ===================== 결제 내역 =====================
     @Override
@@ -72,7 +75,6 @@ public class CashServiceImpl implements CashService {
                     .build();
         });
     }
-
     @Override
     public Page<CalculateDto> getPaymentCalculatesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         Page<Orders> ordersPage = ordersRepository.findByBuyerAndPaymentTimeBetween(user, startDate, endDate, pageable);
@@ -87,7 +89,6 @@ public class CashServiceImpl implements CashService {
                     .build();
         });
     }
-
     // ===================== 정산 내역 =====================
     @Override
     public Page<CalculateDto> getSettlementCalculatesByUser(Users user, Pageable pageable) {
@@ -101,7 +102,6 @@ public class CashServiceImpl implements CashService {
                 .orderStatus(order.getOrderStatus())
                 .build());
     }
-
     @Override
     public Page<CalculateDto> getSettlementCalculatesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         Page<Orders> ordersPage = ordersRepository.findBySellerAndCompletedDateBetween(user, startDate, endDate, pageable);
@@ -113,7 +113,6 @@ public class CashServiceImpl implements CashService {
                 .orderStatus(order.getOrderStatus())
                 .build());
     }
-
     // ===================== 충전 내역 =====================
     @Override
     public Page<ChargeDto> getChargesByUser(Users user, Pageable pageable) {
@@ -127,7 +126,6 @@ public class CashServiceImpl implements CashService {
                 .receiptUrl(ch.getReceiptUrl())
                 .build());
     }
-
     @Override
     public Page<ChargeDto> getChargesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         Page<Charge> chargePage = chargeRepository.findByUserAndCreatedAtBetween(user, startDate, endDate, pageable);
@@ -140,7 +138,6 @@ public class CashServiceImpl implements CashService {
                 .receiptUrl(ch.getReceiptUrl())
                 .build());
     }
-
     // ===================== 환급 내역 =====================
     @Override
     public Page<WithdrawDto> getWithdrawsByUser(Users user, Pageable pageable) {
@@ -158,7 +155,6 @@ public class CashServiceImpl implements CashService {
                     .build();
         });
     }
-
     @Override
     public Page<WithdrawDto> getWithdrawsByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         Page<Withdraw> withdrawPage = withdrawRepository.findByUserAndWithdrawAtBetween(user, startDate, endDate, pageable);
@@ -175,52 +171,42 @@ public class CashServiceImpl implements CashService {
         });
     }
 
-    
-    // ===================== 총합 계산 메서드 =====================
-    // 총 충전 금액
-    @Override
-    public long getTotalChargeAmount(Users user) {
-        return chargeRepository.sumAmountByUser(user);
-    }
-
-    @Override
-    public long getTotalChargeAmount(Users user, LocalDateTime startDate, LocalDateTime endDate) {
-        return chargeRepository.sumAmountByUserAndCreatedAtBetween(user, startDate, endDate);
-    }
-
-    // 총 환급 금액
-    @Override
-    public long getTotalWithdrawAmount(Users user) {
-        return withdrawRepository.sumNetAmountByUser(user);
-    }
-
-    @Override
-    public long getTotalWithdrawAmount(Users user, LocalDateTime startDate, LocalDateTime endDate) {
-        return withdrawRepository.sumNetAmountByUserAndWithdrawAtBetween(user, startDate, endDate);
-    }
-
-    // 총 결제 금액
+    // ===================== 결제 금액 총합 =====================
     @Override
     public long getTotalPaymentAmount(Users user) {
         return ordersRepository.sumTotalPriceByBuyer(user);
     }
-
     @Override
     public long getTotalPaymentAmount(Users user, LocalDateTime startDate, LocalDateTime endDate) {
         return ordersRepository.sumTotalPriceByBuyerAndPaymentDateBetween(user, startDate, endDate);
     }
-
-    // 총 정산 금액
+    // ===================== 정산 금액 총합 =====================
     @Override
     public long getTotalSettlementAmount(Users user) {
         return ordersRepository.sumTotalPriceBySeller(user);
     }
-
     @Override
     public long getTotalSettlementAmount(Users user, LocalDateTime startDate, LocalDateTime endDate) {
         return ordersRepository.sumTotalPriceBySellerAndCompletedDateBetween(user, startDate, endDate);
     }
-
+    // ===================== 충전 금액 총합 =====================
+    @Override
+    public long getTotalChargeAmount(Users user) {
+        return chargeRepository.sumAmountByUser(user);
+    }
+    @Override
+    public long getTotalChargeAmount(Users user, LocalDateTime startDate, LocalDateTime endDate) {
+        return chargeRepository.sumAmountByUserAndCreatedAtBetween(user, startDate, endDate);
+    }
+    // ===================== 환급 금액 총합 =====================
+    @Override
+    public long getTotalWithdrawAmount(Users user) {
+        return withdrawRepository.sumNetAmountByUser(user);
+    }
+    @Override
+    public long getTotalWithdrawAmount(Users user, LocalDateTime startDate, LocalDateTime endDate) {
+        return withdrawRepository.sumNetAmountByUserAndWithdrawAtBetween(user, startDate, endDate);
+    }
 
     // ===================== 결제(Portone) =====================
     @Override

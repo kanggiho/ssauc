@@ -7,11 +7,11 @@ import com.example.ssauc.user.product.dto.ProductInsertDto;
 import com.example.ssauc.user.product.service.ProductService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,19 +27,20 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @Autowired
-    private AmazonS3 amazonS3;
+    private final AmazonS3 amazonS3;
 
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
     // GET: 상품 등록 페이지
     @GetMapping("/insert")
-    public String insertPage(HttpSession session) {
-        Users seller = (Users) session.getAttribute("user");
-        if (seller == null) {
+    public String insertPage(HttpSession session, Model model) {
+        Users user = (Users) session.getAttribute("user");
+        if (user == null) {
             return "redirect:/login";
         }
+        Users latestUser = productService.getCurrentUser(user.getUserId());
+        model.addAttribute("user", latestUser);
         return "product/insert";
     }
 
@@ -48,11 +49,12 @@ public class ProductController {
     @ResponseBody
     public ResponseEntity<String> insertProduct(@RequestBody ProductInsertDto productInsertDto, HttpSession session) {
         // 세션에서 판매자 정보 획득 (세션 키가 "user")
-        Users seller = (Users) session.getAttribute("user");
-        if (seller == null) {
+        Users user = (Users) session.getAttribute("user");
+        if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
-        productService.insertProduct(productInsertDto, seller);
+        Users latestUser = productService.getCurrentUser(user.getUserId());
+        productService.insertProduct(productInsertDto, latestUser);
         return ResponseEntity.ok("상품 등록 성공!");
     }
 

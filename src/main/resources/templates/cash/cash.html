@@ -24,7 +24,7 @@
             <div class="cash-box">
                 <p class="cash-title"> SSAUC 머니 ></p>
                 <div class="cash-box-content">
-                    <h2 class="cash-amount" th:text="${T(java.lang.String).format('%,d 원', session.user.cash)}">0 원</h2>
+                    <h2 class="cash-amount" th:text="${T(java.lang.String).format('%,d 원', user.cash)}">0 원</h2>
                     <div class="cash-buttons">
                         <button class="charge" id="openChargeModal">충전</button>
                         <button class="refund">환급</button>
@@ -274,7 +274,7 @@
     <h2> 환급 신청 </h2>
     <div class="refund-cash-info">
         현재 보유 중인 머니:
-        <span id="currentCashRefund" th:text="${T(java.lang.String).format('%,d 원', session.user.cash)}">0 원</span>
+        <span id="currentCashRefund" th:text="${T(java.lang.String).format('%,d 원', user.cash)}">0 원</span>
     </div>
     <div class="withdraw-info">
         이번 달 환급 횟수:
