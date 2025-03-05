@@ -35,7 +35,7 @@ public class ChatbotService {
 
         // 3) ChatCompletionRequest 생성
         ChatCompletionRequest request = ChatCompletionRequest.builder()
-                .model("GPT‑3.5-turbo")  // 모델명 (gpt-3.5-turbo, gpt-4 등)
+                .model("gpt-3.5-turbo")  // 모델명 (gpt-3.5-turbo, gpt-4 등)
                 .messages(messages)
                 .maxTokens(800)         // 응답 토큰 제한 (적절히 조절)
                 .temperature(1.0)       // 창의성 (0 ~ 1)
