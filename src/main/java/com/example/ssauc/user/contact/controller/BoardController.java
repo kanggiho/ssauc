@@ -20,37 +20,25 @@ public class BoardController {
     public String createQna(
             @RequestParam String subject,
             @RequestParam String message,
-            Model model,
-            HttpSession session
-
+            @SessionAttribute(name="user", required=false) Users user // 세션에서 가져옴
     ) {
-        // 1) 로그인 사용자 (임시로 가정)
-        Users User = (Users) session.getAttribute("user");
+        if (user == null) {
+            // 로그인 안 된 경우 처리
+            return "redirect:/login";
+        }
 
-        // 실제로는 Spring Security 세션/Principal 등에서 가져와야 함
+
+
 
         // 2) DB 저장
-        Board saved = boardService.createBoard(User, subject, message);
+        Board saved = boardService.createBoard(user, subject, message);
 
         // 3) 결과 (목록 등으로 이동)
         // 여기서는 단순히 저장 후 목록페이지로 redirect
-        return "redirect:/contact/qna/list";
+        return "redirect:/contact/qna";
     }
 
-    // [GET] 목록 보기
-    @GetMapping("/list")
-    public String list(Model model) {
-        model.addAttribute("boardList", boardService.getBoardList());
-        return "/contact/qna_list"; // 목록 화면 (예시)
-    }
 
-    // [GET] 상세 보기
-    @GetMapping("/{boardId}")
-    public String detail(@PathVariable Long boardId, Model model) {
-        Board board = boardService.getBoard(boardId);
-        model.addAttribute("board", board);
-        return "contact/qna_detail";
-    }
 }
 
 

@@ -1,6 +1,5 @@
 package com.example.ssauc.user.contact.entity;
 
-
 import com.example.ssauc.user.login.entity.Users;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,31 +7,32 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Builder
+@Table(name = "board")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "board")
 public class Board {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long boardId;
+    @Column(name = "board_id")
+    private Long boardId;            // PK
 
-    // 문의 게시글을 작성한 사용자
+    // 작성자 아이디 (FK) - Users 엔티티와 매핑
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
+    private Users user;              // 실제 Users 엔티티를 참조
 
     @Column(nullable = false, length = 200)
-    private String subject;
+    private String subject;          // 문의 제목
 
     @Column(columnDefinition = "TEXT")
-    private String message;
+    private String message;          // 문의 내용
 
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt; // 문의 시간
 
     @Column(length = 50)
-    private String status;
+    private String status;           // 답변 상태
 }
