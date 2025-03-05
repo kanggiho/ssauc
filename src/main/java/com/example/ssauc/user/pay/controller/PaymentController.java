@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -25,7 +27,7 @@ public class PaymentController {
 
     // POST 요청 처리: 결제 처리 로직 수행
     @PostMapping("/pay")
-    public ResponseEntity<?> processPayment(@RequestBody OrderRequestDto orderRequestDto, Model model) {
+    public String processPayment(OrderRequestDto orderRequestDto, RedirectAttributes redirectAttributes) {
         // 결제 처리 로직 실행
 
         // 현재 날짜와 시간 가져오기
@@ -43,25 +45,35 @@ public class PaymentController {
         boolean success = paymentService.processPayment(orderRequestDto, now1, confirmPaymentNumber);
 
         if (success) {
-
             Product product = paymentService.getProductInfo(orderRequestDto.getProductId());
 
-            // 주문 정보
-            model.addAttribute("orderRequestDto", orderRequestDto);
-            // 결제 시간
-            model.addAttribute("timestamp", formattedDateTime);
-            // 결제 번호
-            model.addAttribute("confirmNumber", confirmPaymentNumber);
-            // product 정보
-            model.addAttribute("product", product);
+            String imgUrl = product.getImageUrl();
+            String productName = product.getName();
+            String totalAddress = "("+orderRequestDto.getPostalCode()+") "+orderRequestDto.getDeliveryAddress();
+            String seller = paymentService.getUsersInfo(orderRequestDto.getSellerId()).getUserName();
 
 
-            // 처리 성공 시 HTTP 200 응답 반환
-            return ResponseEntity.ok().build();
+            int totalPayment = orderRequestDto.getTotalPayment();
+            DecimalFormat deciFormat = new DecimalFormat("#,###");
+            String totalPrice = deciFormat.format(totalPayment)+"P";
+            String selectedOption = orderRequestDto.getSelectedOption();
+
+
+            // Flash attribute 설정: POST에서 받은 데이터를 GET 요청 시 전달할 수 있음
+            redirectAttributes.addFlashAttribute("seller", seller);
+            redirectAttributes.addFlashAttribute("timestamp", formattedDateTime);
+            redirectAttributes.addFlashAttribute("confirmNumber", confirmPaymentNumber);
+            redirectAttributes.addFlashAttribute("imgUrl", imgUrl);
+            redirectAttributes.addFlashAttribute("productName", productName);
+            redirectAttributes.addFlashAttribute("totalAddress", totalAddress);
+            redirectAttributes.addFlashAttribute("totalPrice", totalPrice);
+            redirectAttributes.addFlashAttribute("selectedOption", selectedOption);
+
+            // 리다이렉트: flash attribute는 여기서 GET 요청의 모델에 포함됨
+            return "redirect:/pay/pay";
         } else {
-            // 처리 실패 시 오류 메시지 반환
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("결제 처리 중 오류가 발생했습니다.");
+            // 실패 처리: 필요에 따라 에러 페이지나 다른 처리 방법 사용
+            return "redirect:/error";
         }
     }
 

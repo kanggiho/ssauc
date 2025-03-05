@@ -31,6 +31,10 @@ public class PaymentService {
         return productRepository.findById(productId).orElse(null);
     }
 
+    public Users getUsersInfo(Long usersId) {
+        return usersRepository.findById(usersId).orElse(null);
+    }
+
 
     public boolean processPayment(OrderRequestDto dto, LocalDateTime date, String number){
 
@@ -80,6 +84,25 @@ public class PaymentService {
             productRepository.completeSell(product.getProductId());
         } catch (Exception e){
             e.printStackTrace();
+            System.out.println("오류남");
+            System.out.println("오류남");
+            System.out.println("오류남");
+            System.out.println("오류남");
+            System.out.println("오류남");
+            System.out.println("오류남");
+            System.out.println("오류남");
+            System.out.println("오류남");
+            System.out.println("오류남");
+            System.out.println("오류남");
+            System.out.println("오류남");
+            System.out.println("오류남");
+            System.out.println("오류남");
+            System.out.println("오류남");
+            System.out.println("오류남");
+            System.out.println("오류남");
+            System.out.println("오류남");
+            System.out.println("오류남");
+            System.out.println("오류남");
             return false;
         }
         return true;
