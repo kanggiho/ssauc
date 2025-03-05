@@ -49,7 +49,7 @@
                         <p class="mb-0 fw-bold" th:text="${inform.getUserName()}">기호</p>
                         <p class="mb-0 text-muted">판매자 점수: <span th:text="${inform.getReputation()}+'점'">100점</span></p>
                     </div>
-                    <button class="btn btn-primary ms-auto">채팅하기</button>
+                    <button class="btn btn-primary ms-auto" id="chattingBtn">채팅하기</button>
                 </div>
             </div>
 
@@ -179,6 +179,9 @@
         </div>
     </div>
     <script>
+
+
+
         // Thymeleaf를 사용하여 inform.totalTime 값을 자바스크립트 변수에 할당 (초 단위)
         var totalTime = [[${inform.totalTime}]];
 
@@ -214,6 +217,7 @@
         bid()
         buy()
         report()
+        chatting()
 
 
 
@@ -254,17 +258,54 @@
                 var bidBtn = document.getElementById("bidBtn");
                 var autoBidBtn = document.getElementById("autoBidBtn");
 
-                bidBtn.addEventListener("click", function (){
-                    var sessionId = "[[${sessionId}]]";
-                    var sellerId = "[[${sellerId}]]";
+                var sessionId = "[[${sessionId}]]";
+                var sellerId = "[[${sellerId}]]";
 
-                    if (sessionId === sellerId) {
-                        alert("안됨");
+                bidBtn.addEventListener("click", function (){
+
+                    if(sessionId === "guest"){
+                        if (confirm("로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?")) {
+                            // 확인 버튼을 누르면 로그인 페이지로 이동
+                            window.location.href = "/login";
+                        }
+                    }else{
+                        if (sessionId === sellerId) {
+                            alert("본인 물건은 입찰 할 수 없습니다.");
+                        }else{
+                            // 입찰하기
+
+
+
+
+
+
+                        }
                     }
+
                 });
 
                 autoBidBtn.addEventListener("click", function (){
-                    // 자동입찰하기
+
+                    if(sessionId === "guest"){
+                        if (confirm("로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?")) {
+                            // 확인 버튼을 누르면 로그인 페이지로 이동
+                            window.location.href = "/login";
+                        }
+                    }else{
+                        if (sessionId === sellerId) {
+                            alert("본인 물건은 입찰 할 수 없습니다.");
+                        }else{
+                            // 자동입찰
+
+
+
+
+
+
+
+                        }
+                    }
+
                 });
 
 
@@ -277,12 +318,25 @@
 
                 var tempBuyBtn = document.getElementById("tempBuyBtn");
 
+                var sessionId = "[[${sessionId}]]";
+                var sellerId = "[[${sellerId}]]";
+
                 tempBuyBtn.addEventListener("click", function (){
-                    // 즉시구매
-                    window.location.href = "/order/order?productId="+[[${productId}]];
+
+                    if(sessionId === "guest"){
+                        if (confirm("로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?")) {
+                            // 확인 버튼을 누르면 로그인 페이지로 이동
+                            window.location.href = "/login";
+                        }
+                    }else{
+                        if (sessionId === sellerId) {
+                            alert("본인 물건은 즉시구매 할 수 없습니다.");
+                        }else{
+                            // 즉시구매
+                            window.location.href = "/order/order?productId="+[[${productId}]];
+                        }
+                    }
                 });
-
-
             });
         }
 
@@ -292,9 +346,28 @@
             document.addEventListener("DOMContentLoaded", function() {
 
                 var reportBtn = document.getElementById("reportBtn");
+                var sessionId = "[[${sessionId}]]";
+                var sellerId = "[[${sellerId}]]";
 
                 reportBtn.addEventListener("click", function (){
-                    window.location.href = "/bid/report?reported="+[[${productId}]];
+
+                    if(sessionId === "guest"){
+                        if (confirm("로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?")) {
+                            // 확인 버튼을 누르면 로그인 페이지로 이동
+                            window.location.href = "/login";
+                        }
+                    }else{
+                        if (sessionId === sellerId) {
+                            alert("본인 물건은 신고 할 수 없습니다.");
+                        }else{
+                            // 즉시구매
+                            window.location.href = "/bid/report?reported="+[[${productId}]];
+                        }
+                    }
+
+
+
+
                 });
 
 
@@ -302,6 +375,38 @@
 
         }
 
+        function chatting() {
+            document.addEventListener("DOMContentLoaded", function() {
+
+                var chattingBtn = document.getElementById("chattingBtn");
+                var sessionId = "[[${sessionId}]]";
+                var sellerId = "[[${sellerId}]]";
+
+                chattingBtn.addEventListener("click", function (){
+
+                    if(sessionId === "guest"){
+                        if (confirm("로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?")) {
+                            // 확인 버튼을 누르면 로그인 페이지로 이동
+                            window.location.href = "/login";
+                        }
+                    }else{
+                        if (sessionId === sellerId) {
+                            alert("본인과 채팅 할 수 없습니다.");
+                        }else{
+                            // 즉시구매
+                            window.location.href = "/bid/report?reported="+[[${productId}]];
+                        }
+                    }
+
+
+
+
+                });
+
+
+            });
+
+        }
 
     </script>
 
