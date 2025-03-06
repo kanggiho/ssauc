@@ -1,14 +1,11 @@
 package com.example.ssauc.user.list.Service;
 
-import com.example.ssauc.user.cash.entity.Withdraw;
 import com.example.ssauc.user.list.dto.ListDto;
 import com.example.ssauc.user.list.dto.TempDto;
 import com.example.ssauc.user.list.dto.WithLikeDto;
 import com.example.ssauc.user.list.repository.ListRepository;
 import java.time.Duration;
-
 import jakarta.servlet.http.HttpSession;
-import lombok.With;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,6 +13,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -28,12 +26,8 @@ public class ListService {
 
         Page<ListDto> list = listRepository.getProductList(pageable);
 
-        log.info(String.valueOf(list.getContent().size()));
-        log.info("사이즈는 이정도 됩니다");
-
-        // ✅ Stream을 사용하여 ListDto → TempDto 변환
         List<TempDto> tempList = list.getContent().stream().map(listDto -> {
-            Duration duration = Duration.between(listDto.getCreatedAt(), listDto.getEndAt());
+            Duration duration = Duration.between(LocalDateTime.now(), listDto.getEndAt());
 
             int days = (int) duration.toDays();
             int hours = (int) duration.toHours() % 24;
@@ -59,7 +53,6 @@ public class ListService {
                     .build();
             }).toList();
 
-        // ✅ Page<TempDto>로 변환하여 반환
         return new PageImpl<>(tempList, pageable, list.getTotalElements());
     }
 
@@ -67,7 +60,7 @@ public class ListService {
         Page<WithLikeDto> list = listRepository.getWithLikeProductList((Long) session.getAttribute("userId"), pageable);
 
         List<TempDto> tempList = list.getContent().stream().map(listDto -> {
-            Duration duration = Duration.between(listDto.getCreatedAt(), listDto.getEndAt());
+            Duration duration = Duration.between(LocalDateTime.now(), listDto.getEndAt());
 
             int days = (int) duration.toDays();
             int hours = (int) duration.toHours() % 24;
@@ -111,7 +104,7 @@ public class ListService {
         Page<WithLikeDto> list =  listRepository.getLikeList((Long) session.getAttribute("userId"), pageable);
 
         List<TempDto> tempList = list.getContent().stream().map(listDto -> {
-            Duration duration = Duration.between(listDto.getCreatedAt(), listDto.getEndAt());
+            Duration duration = Duration.between(LocalDateTime.now(), listDto.getEndAt());
 
             int days = (int) duration.toDays();
             int hours = (int) duration.toHours() % 24;
@@ -146,7 +139,7 @@ public class ListService {
         Page<WithLikeDto> list = listRepository.getCategoryList(id, categoryId, pageable);
 
         List<TempDto> tempList = list.getContent().stream().map(listDto -> {
-            Duration duration = Duration.between(listDto.getCreatedAt(), listDto.getEndAt());
+            Duration duration = Duration.between(LocalDateTime.now(), listDto.getEndAt());
 
             int days = (int) duration.toDays();
             int hours = (int) duration.toHours() % 24;
@@ -178,10 +171,12 @@ public class ListService {
 
     public Page<TempDto> getProductsByPrice(Pageable pageable, HttpSession session, int minPrice, int maxPrice) {
         Long userId = (Long) session.getAttribute("userId");
+
+        // 필터링된 상품 목록 가져오기
         Page<WithLikeDto> list = listRepository.findByPriceRange(userId, minPrice, maxPrice, pageable);
 
         List<TempDto> tempList = list.getContent().stream().map(listDto -> {
-            Duration duration = Duration.between(listDto.getCreatedAt(), listDto.getEndAt());
+            Duration duration = Duration.between(LocalDateTime.now(), listDto.getEndAt());
 
             int days = (int) duration.toDays();
             int hours = (int) duration.toHours() % 24;
@@ -191,7 +186,7 @@ public class ListService {
             String price = addCommas(listDto.getPrice().toString());
             String[] mainImage = listDto.getImageUrl().split(",");
 
-            if(days < 0 || hours < 0) { // 마감이 되었다면
+            if (days < 0 || hours < 0) { // 마감이 되었다면
                 inform = "⏳ 입찰 마감";
             }
 
@@ -220,13 +215,13 @@ public class ListService {
 
         List<TempDto> tempList = list.getContent().stream()
                 .filter(listDto -> { // 마감되지 않은 상품만 필터링
-                    Duration duration = Duration.between(listDto.getCreatedAt(), listDto.getEndAt());
+                    Duration duration = Duration.between(LocalDateTime.now(), listDto.getEndAt());
                     int days = (int) duration.toDays();
                     int hours = (int) duration.toHours() % 24;
                     return days > 0 || (days == 0 && hours > 0);
                 })
                 .map(listDto -> {
-                    Duration duration = Duration.between(listDto.getCreatedAt(), listDto.getEndAt());
+                    Duration duration = Duration.between(LocalDateTime.now(), listDto.getEndAt());
                     int days = (int) duration.toDays();
                     int hours = (int) duration.toHours() % 24;
                     String bidCount = "입찰 %d회".formatted(listDto.getBidCount());
@@ -252,12 +247,11 @@ public class ListService {
     }
 
     public Page<TempDto> getAvailableBid(Pageable pageable) {
-        // ✅ 마감되지 않은 상품만 가져오기 (DB에서 필터링 적용됨)
         Page<ListDto> list = listRepository.getAvailableProductList(pageable);
 
         List<TempDto> tempList = list.getContent().stream()
                 .map(listDto -> {
-                    Duration duration = Duration.between(listDto.getCreatedAt(), listDto.getEndAt());
+                    Duration duration = Duration.between(LocalDateTime.now(), listDto.getEndAt());
                     int days = (int) duration.toDays();
                     int hours = (int) duration.toHours() % 24;
                     String bidCount = "입찰 %d회".formatted(listDto.getBidCount());
@@ -278,7 +272,6 @@ public class ListService {
                             .build();
                 }).toList();
 
-        // ✅ DB에서 이미 필터링했으므로, 페이지네이션 적용된 데이터 그대로 반환
         return new PageImpl<>(tempList, pageable, list.getTotalElements());
     }
 }
