@@ -175,7 +175,7 @@ body {
 .footer_image {
     width: 10em;
     height: auto;
-    padding-left: 16px;
+    margin-left: -16px;
 }
 
 .input-group {

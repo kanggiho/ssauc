@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
-@RequestMapping("bid")
+@RequestMapping("/bid")
 public class BidController {
 
     @Autowired
@@ -30,17 +30,24 @@ public class BidController {
         List<CarouselImage> carouselImages = bidService.getCarouselImages(productId);
 
 
-
-        if(session.getAttribute("user") != null) {
+        if (session.getAttribute("user") != null) {
 
             Users user = (Users) session.getAttribute("user");
-            model.addAttribute("sessionId",user.getUserId());
-        }else{
-            model.addAttribute("sessionId","guest");
+            model.addAttribute("sessionId", user.getUserId());
+            Boolean isLikeProduct = bidService.isProductLike(productId, user.getUserId());
+            model.addAttribute("isLikeProduct", isLikeProduct);
+        } else {
+            model.addAttribute("sessionId", "guest");
         }
 
         Product product = bidService.getProduct(productId);
-        model.addAttribute("sellerId",product.getSeller().getUserId());
+
+        String tempMaxBidUser = bidService.getHighestBidUser();
+
+
+
+
+        model.addAttribute("sellerId", product.getSeller().getUserId());
 
         // 표시할 정보 추가
         model.addAttribute("inform", dto);
@@ -51,7 +58,10 @@ public class BidController {
         // 캐러셀 이미지 추가
         model.addAttribute("carouselImages", carouselImages);
 
+        // 현재 최고가 유저 추가
+        model.addAttribute("tempMaxBidUser", tempMaxBidUser);
 
+        model.addAttribute("product", product);
 
         return "bid/bid"; // 해당 페이지로 이동
     }
@@ -67,7 +77,7 @@ public class BidController {
     }
 
     @PostMapping("report")
-    public ResponseEntity<String> reportPost(@RequestBody ReportDto reportDto, HttpSession session){
+    public ResponseEntity<String> reportPost(@RequestBody ReportDto reportDto, HttpSession session) {
 
         Users logName = (Users) session.getAttribute("user");
 
@@ -84,7 +94,7 @@ public class BidController {
     public ResponseEntity<?> placeBid(@RequestBody BidRequestDto bidRequestDto) {
         // 예시: 서비스에서 입찰 금액 반영, 입찰 수 증가 등의 로직 처리
         boolean success = bidService.placeBid(bidRequestDto);
-        if(success){
+        if (success) {
             return ResponseEntity.ok("입찰이 성공적으로 처리되었습니다.");
         } else {
             return ResponseEntity.badRequest().body("입찰 처리 중 오류가 발생했습니다.");
@@ -95,15 +105,12 @@ public class BidController {
     @PostMapping("/auto")
     public ResponseEntity<?> autoBid(@RequestBody AutoBidRequestDto autoBidRequestDto) {
         boolean success = bidService.autoBid(autoBidRequestDto);
-        if(success){
+        if (success) {
             return ResponseEntity.ok("자동 입찰이 성공적으로 처리되었습니다.");
         } else {
             return ResponseEntity.badRequest().body("자동 입찰 처리 중 오류가 발생했습니다.");
         }
     }
-
-
-
 
 
 }

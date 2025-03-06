@@ -10,6 +10,7 @@ import com.example.ssauc.user.bid.repository.PdpRepository;
 import com.example.ssauc.user.bid.repository.ProductReportRepository;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.repository.UsersRepository;
+import com.example.ssauc.user.main.repository.ProductLikeRepository;
 import com.example.ssauc.user.product.entity.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,9 @@ public class BidService {
 
     @Autowired
     private AutoBidRepository autoBidRepository;
+
+    @Autowired
+    private ProductLikeRepository productLikeRepository;
 
 
 
@@ -95,28 +99,32 @@ public class BidService {
 
     // 일반 입찰 기능 구현
     public boolean placeBid(BidRequestDto bidRequestDto) {
-        // 예시: 제품 ID로 상품 조회 후 입찰 금액 검증 및 입찰 수 증가 처리 등 로직 구현
-
         Product bidProduct = getProduct(bidRequestDto.getProductId());
         Users bidUser = getUser(Long.valueOf(bidRequestDto.getUserId()));
+        long bidAmount = (long) bidRequestDto.getBidAmount();
 
-
-        if (pdpRepository.updateProductField((long) bidRequestDto.getBidAmount(), bidRequestDto.getProductId()) != 0) {
-            // Bid 객체 만들고 저장
-            Bid bid = Bid.builder()
-                    .product(bidProduct)
-                    .user(bidUser)
-                    .bidPrice((long) bidRequestDto.getBidAmount())
-                    .bidTime(LocalDateTime.now())
-                    .build();
-            bidRepository.save(bid);
-            return true;
+        // 일반 입찰이 유효한지 검증 및 현재가 업데이트
+        int updatedRows = pdpRepository.updateProductField(bidAmount, bidRequestDto.getProductId());
+        if (updatedRows == 0) {
+            // 입찰 조건이 맞지 않아 업데이트가 이루어지지 않았을 경우 false 반환
+            return false;
         }
 
+        // Bid 객체 만들고 저장
+        Bid bid = Bid.builder()
+                .product(bidProduct)
+                .user(bidUser)
+                .bidPrice(bidAmount)
+                .bidTime(LocalDateTime.now())
+                .build();
+        bidRepository.save(bid);
 
-        return false;
+        // 일반 입찰이 성공한 후 무조건 자동입찰 로직 실행
+        processAutoBidding(bidRequestDto.getProductId());
 
+        return true;
     }
+
 
     // 자동 입찰 기능 구현
     public boolean autoBid(AutoBidRequestDto autoBidRequestDto) {
@@ -158,64 +166,66 @@ public class BidService {
         return true;
     }
 
-    // 자동입찰자들이 현재가를 상회할 수 있다면 계속 입찰하도록 처리
     private void processAutoBidding(Long productId) {
         Product product = getProduct(productId);
-        Long currentPrice = product.getTempPrice(); // Product 테이블의 현재가(tempPrice) 사용
-
-        // (1) 이 상품에 대해 active=true인 자동입찰 목록 조회
-        List<AutoBid> autoBidders = autoBidRepository.findByProductAndActiveIsTrue(product);
-
-        // (2) 우선순위 정하기
-        //   예: "먼저 등록한 순" → createdAt ASC
-        //   예: "최대입찰금액이 높은 순" → maxBidAmount DESC
-        //   여기는 createdAt ASC + maxBidAmount DESC 복합으로 정렬 예시:
-        autoBidders.sort((a, b) -> {
-            // 먼저 maxBidAmount 큰 순
-            int cmp = b.getMaxBidAmount().compareTo(a.getMaxBidAmount());
-            if(cmp != 0) return cmp;
-            // 같다면 createdAt 오름차순
-            return a.getCreatedAt().compareTo(b.getCreatedAt());
-        });
-
-        // (3) 최소 입찰 단위 (상품마다 있을 수 있음)
+        Long currentPrice = product.getTempPrice(); // 현재가
         Long minIncrement = (long)product.getMinIncrement();
 
-        // (4) while문 or for문으로 “더 이상 가격 상승이 없을 때까지” 반복
-        boolean updated = true;
-        while (updated) {
-            updated = false;
-
-            // 자동입찰 목록 순회
-            for (AutoBid ab : autoBidders) {
-                // 1) 이미 비활성화되었는지 여부 체크
-                if(!ab.isActive()) continue;
-
-                // 2) 이 사람이 낼 수 있는 "다음 입찰금"은 currentPrice + minIncrement
-                Long nextBid = currentPrice + minIncrement;
-                // 3) nextBid가 ab.getMaxBidAmount() 이하라면 입찰 가능
-                if(nextBid <= ab.getMaxBidAmount()) {
-                    // 입찰 처리
-                    currentPrice = nextBid;  // 현재가 갱신
-                    pdpRepository.updateProductField(currentPrice, productId);
-
-                    // Bid 테이블에 기록 (autoBidMax에, 이 사람의 최대자동금액 기재)
-                    Bid autoBid = Bid.builder()
-                            .product(product)
-                            .user(ab.getUser())
-                            .bidPrice(currentPrice)
-                            .bidTime(LocalDateTime.now())
-                            .build();
-                    bidRepository.save(autoBid);
-
-                    updated = true;
-                } else {
-                    // 다음 입찰 불가 → 이 사용자의 자동입찰 비활성화할지 여부는 정책에 따라 결정
-                    // ab.setActive(false);
-                    // autoBiddingRepository.save(ab);
-                }
-            }
+        // 1) 해당 상품의 active=true인 자동입찰 목록 조회
+        List<AutoBid> autoBidders = autoBidRepository.findByProductAndActiveIsTrue(product);
+        if (autoBidders.isEmpty()) {
+            return; // 자동입찰자가 없으면 로직 종료
         }
+
+        // 2) maxBidAmount 기준 내림차순 정렬
+        autoBidders.sort((a, b) -> b.getMaxBidAmount().compareTo(a.getMaxBidAmount()));
+
+        // 3) 1등(최대금액) / 2등(두 번째로 높은 금액) 찾기
+        AutoBid topBidder = autoBidders.get(0);
+        Long topMax = topBidder.getMaxBidAmount();
+
+        Long secondMax;
+        if (autoBidders.size() >= 2) {
+            secondMax = autoBidders.get(1).getMaxBidAmount();
+        } else {
+            // 자동입찰자가 1명뿐이면 2등이 없으니, '현재가' 정도로 처리
+            secondMax = currentPrice;
+        }
+
+        // 4) 새 가격 계산:
+        //    "2등 + minIncrement"가 1등의 maxBid를 넘으면 안 되므로
+        Long desiredPrice = secondMax + minIncrement; // 2등보다 500원 더 높게
+        if (desiredPrice > topMax) {
+            desiredPrice = topMax;  // 1등이 지불할 최대치까지만
+        }
+
+        // 5) desiredPrice가 현재가보다 높다면 그만큼만 올린다.
+        //    (경쟁자가 없을 때는 currentPrice가 이미 secondMax, 결국 + 500 해서 올림 or 그냥 유지)
+        if (desiredPrice > currentPrice) {
+            // DB에 반영
+            pdpRepository.updateProductField(desiredPrice, productId);
+
+            // Bid 테이블에도 기록
+            Bid newBid = Bid.builder()
+                    .product(product)
+                    .user(topBidder.getUser())
+                    .bidPrice(desiredPrice)
+                    .bidTime(LocalDateTime.now())
+                    .build();
+            bidRepository.save(newBid);
+        }
+    }
+
+
+    public String getHighestBidUser() {
+        Long tempUserId = bidRepository.findUserIdWithHighestBidPrice();
+        Users user = usersRepository.findById(tempUserId).orElseThrow();
+        return user.getUserName();
+    }
+
+    public boolean isProductLike(Long productId, Long userId){
+        return productLikeRepository.countByProductIdAndUserId(productId, userId) > 0;
+
     }
 
 
