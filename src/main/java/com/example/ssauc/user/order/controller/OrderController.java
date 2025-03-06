@@ -25,6 +25,13 @@ public class OrderController {
         Users buyer = (Users) session.getAttribute("user");
         Users seller = orderService.getUserById(product.getSeller().getUserId());
 
+        // 대표 이미지 처리
+        String tempImg = product.getImageUrl();
+        String[] tempArr = tempImg.split(",");
+        product.setImageUrl(tempArr[0]);
+
+
+
         OrderRequestDto dto = new OrderRequestDto();
         dto.setProductId(ProductId);
         dto.setBuyerId(buyer.getUserId());

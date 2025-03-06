@@ -46,7 +46,7 @@
                             >
                             <!-- 상품 정보 -->
                             <div>
-                                <p class="mb-1 fw-bold">DANIEL KLEIN</p>
+                                <p class="mb-1 fw-bold" th:text="${productName}">DANIEL KLEIN</p>
                                 <p class="mb-1 text-muted small">결제 번호 : <span th:text="${confirmNumber}"></span></p>
                                 <p class="mb-1 text-muted small">주소 : <span th:text="${totalAddress}"></span> | 거래방식 : <span th:text="${selectedOption}"></span></p>
                                 <p class="fw-bold mb-0" th:text="${totalPrice}">64,300원</p>
