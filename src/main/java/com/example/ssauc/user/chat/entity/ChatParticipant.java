@@ -33,4 +33,9 @@ public class ChatParticipant {
     // 채팅 참여 시작 시각
     @Column(name = "joined_at")
     private LocalDateTime joinedAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.joinedAt = LocalDateTime.now();
+    }
 }

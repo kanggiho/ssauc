@@ -37,4 +37,10 @@ public class ChatMessage {
     // 메시지 전송 시각
     @Column(name = "sent_at")
     private LocalDateTime sentAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.sentAt = LocalDateTime.now();
+    }
+
 }

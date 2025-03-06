@@ -3,66 +3,11 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="layout.html">
 <head>
-    <script>
 
-    function call() {
-        // 폼 요소와 입력창, 채팅영역 DOM 가져오기
-        //const chatForm = document.getElementById('chatForm');
-       // console.log("=====>>" + chatForm); // null인지, HTMLFormElement인지 확인!
+    <!-- SockJS & STOMP 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
-        const chatInput = document.getElementById('chatInput');
-        const chatBody = document.getElementById('chatBody');
-        //const submit_btn = document.getElementById("submit_btn");
-        //alert(submit_btn)
-        // 폼 전송 이벤트 처리
-        //submit_btn.addEventListener('click', function (event) {
-            //event.preventDefault(); // 기본 폼 제출 막기
-
-            console.log("=====================================>> " + chatInput.value)
-            // 입력값 가져오기
-            const message = chatInput.value.trim();
-            if (message === '') return; // 공백이면 무시
-
-            // 채팅에 추가할 HTML 요소 생성
-            // (오른쪽 정렬 - "나"가 보낸 메시지 형태)
-            const newMsg = document.createElement('div');
-            newMsg.classList.add('d-flex', 'mb-3', 'justify-content-end');
-            newMsg.innerHTML = `
-            <div>
-                <h6 class="mb-1 text-end">나</h6>
-                <div class="bg-primary text-white p-2 rounded" style="max-width: 70%;">
-                    ${message}
-                </div>
-                <small class="text-muted d-block text-end">${getCurrentTime()}</small>
-            </div>
-            <div class="flex-shrink-0 ms-2">
-                <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/penguin.png"
-                     alt="User" class="profile-img">
-            </div>
-        `;
-
-            // 채팅 메시지 영역에 새 메시지 추가
-            chatBody.appendChild(newMsg);
-
-            // 입력창 초기화
-            chatInput.value = '';
-
-            // 채팅 영역 스크롤을 맨 아래로
-            chatBody.scrollTop = chatBody.scrollHeight;
-        //});
-    }
-            // 간단한 시간 표시 함수(예: HH:MM 형식)
-            function getCurrentTime() {
-                    const now = new Date();
-                    let hours = now.getHours();
-                    let minutes = now.getMinutes();
-                    // 0~9 분은 앞에 0 붙이기
-                    if (minutes < 10) {
-                    minutes = '0' + minutes;
-                }
-                    return `${hours}:${minutes}`;
-        }
-    </script>
     <!-- 필요한 css, js, cdn 등 추가 -->
     <style>
         .chat-img {
@@ -84,6 +29,107 @@
 
 <body>
 <div class="container" layout:fragment="content">
+
+<script>
+    let stompClient = null;
+    const chatRoomId = 1;   // 예: 현재 채팅방 ID(동적으로 설정)
+    const senderId = 1;   // 예: 현재 사용자 ID(로그인 사용자)
+
+    // 페이지 로딩 시 WebSocket 연결
+    window.onload = function() {
+        connect();
+    };
+
+
+
+    // 1. WebSocket/STOMP 연결
+    function connect() {
+        let socket = new SockJS('/ws-stomp');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log("Connected: " + frame);
+
+            // 2. 채팅방 구독: /topic/chatroom/{chatRoomId}
+            stompClient.subscribe("/topic/chatroom/" + chatRoomId, function (message) {
+                const msg = JSON.parse(message.body);
+                // 채팅 영역에 표시
+                showMessage("User " + msg.senderId + ": " + msg.messageText);
+            });
+        });
+    }
+
+    // 2. 메시지 전송
+    function sendMessage(){
+        const input = document.getElementById('chatInput');
+        const messageText = input.value.trim();
+        alert(messageText + "====================");
+        if (!messageText) return;
+
+        // DTO 형태에 맞춰 STOMP전송
+        let msgDto = {
+            chatRoomId: chatRoomId,
+            senderId: senderId,
+            messageText: messageText
+        };
+
+        // 클라이언트 -> 서버: /app/chat/message 로 전송
+        stompClient.send("/app/chat/message", {}, JSON.stringify(msgDto));
+
+        input.value = ""; //입력값 초기화
+
+        // 내가 전송한 메시지(우측)
+        function showLocalMessage(text) {
+            const chatBody = document.getElementById('chatBody');
+            const newMsg = document.createElement('div');
+            newMsg.classList.add('d-flex', 'mb-3', 'justify-content-end');
+            newMsg.innerHTML = `
+            <div>
+                <h6 class="mb-1 text-end">나</h6>
+                <div class="bg-primary text-white p-2 rounded" style="max-width: 70%;">
+                    ${text}
+                </div>
+                <small class="text-muted d-block text-end">${getCurrentTime()}</small>
+            </div>
+            <div class="flex-shrink-0 ms-2">
+                <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/penguin.png"
+                     alt="User" class="profile-img">
+            </div>
+        `;
+            chatBody.appendChild(newMsg);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+    }
+
+    // 서버에서 받은 메시지(좌측)
+    function showMessage(text) {
+        const chatBody = document.getElementById('chatBody');
+        const p = document.createElement('p');
+        p.innerText = text;
+        chatBody.appendChild(p);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+
+
+
+    // 시간 표시용
+    function getCurrentTime() {
+        const now = new Date();
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
+        if (minutes < 10) {
+            minutes = '0' + minutes;
+        }
+        return `${hours}:${minutes}`;
+    }
+
+</script>
+
+
+
+
+
     <!-- 필요한 태그 추가 -->
     <div class="container py-5">
         <div class="card shadow-sm">
@@ -161,7 +207,7 @@
             <!-- 메시지 입력 영역 -->
             <!-- 여기 form에 id="chatForm", input에 id="chatInput" 추가 -->
             <div class="card-footer">
-                <form id="chatForm" onsubmit="event.preventDefault(); call();">
+                <form id="chatForm" onsubmit="event.preventDefault(); sendMessage();">
                     <div class="input-group">
                         <input type="text" id="chatInput" class="form-control" placeholder="메시지를 입력하세요" aria-label="메시지 입력">
                         <button class="btn btn-dark" type="submit">전송</button>
@@ -170,9 +216,8 @@
             </div>
         </div>
     </div>
+
 </div>
-
-
 </body>
 </html>
 
