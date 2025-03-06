@@ -16,9 +16,9 @@
         <!-- 프로필 영역 -->
         <a th:href="@{/mypage}" class="profile">
             <!-- Users Entity의 profileImage 값 사용 -->
-            <img th:src="@{${session.user.profileImage}}" alt="프로필 이미지">
+            <img th:src="@{${user.profileImage}}" alt="프로필 이미지">
             <!-- Users Entity의 userName 값 사용 -->
-            <p class="username" th:text="${session.user.userName}">Username</p>
+            <p class="username" th:text="${user.userName}">Username</p>
         </a>
         <!-- 마이페이지 네비게이션 메뉴 -->
         <nav class="menu">
@@ -56,12 +56,12 @@
             <!-- 신뢰도 박스 -->
             <a th:href="@{/mypage/evaluation}" class="mypage-box trust-score">
                 <p>나의 신뢰도 ></p>
-                <h2 th:text="${session.user.reputation}">100 점</h2>
+                <h2 th:text="${user.reputation}">100 점</h2>
             </a>
             <!-- SSAUC 머니 박스 -->
             <a th:href="@{/cash/cash}" class="mypage-box money">
                 <p>🔨 SSAUC 머니 ></p>
-                <h2 th:text="${T(java.lang.String).format('%,d 원', session.user.cash)}">0 원</h2>
+                <h2 th:text="${T(java.lang.String).format('%,d 원', user.cash)}">0 원</h2>
             </a>
         </div>
 

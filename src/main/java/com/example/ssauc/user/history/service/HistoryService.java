@@ -1,20 +1,28 @@
-package com.example.ssauc.user.history.repository;
+package com.example.ssauc.user.history.service;
 
 import com.example.ssauc.user.chat.entity.Ban;
 import com.example.ssauc.user.history.dto.BanHistoryDto;
 import com.example.ssauc.user.chat.repository.BanRepository;
+import com.example.ssauc.user.login.entity.Users;
+import com.example.ssauc.user.login.repository.UsersRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class BanHistoryService {
+@RequiredArgsConstructor
+public class HistoryService {
+
+    private final UsersRepository usersRepository;
 
     private final BanRepository banRepository;
 
-    public BanHistoryService(BanRepository banRepository) {
-        this.banRepository = banRepository;
+    // 세션에서 전달된 userId를 이용하여 DB에서 최신 사용자 정보를 조회합니다.
+    public Users getCurrentUser(Long userId) {
+        return usersRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
     }
 
     @Transactional(readOnly = true)

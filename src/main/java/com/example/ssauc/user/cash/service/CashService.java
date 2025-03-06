@@ -13,22 +13,43 @@ import java.time.LocalDateTime;
 
 public interface CashService {
 
-    // 환급 신청 처리 (수수료 계산 포함)
-    Withdraw requestWithdraw(Users user, Long amount, String bank, String account);
-    // 이번 달 환급 신청 횟수를 반환하는 메서드 추가
-    int getCurrentWithdrawCount(Users user);
+    Users getCurrentUser(Long userId);
 
+    // ===================== 결제 내역 =====================
+    Page<CalculateDto> getPaymentCalculatesByUser(Users user, Pageable pageable);
+    Page<CalculateDto> getPaymentCalculatesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    // ===================== 정산 내역 =====================
+    Page<CalculateDto> getSettlementCalculatesByUser(Users user, Pageable pageable);
+    Page<CalculateDto> getSettlementCalculatesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    // ===================== 충전 내역 =====================
     Page<ChargeDto> getChargesByUser(Users user, Pageable pageable);
     Page<ChargeDto> getChargesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
-
+    // ===================== 환급 내역 =====================
     Page<WithdrawDto> getWithdrawsByUser(Users user, Pageable pageable);
     Page<WithdrawDto> getWithdrawsByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
-    Page<CalculateDto> getCalculateByUser(Users user, Pageable pageable);
-    Page<CalculateDto> getCalculateByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    // 각 내역별 총합 계산 메서드 추가
+    // ===================== 결제 금액 총합 =====================
+    long getTotalPaymentAmount(Users user);
+    long getTotalPaymentAmount(Users user, LocalDateTime startDate, LocalDateTime endDate);
+    // ===================== 정산 금액 총합 =====================
+    long getTotalSettlementAmount(Users user);
+    long getTotalSettlementAmount(Users user, LocalDateTime startDate, LocalDateTime endDate);
+    // ===================== 충전 금액 총합 =====================
+    long getTotalChargeAmount(Users user);
+    long getTotalChargeAmount(Users user, LocalDateTime startDate, LocalDateTime endDate);
+    // ===================== 환급 금액 총합 =====================
+    long getTotalWithdrawAmount(Users user);
+    long getTotalWithdrawAmount(Users user, LocalDateTime startDate, LocalDateTime endDate);
 
-    // PortOne API를 통해 결제 정보를 검증, 결제 완료 처리.
+    // PortOne 결제 처리
     Charge verifyAndCompletePayment(String paymentId, Long amount, Users user) throws PortoneVerificationException;
+
+    // 환급 신청 처리 (수수료 계산 포함)
+    Withdraw requestWithdraw(Users user, Long amount, String bank, String account);
+
+    // 이번 달 환급 신청 횟수를 반환하는 메서드 추가
+    int getCurrentWithdrawCount(Users user);
 
     /**
      * PortOne에서 전달받은 웹훅 요청을 처리합니다.

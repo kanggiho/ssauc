@@ -1,6 +1,7 @@
 package com.example.ssauc.user.product.service;
 
 import com.example.ssauc.user.login.entity.Users;
+import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.product.dto.ProductInsertDto;
 import com.example.ssauc.user.product.entity.Category;
 import com.example.ssauc.user.product.entity.Product;
@@ -17,8 +18,14 @@ import java.time.LocalTime;
 @RequiredArgsConstructor
 public class ProductService {
 
+    private final UsersRepository usersRepository;
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+
+    public Users getCurrentUser(Long userId) {
+        return usersRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
+    }
 
     public Product insertProduct(ProductInsertDto dto, Users seller) {
         // 카테고리 검증: categoryName으로 조회
