@@ -1,11 +1,8 @@
 package com.example.ssauc.user.history.service;
 
 import com.example.ssauc.user.chat.entity.Ban;
-import com.example.ssauc.user.history.dto.BanHistoryDto;
+import com.example.ssauc.user.history.dto.*;
 import com.example.ssauc.user.chat.repository.BanRepository;
-import com.example.ssauc.user.history.dto.SellHistoryCompletedDto;
-import com.example.ssauc.user.history.dto.SellHistoryOngoingDto;
-import com.example.ssauc.user.history.dto.SoldDetailDto;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.order.entity.Orders;
@@ -109,7 +106,6 @@ public class HistoryService {
             );
         });
     }
-
     // 판매 완료 상세 내역
     @Transactional(readOnly = true)
     public SoldDetailDto getSoldDetailByProductId(Long productId) {
@@ -127,6 +123,50 @@ public class HistoryService {
                 .imageUrl(product.getImageUrl())
                 .orderId(order.getOrderId())
                 .buyerName(order.getBuyer().getUserName())
+                .totalPrice(order.getTotalPrice())
+                .recipientName(order.getRecipientName())
+                .recipientPhone(order.getRecipientPhone())
+                .postalCode(order.getPostalCode())
+                .deliveryAddress(order.getDeliveryAddress())
+                .orderDate(order.getOrderDate())
+                .completedDate(order.getCompletedDate())
+                .build();
+    }
+
+    // ===================== 구매 내역 =====================
+    // 구매 완료 리스트 (구매자 기준)
+    @Transactional(readOnly = true)
+    public Page<BuyHistoryDto> getPurchaseHistoryPage(Users buyer, Pageable pageable) {
+        // Orders에서 buyer가 일치하는 주문을 조회합니다.
+        Page<Orders> ordersPage = ordersRepository.findByBuyer(buyer, pageable);
+        return ordersPage.map(order -> BuyHistoryDto.builder()
+                .orderId(order.getOrderId())
+                .productId(order.getProduct().getProductId())
+                .productName(order.getProduct().getName())
+                .sellerName(order.getSeller().getUserName())
+                .totalPrice(order.getTotalPrice())
+                .orderDate(order.getOrderDate())
+                .completedDate(order.getCompletedDate())
+                .build());
+    }
+    // 구매 내역 상세 (특정 상품의 구매 내역, 구매자 기준)
+    @Transactional(readOnly = true)
+    public BoughtDetailDto getBoughtDetailByProductId(Long productId, Users buyer) {
+        // Product 조회
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("해당 상품이 존재하지 않습니다."));
+        // 해당 상품의 주문 중 구매자가 일치하는 주문 찾기
+        Orders order = product.getOrders().stream()
+                .filter(o -> o.getBuyer().getUserId().equals(buyer.getUserId()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("해당 상품의 주문 정보가 없습니다."));
+        return BoughtDetailDto.builder()
+                .productName(product.getName())
+                .startPrice(product.getStartPrice())
+                .createdAt(product.getCreatedAt())
+                .dealType(product.getDealType())
+                .imageUrl(product.getImageUrl())
+                .sellerName(order.getSeller().getUserName())
                 .totalPrice(order.getTotalPrice())
                 .recipientName(order.getRecipientName())
                 .recipientPhone(order.getRecipientPhone())
