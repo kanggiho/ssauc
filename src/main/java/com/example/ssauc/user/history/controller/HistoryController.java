@@ -1,10 +1,7 @@
 package com.example.ssauc.user.history.controller;
 
 import com.example.ssauc.user.bid.dto.CarouselImage;
-import com.example.ssauc.user.history.dto.BanHistoryDto;
-import com.example.ssauc.user.history.dto.SellHistoryCompletedDto;
-import com.example.ssauc.user.history.dto.SellHistoryOngoingDto;
-import com.example.ssauc.user.history.dto.SoldDetailDto;
+import com.example.ssauc.user.history.dto.*;
 import com.example.ssauc.user.history.service.HistoryService;
 import com.example.ssauc.user.login.entity.Users;
 
@@ -73,7 +70,8 @@ public class HistoryController {
     }
 
     // ===================== 판매 내역 =====================
-    @GetMapping("/sell")  // 판매 현황 리스트 페이지로 이동
+    // 판매 현황 리스트 (판매중, 만료, 완료)
+    @GetMapping("/sell")
     public String sellPage(@RequestParam(value = "filter", required = false, defaultValue = "ongoing") String filter,
                            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
                            HttpSession session, Model model) {
@@ -106,8 +104,8 @@ public class HistoryController {
         model.addAttribute("filter", filter);
         return "/history/sell";
     }
-
-    @GetMapping("/sold")  // 판매 현황 상세 페이지로 이동
+    // 판매 내역 상세 페이지
+    @GetMapping("/sold")
     public String soldPage(@RequestParam("id") Long productId, HttpSession session, Model model) {
         Users user = (Users) session.getAttribute("user");
         if (user == null) {
@@ -138,19 +136,56 @@ public class HistoryController {
     }
 
     // ===================== 구매 내역 =====================
-    @GetMapping("/buy")  // 구매 현황 리스트 페이지로 이동
-    public String buyPage(HttpSession session, Model model) {
+    // 구매 내역 리스트 (완료)
+    @GetMapping("/buy")
+    public String buyPage(@RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                          HttpSession session, Model model) {
         Users user = (Users) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/login";
+        }
         Users latestUser = historyService.getCurrentUser(user.getUserId());
         model.addAttribute("user", latestUser);
+
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "orderDate"));
+        Page<BuyHistoryDto> purchasePage = historyService.getPurchaseHistoryPage(latestUser, pageable);
+        model.addAttribute("orderList", purchasePage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", purchasePage.getTotalPages());
+
         return "/history/buy";
     }
 
-    @GetMapping("/bought")  // 구매 현황 리스트 페이지로 이동
-    public String boughtPage(HttpSession session, Model model) {
+    // 구매 내역 상세 페이지
+    @GetMapping("/bought")
+    public String boughtPage(@RequestParam("id") Long productId,
+                             HttpSession session, Model model) {
         Users user = (Users) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/login";
+        }
         Users latestUser = historyService.getCurrentUser(user.getUserId());
         model.addAttribute("user", latestUser);
+
+        // 구매 내역 상세 조회 (구매자 기준)
+        BoughtDetailDto boughtDetail = historyService.getBoughtDetailByProductId(productId, latestUser);
+        model.addAttribute("boughtDetail", boughtDetail);
+
+        // 이미지 Carousel 생성 (BidService와 유사한 로직)
+        String imageUrlStr = boughtDetail.getImageUrl();  // 쉼표로 구분된 문자열
+        String[] urls = imageUrlStr.split(",");
+        List<CarouselImage> carouselImages = new ArrayList<>();
+        int i = 1;
+        for (String url : urls) {
+            CarouselImage image = new CarouselImage();
+            image.setUrl(url.trim());
+            image.setAlt("Slide " + i);
+            i++;
+            carouselImages.add(image);
+        }
+        model.addAttribute("carouselImages", carouselImages);
+
         return "/history/bought";
     }
 }
