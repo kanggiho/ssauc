@@ -23,15 +23,15 @@
         <!-- 필터 섹션 -->
         <div class="filter-section">
             <div class="filter-buttons">
-                <a th:href="@{/history/sell(filter='ongoing', page=${currentPage})}"
+                <a th:href="@{/history/sell(filter='ongoing')}"
                    class="filter-btn" th:classappend="${filter=='ongoing'} ? ' active' : ''">
                     판매중
                 </a>
-                <a th:href="@{/history/sell(filter='ended', page=${currentPage})}"
+                <a th:href="@{/history/sell(filter='ended')}"
                    class="filter-btn" th:classappend="${filter=='ended'} ? ' active' : ''">
                     판매 마감
                 </a>
-                <a th:href="@{/history/sell(filter='completed', page=${currentPage})}"
+                <a th:href="@{/history/sell(filter='completed')}"
                    class="filter-btn" th:classappend="${filter=='completed'} ? ' active' : ''">
                     판매 완료
                 </a>
@@ -91,7 +91,7 @@
         </div>
 
         <!-- 페이지네이션 (filter와 page 파라미터 활용) -->
-        <div class="pagination">
+        <div class="pagination" th:if="${totalPages > 1}">
             <a th:if="${currentPage > 1}"
                th:href="@{/history/sell(filter=${filter}, page=${currentPage - 1})}">
                 <button>&lt;</button>
