@@ -46,5 +46,6 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
                                                       @Param("start") LocalDateTime start,
                                                       @Param("end") LocalDateTime end);
 
-
+    // 주문 상태가 "거래완료"인 주문 페이징 처리
+    Page<Orders> findBySellerAndOrderStatus(Users seller, String orderStatus, Pageable pageable);
 }
