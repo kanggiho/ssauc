@@ -94,24 +94,30 @@ public class CashServiceImpl implements CashService {
     public Page<CalculateDto> getSettlementCalculatesByUser(Users user, Pageable pageable) {
         // 주문 중 판매자인 경우 (user가 seller)
         Page<Orders> ordersPage = ordersRepository.findBySeller(user, pageable);
-        return ordersPage.map(order -> CalculateDto.builder()
-                .orderId(order.getOrderId())
-                .paymentAmount(order.getTotalPrice())
-                .productName(order.getProduct().getName())
-                .paymentTime(order.getCompletedDate())
-                .orderStatus(order.getOrderStatus())
-                .build());
+        return ordersPage.map(order -> {
+            Payment payment = order.getPayments().get(0);
+            return CalculateDto.builder()
+                    .orderId(order.getOrderId())
+                    .paymentAmount(order.getTotalPrice())
+                    .productName(order.getProduct().getName())
+                    .paymentTime(payment.getPaymentDate())
+                    .orderStatus(order.getOrderStatus())
+                    .build();
+        });
     }
     @Override
     public Page<CalculateDto> getSettlementCalculatesByUser(Users user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
-        Page<Orders> ordersPage = ordersRepository.findBySellerAndCompletedDateBetween(user, startDate, endDate, pageable);
-        return ordersPage.map(order -> CalculateDto.builder()
-                .orderId(order.getOrderId())
-                .paymentAmount(order.getTotalPrice())
-                .productName(order.getProduct().getName())
-                .paymentTime(order.getCompletedDate())
-                .orderStatus(order.getOrderStatus())
-                .build());
+        Page<Orders> ordersPage = ordersRepository.findBySellerAndPaymentTimeBetween(user, startDate, endDate, pageable);
+        return ordersPage.map(order -> {
+            Payment payment = order.getPayments().get(0);
+            return CalculateDto.builder()
+                    .orderId(order.getOrderId())
+                    .paymentAmount(order.getTotalPrice())
+                    .productName(order.getProduct().getName())
+                    .paymentTime(payment.getPaymentDate())
+                    .orderStatus(order.getOrderStatus())
+                    .build();
+        });
     }
     // ===================== 충전 내역 =====================
     @Override
@@ -187,7 +193,7 @@ public class CashServiceImpl implements CashService {
     }
     @Override
     public long getTotalSettlementAmount(Users user, LocalDateTime startDate, LocalDateTime endDate) {
-        return ordersRepository.sumTotalPriceBySellerAndCompletedDateBetween(user, startDate, endDate);
+        return ordersRepository.sumTotalPriceBySellerAndPaymentDateBetween(user, startDate, endDate);
     }
     // ===================== 충전 금액 총합 =====================
     @Override
