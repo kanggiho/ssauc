@@ -47,7 +47,10 @@ public class PaymentController {
         if (success) {
             Product product = paymentService.getProductInfo(orderRequestDto.getProductId());
 
-            String imgUrl = product.getImageUrl();
+            String tempImgUrl = product.getImageUrl();
+            String[] imgUrlArr = tempImgUrl.split(",");
+            String imgUrl = imgUrlArr[0];
+
             String productName = product.getName();
             String totalAddress = "("+orderRequestDto.getPostalCode()+") "+orderRequestDto.getDeliveryAddress();
             String seller = paymentService.getUsersInfo(orderRequestDto.getSellerId()).getUserName();
