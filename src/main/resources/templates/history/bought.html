@@ -25,6 +25,16 @@
       object-fit: cover;
       display: block;
     }
+    /* 스마트택배 배송 조회 버튼 */
+    .smartapi-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #17a2b8; /* 파란색 계열의 정보색상 */
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
     /* 거래 완료 버튼 */
     .complete-btn {
       padding: 8px 16px;
@@ -36,15 +46,11 @@
       cursor: pointer;
       margin-right: 16px;
     }
-    /* 스마트택배 배송 조회 버튼 */
-    .smartapi-btn {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 5px;
-      background-color: #17a2b8; /* 파란색 계열의 정보색상 */
-      color: white;
-      font-size: 14px;
+    .complete-btn.completed {
+      background-color: #ccc;
+      color: #666;
       cursor: pointer;
+      border: 1px solid #aaa;
     }
   </style>
 </head>
@@ -128,16 +134,16 @@
       </div>
       <!-- 거래 완료 영역 -->
       <div class="tracking-area d-flex">
-        <button class="complete-btn ms-auto" onclick="completeTransaction()">거래 완료</button>
+        <button id="completeBtn" class="complete-btn ms-auto" onclick="completeTransaction()"
+                th:classappend="${boughtDetail.completedDate != null} ? ' completed' : ''">거래 완료</button>
       </div>
     </div>
   </div>
 </div>
 
-<script layout:fragment="script">
+<script layout:fragment="script" th:inline="javascript">
 
-
-  let registeredTracking = "test";
+  let registeredTracking = /*[[${boughtDetail.deliveryStatus}]]*/ "";
 
   function loadTracking() {
     if (registeredTracking.trim() !== "") {
@@ -151,9 +157,37 @@
   }
 
   function completeTransaction() {
-    // 거래 완료 처리 로직 (백엔드 연동 필요)
-    alert("거래 완료 처리되었습니다.");
+    const completeBtn = document.getElementById("completeBtn");
+    if (completeBtn.classList.contains("completed")) {
+      alert("이미 완료되었습니다.");
+      return;
+    }
+
+    if (!confirm("정말 거래를 완료하시겠습니까?")) {
+      return;
+    }
+
+    const orderId = /*[[${boughtDetail.orderId}]]*/ 0;
+
+    fetch('/history/bought/complete?orderId=' + orderId, {
+      method: 'POST'
+    })
+            .then(response => response.text())
+            .then(data => {
+              if(data.trim() === "완료") {
+                completeBtn.classList.add("completed");
+                alert("거래 완료 처리되었습니다.");
+                location.reload();
+              } else {
+                alert("거래 완료 처리에 실패했습니다.");
+              }
+            })
+            .catch(error => {
+              console.error("Error:", error);
+              alert("오류가 발생했습니다.");
+            });
   }
+
 </script>
 </body>
 </html>

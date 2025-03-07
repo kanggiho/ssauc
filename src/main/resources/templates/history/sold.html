@@ -25,6 +25,9 @@
             object-fit: cover;
             display: block;
         }
+        .tracking-number {
+            margin-top: 16px;
+        }
     </style>
 </head>
 <body>
@@ -51,7 +54,7 @@
                             <p><strong>거래 방식:</strong> <span
                                     th:text="${soldDetail.dealType == 0 ? '🧑🏻 직거래' : (soldDetail.dealType == 1 ? '🚚 택배거래' : '🧑🏻🚚 직거래, 택배거래')}">거래 방식</span>
                             </p>
-                            <hr/>
+                            <hr>
                             <p><strong>구매자:</strong> <span th:text="${soldDetail.buyerName}">구매자123</span></p>
                             <p><strong>판매가:</strong> <span th:text="${soldDetail.totalPrice}">50,000 원</span></p>
                             <p><strong>판매 시간:</strong> <span
@@ -98,10 +101,14 @@
                     </p>
                     <!-- 운송장 등록 영역 -->
                     <div class="tracking mt-3">
-                        <span class="tracking-label">운송장 등록 현황:</span>
-                        <button class="btn btn-primary btn-sm" onclick="registerTracking()">운송장 등록</button>
-                        <p class="tracking-number" style="display: none;">
-                            <strong>등록된 운송장 번호:</strong> <span id="trackingNo"></span>
+                        <span class="fw-bold">운송장 등록 현황:</span>
+                        <button class="btn btn-primary btn-sm" onclick="registerTracking()"
+                                th:text="${soldDetail.deliveryStatus != null} ? '운송장 수정' : '운송장 등록'">
+                            운송장 등록
+                        </button>
+                        <p class="tracking-number">
+                            <strong>등록된 운송장 번호:</strong>
+                            <span id="trackingNo" th:text="${soldDetail.deliveryStatus}"></span>
                         </p>
                     </div>
                 </div>
@@ -111,15 +118,32 @@
     </div>
 </div>
 
-<script layout:fragment="script">
+<script layout:fragment="script" th:inline="javascript">
+
     function registerTracking() {
-        const trackingNo = prompt("운송장 번호를 입력하세요:");
-        if (trackingNo && trackingNo.trim() !== "") {
-            const trackingNumberElement = document.getElementById("trackingNo");
-            trackingNumberElement.textContent = trackingNo.trim();
-            trackingNumberElement.parentElement.style.display = "block";
+        const newTracking = prompt("운송장 번호를 입력하세요:");
+        if (newTracking && newTracking.trim() !== "") {
+            const orderId = /*[[${soldDetail.orderId}]]*/ 0;
+            fetch('/history/sold/update-tracking?orderId=' + orderId + '&newTracking=' + encodeURIComponent(newTracking.trim()), {
+                method: 'POST'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.updated) {
+                        document.getElementById("trackingNo").textContent = newTracking.trim();
+                        document.querySelector('button[onclick="registerTracking()"]').textContent = "운송장 수정";
+                        alert("운송장 번호가 업데이트되었습니다.");
+                    } else {
+                        alert("운송장 번호 업데이트에 실패했습니다.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("오류가 발생했습니다.");
+                });
         }
     }
+
 </script>
 </body>
 </html>

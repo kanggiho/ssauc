@@ -16,7 +16,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("history")
@@ -134,6 +136,16 @@ public class HistoryController {
 
         return "/history/sold";
     }
+    // 운송장 번호 등록
+    @PostMapping("/sold/update-tracking")
+    @ResponseBody
+    public Map<String, Object> updateDeliveryStatus(@RequestParam("orderId") Long orderId,
+                                                    @RequestParam("newTracking") String newTracking) {
+        boolean updated = historyService.updateDeliveryStatus(orderId, newTracking);
+        Map<String, Object> result = new HashMap<>();
+        result.put("updated", updated);
+        return result;
+    }
 
     // ===================== 구매 내역 =====================
     // 구매 내역 리스트 (완료)
@@ -198,5 +210,17 @@ public class HistoryController {
         model.addAttribute("carouselImages", carouselImages);
 
         return "/history/bought";
+    }
+
+    // 거래 완료 요청 처리
+    @PostMapping("/bought/complete")
+    @ResponseBody
+    public String completeOrder(@RequestParam("orderId") Long orderId, HttpSession session) {
+        Users user = (Users) session.getAttribute("user");
+        if(user == null) {
+            return "로그인이 필요합니다.";
+        }
+        historyService.completeOrder(orderId, user);
+        return "완료";
     }
 }
