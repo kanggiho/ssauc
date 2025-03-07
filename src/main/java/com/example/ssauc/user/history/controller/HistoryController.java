@@ -138,7 +138,8 @@ public class HistoryController {
     // ===================== 구매 내역 =====================
     // 구매 내역 리스트 (완료)
     @GetMapping("/buy")
-    public String buyPage(@RequestParam(value = "page", required = false, defaultValue = "1") int page,
+    public String buyPage(@RequestParam(value = "filter", required = false, defaultValue = "bidding") String filter,
+                          @RequestParam(value = "page", required = false, defaultValue = "1") int page,
                           HttpSession session, Model model) {
         Users user = (Users) session.getAttribute("user");
         if (user == null) {
@@ -148,12 +149,22 @@ public class HistoryController {
         model.addAttribute("user", latestUser);
 
         int pageSize = 10;
-        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "orderDate"));
-        Page<BuyHistoryDto> purchasePage = historyService.getPurchaseHistoryPage(latestUser, pageable);
-        model.addAttribute("orderList", purchasePage.getContent());
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", purchasePage.getTotalPages());
 
+        if ("complete".equals(filter)) {
+            // 구매 완료 필터 (default)
+            Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "orderDate"));
+            Page<BuyHistoryDto> purchasePage = historyService.getPurchaseHistoryPage(latestUser, pageable);
+            model.addAttribute("list", purchasePage.getContent());
+            model.addAttribute("totalPages", purchasePage.getTotalPages());
+        } else {
+            // 입찰중 필터: Bid 테이블 기준
+            Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "product.endAt"));
+            Page<BuyBidHistoryDto> biddingPage = historyService.getBiddingHistoryPage(latestUser, pageable);
+            model.addAttribute("list", biddingPage.getContent());
+            model.addAttribute("totalPages", biddingPage.getTotalPages());
+        }
+        model.addAttribute("currentPage", page);
+        model.addAttribute("filter", filter);
         return "/history/buy";
     }
 
