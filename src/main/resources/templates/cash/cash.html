@@ -180,7 +180,7 @@
 
 
         <!-- 페이지네이션 -->
-        <div class="pagination">
+        <div class="pagination" th:if="${totalPages > 1}">
             <!-- 이전 페이지 버튼 (현재 페이지가 1보다 클 때만 표시) -->
             <a th:if="${currentPage > 1}"
                th:href="@{/cash/cash(filter=${filter}, page=${currentPage - 1}, startDate=${startDate}, endDate=${endDate})}">

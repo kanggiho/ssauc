@@ -60,6 +60,39 @@
     cursor: pointer;
 }
 
+/* 필터 섹션 */
+.filter-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 필터 버튼 배치 */
+.filter-buttons {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 15px;
+}
+
+.filter-btn {
+    width: 45%;
+    padding: 6px 12px;
+    border: 1px solid black;
+    border-radius: 8px;
+    background-color: white;
+    color: black;
+    cursor: pointer;
+    font-size: 15px;
+    text-align: center;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.filter-btn.active {
+    background-color: black;
+    color: white;
+}
+
 /* 페이지네이션 */
 .pagination {
     display: flex;
