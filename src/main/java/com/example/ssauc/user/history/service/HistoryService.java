@@ -1,6 +1,8 @@
 package com.example.ssauc.user.history.service;
 
+import com.example.ssauc.user.bid.entity.AutoBid;
 import com.example.ssauc.user.bid.entity.Bid;
+import com.example.ssauc.user.bid.repository.AutoBidRepository;
 import com.example.ssauc.user.bid.repository.BidRepository;
 import com.example.ssauc.user.chat.entity.Ban;
 import com.example.ssauc.user.history.dto.*;
@@ -28,6 +30,7 @@ public class HistoryService {
     private final OrdersRepository ordersRepository;
     private final BanRepository banRepository;
     private final BidRepository bidRepository;
+    private final AutoBidRepository autoBidRepository;
 
     // 세션에서 전달된 userId를 이용하여 DB에서 최신 사용자 정보를 조회합니다.
     public Users getCurrentUser(Long userId) {
@@ -143,16 +146,22 @@ public class HistoryService {
         LocalDateTime now = LocalDateTime.now(); // 현재 시간
         // BidRepository에서 현재 시간보다 경매 마감 시간이 이후(endAt > now)인 데이터만 조회
         Page<Bid> bidPage = bidRepository.findByUserAndProductEndAtAfter(buyer, now, pageable);
-        return bidPage.map(bid -> BuyBidHistoryDto.builder()
-                .bidId(bid.getBidId())
-                .productId(bid.getProduct().getProductId())
-                .productName(bid.getProduct().getName())
-                .sellerName(bid.getProduct().getSeller().getUserName())
-                .endAt(bid.getProduct().getEndAt())
-                .tempPrice(bid.getProduct().getTempPrice())
-                .bidPrice(bid.getBidPrice())
-                .maxBidAmount(bid.getAutoBidMax())
-                .build());
+        return bidPage.map(bid -> {
+            // 해당 입찰에 대해, 활성화된 AutoBid 엔티티를 조회 (없으면 null)
+            AutoBid autoBid = autoBidRepository.findByUserAndProductAndActive(buyer, bid.getProduct(), true);
+            Long maxBidAmount = (autoBid != null) ? autoBid.getMaxBidAmount() : null;
+
+            return BuyBidHistoryDto.builder()
+                    .bidId(bid.getBidId())
+                    .productId(bid.getProduct().getProductId())
+                    .productName(bid.getProduct().getName())
+                    .sellerName(bid.getProduct().getSeller().getUserName())
+                    .endAt(bid.getProduct().getEndAt())
+                    .bidPrice(bid.getBidPrice())
+                    .maxBidAmount(maxBidAmount)
+                    .tempPrice(bid.getProduct().getTempPrice())
+                    .build();
+        });
     }
     // 구매 완료 리스트 (구매자 기준)
     @Transactional(readOnly = true)
