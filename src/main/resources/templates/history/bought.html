@@ -5,69 +5,148 @@
 <head>
   <meta charset="UTF-8">
   <title>구매 내역 상세</title>
-  <!-- 스타일시트 연결 -->
+  <!-- 필요한 CSS, JS, CDN 등 -->
   <link rel="stylesheet" href="/css/mypage.css">
-  <link rel="stylesheet" href="/css/bought.css">
+  <style>
+    .col-md-10 {
+      padding-left: 80px;
+      padding-top: 24px;
+    }
+    /* 캐러셀 전체 영역 및 각 슬라이드의 고정 높이 설정 */
+    .carousel-inner,
+    .carousel-item {
+      max-height: 400px;
+      max-width: 400px;
+    }
+    /* 캐러셀 슬라이드 이미지 스타일 */
+    .carousel-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* 거래 완료 버튼 */
+    .complete-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #28a745;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      margin-right: 16px;
+    }
+    /* 스마트택배 배송 조회 버튼 */
+    .smartapi-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #17a2b8; /* 파란색 계열의 정보색상 */
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
+<div class="container" layout:fragment="content">
+  <div class="row">
+    <!-- 왼쪽 Sidebar (mypage 그대로) -->
+    <div class="sidebar" th:replace="~{mypage/mypage :: sidebar}"></div>
+    <!-- 오른쪽 메인 컨텐츠 -->
+    <div class="col-md-10">
+      <h2 class="mb-4">구매 내역 상세</h2>
 
-<div class="bought-container" layout:fragment="content">
-  <!-- 왼쪽 사이드바 (mypage와 동일) -->
-  <div th:replace="~{mypage/mypage :: sidebar}"></div>
-
-  <!-- 메인 컨텐츠 -->
-  <main class="bought-main">
-    <h2>구매 내역 상세</h2>
-    <div class="buy-detail">
-      <!-- 상품 정보 영역 -->
-      <div class="product-info">
-        <!-- 왼쪽: 상품 정보 -->
-        <div class="product-details">
-          <p class="product-name"><strong>상품 이름:</strong> <span>상품 A</span></p>
-          <p class="product-category"><strong>카테고리:</strong> <span>전자제품</span></p>
-          <p class="register-time"><strong>주문 시간:</strong> <span>2025-02-05 14:30:00</span></p>
-        </div>
-        <!-- 오른쪽: 상품 이미지 -->
-        <div class="product-image">
-          <img src="/images/sample_product.jpg" alt="상품 이미지">
+      <!-- Section 1 -->
+      <div class="card mb-4">
+        <div class="card-header fw-bold">구매 상품 정보</div>
+        <div class="card-body">
+          <div class="row">
+            <!-- 왼쪽: 상품 정보 -->
+            <div class="col-md-7">
+              <p><strong>상품 이름:</strong> <span th:text="${boughtDetail.productName}">상품 A</span></p>
+              <p><strong>경매 시작가:</strong> <span th:text="${boughtDetail.startPrice}">10000</span></p>
+              <p><strong>등록 시간:</strong> <span
+                      th:text="${#temporals.format(boughtDetail.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2025-02-05 14:30:00</span>
+              </p>
+              <p><strong>거래 방식:</strong> <span
+                      th:text="${boughtDetail.dealType == 0 ? '🧑🏻 직거래' : (boughtDetail.dealType == 1 ? '🚚 택배거래' : '🧑🏻🚚 직거래, 택배거래')}">거래 방식</span>
+              </p>
+              <hr/>
+              <p><strong>판매자:</strong> <span th:text="${boughtDetail.sellerName}">판매자123</span></p>
+              <p><strong>구매가:</strong> <span th:text="${boughtDetail.totalPrice}">50,000 원</span></p>
+              <p><strong>구매 시간:</strong> <span
+                      th:text="${#temporals.format(boughtDetail.orderDate, 'yyyy-MM-dd HH:mm:ss')}">2025-02-06 16:45:00</span>
+              </p>
+              <p><strong>거래 완료 시간:</strong> <span
+                      th:text="${#temporals.format(boughtDetail.completedDate, 'yyyy-MM-dd HH:mm:ss')}">2025-02-06 17:00:00</span>
+              </p>
+            </div>
+            <!-- 오른쪽: 상품 이미지 Carousel -->
+            <div class="col-md-5">
+              <div id="carouselSold" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                  <div th:each="image, iterStat : ${carouselImages}"
+                       class="carousel-item"
+                       th:classappend="${iterStat.index == 0} ? ' active' : ''">
+                    <img th:src="@{${image.url}}" class="d-block w-100" th:alt="${image.alt}"/>
+                  </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselSold"
+                        data-bs-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">이전</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselSold"
+                        data-bs-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">다음</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- 거래 정보 영역 -->
-      <div class="transaction-info">
-        <p class="seller"><strong>판매자:</strong> <span>판매자123</span></p>
-        <p class="transaction-type"><strong>거래 방식:</strong> <span>즉시 구매</span></p>
-        <p class="purchase-price"><strong>구매 가격:</strong> <span>50,000 원</span></p>
-        <p class="complete-time"><strong>거래 완료 시간:</strong> <span>2025-02-06 16:45:00</span></p>
-
-        <div class="tracking">
-          <span class="tracking-label">운송장 정보:</span>
-          <button class="tracking-btn not-loaded" onclick="loadTracking()">운송장 불러오기</button>
-          <p class="tracking-number" style="display: none;">
-            <strong>등록된 운송장 번호:</strong> <span id="trackingNo"></span>
+      <!-- Section 2 -->
+      <div class="card mb-4">
+        <div class="card-header fw-bold">배송 요청 정보</div>
+        <div class="card-body">
+          <p><strong>수령인 이름:</strong> <span th:text="${boughtDetail.recipientName}">홍길동</span></p>
+          <p><strong>수령인 연락처:</strong> <span th:text="${boughtDetail.recipientPhone}">010-1234-5678</span></p>
+          <p><strong>우편번호:</strong> <span th:text="${boughtDetail.postalCode}">12345</span></p>
+          <p><strong>배송 주소:</strong> <span th:text="${boughtDetail.deliveryAddress}">서울특별시 강남구 테헤란로 123</span>
           </p>
+          <!-- 운송장 및 배송 조회 영역 -->
+          <div class="tracking mt-3 d-flex align-items-center">
+            <span class="tracking-label fw-bold">운송장 정보:</span>
+            <button id="trackingBtn" class="btn btn-primary btn-sm ms-2" onclick="loadTracking()">운송장 불러오기</button>
+            <span id="trackingText" class="ms-2 fw-bold" style="display: none;"></span>
+            <button class="smartapi-btn ms-auto" onclick="">배송 조회</button>
+          </div>
         </div>
-
-        <!-- 운송장 및 거래 완료 영역 -->
-        <div class="tracking-area">
-          <button class="smartapi-btn" onclick="">배송 조회</button>
-          <button class="complete-btn" onclick="completeTransaction()">거래 완료</button>
-        </div>
+      </div>
+      <!-- 거래 완료 영역 -->
+      <div class="tracking-area d-flex">
+        <button class="complete-btn ms-auto" onclick="completeTransaction()">거래 완료</button>
       </div>
     </div>
-  </main>
+  </div>
 </div>
 
-<script>
-  // 임시 변수: 실제 환경에서는 백엔드 연동으로 등록된 운송장 번호를 가져옵니다.
-  let registeredTracking = ""; // 예: "TRK123456789" 또는 빈 문자열
+<script layout:fragment="script">
+
+
+  let registeredTracking = "test";
 
   function loadTracking() {
     if (registeredTracking.trim() !== "") {
-      document.getElementById("trackingNo").textContent = registeredTracking;
-      document.querySelector(".tracking-number").style.display = "block";
+      document.getElementById("trackingBtn").style.display = "none"; // 버튼 숨김
+      const trackingText = document.getElementById("trackingText");
+      trackingText.textContent = registeredTracking; // 운송장 번호 표시
+      trackingText.style.display = "inline"; // 텍스트 표시
     } else {
-      alert("운송장 정보가 등록되어 있지 않습니다.");
+      alert("운송장 정보가 등록되어 있지 않습니다."); // 운송장 정보가 없을 때 알림
     }
   }
 
@@ -76,6 +155,5 @@
     alert("거래 완료 처리되었습니다.");
   }
 </script>
-
 </body>
 </html>
