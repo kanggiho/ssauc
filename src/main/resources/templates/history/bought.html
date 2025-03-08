@@ -130,12 +130,8 @@
             <button id="trackingBtn" class="btn btn-primary btn-sm ms-2" onclick="loadTracking()">운송장 정보 불러오기</button>
             <span id="trackingText" class="ms-2" style="display: none;"></span>
             <button class="smartapi-btn ms-auto" onclick="submitTrackingForm()">배송 조회</button>
-            <!-- 숨겨진 배송 조회 Form 추가 (사용할 템플릿의 코드(1: Cyan, 2: Pink, 3: Gray, 4: Tropical, 5: Sky)를 URL 경로에 추가) -->
-            <form id="smartTrackingForm" action="https://info.sweettracker.co.kr/tracking/5" method="post" target="_blank" style="display: none;">
-              <div class="form-group">
-                <label for="t_key">API key</label>
-                <input type="text" class="form-control" id="t_key" name="t_key" th:value="${apiKey}" placeholder="API-KEY">
-              </div>
+            <!-- 숨겨진 배송 조회 Form 추가 (target="_blank"로 새 창에서 결과 출력) -->
+            <form id="smartTrackingForm" action="/history/tracking-proxy" method="post" target="_blank" style="display: none;">
               <div class="form-group">
                 <label for="t_code">택배사 코드</label>
                 <input type="text" class="form-control" name="t_code" id="t_code" value="">
@@ -206,9 +202,9 @@
     }
   }
 
-  // 등록된 운송장 정보를 바탕으로 스마트택배 API 호출
+  // 등록된 운송장 정보를 바탕으로 스마트택배 API 프록시 호출
   function submitTrackingForm() {
-    // registeredTracking 변수는 서버에서 전달된 배송정보 (예: "01/test123")를 담고 있습니다.
+    // registeredTracking 변수는 서버에서 전달된 배송정보
     let tracking = registeredTracking.trim();
     if (tracking === "배송준비") {
       alert("아직 운송장 정보가 등록되어 있지 않습니다.");

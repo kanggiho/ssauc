@@ -12,9 +12,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -216,6 +220,30 @@ public class HistoryController {
         return "/history/bought";
     }
 
+    // 배송 조회 프록시 엔드포인트 (클라이언트에서 호출)
+    @PostMapping("/tracking-proxy")
+    @ResponseBody
+    public String trackingProxy(@RequestParam("t_code") String t_code,
+                                @RequestParam("t_invoice") String t_invoice) {
+        // (사용할 템플릿의 코드(1: Cyan, 2: Pink, 3: Gray, 4: Tropical, 5: Sky)를 URL 경로에 추가)
+        String url = "https://info.sweettracker.co.kr/tracking/5";
+        // 요청 파라미터 구성 (API KEY는 서버에서 주입)
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("t_key", smartTrackerApiKey);
+        formData.add("t_code", t_code);
+        formData.add("t_invoice", t_invoice);
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.postForEntity(url, formData, String.class);
+        String body = response.getBody();
+
+        // <head> 태그가 있다면 <base> 태그 삽입
+        if (body != null && body.contains("<head>")) {
+            body = body.replace("<head>", "<head><base href=\"https://info.sweettracker.co.kr/\">");
+        }
+        return body;
+    }
+
     // 거래 완료 요청 처리
     @PostMapping("/bought/complete")
     @ResponseBody
@@ -227,4 +255,6 @@ public class HistoryController {
         historyService.completeOrder(orderId, user);
         return "완료";
     }
+
+
 }
