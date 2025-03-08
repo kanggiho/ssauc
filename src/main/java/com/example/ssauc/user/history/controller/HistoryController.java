@@ -7,6 +7,7 @@ import com.example.ssauc.user.login.entity.Users;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,9 @@ import java.util.Map;
 public class HistoryController {
 
     private final HistoryService historyService;
+
+    @Value("${smarttracker.apiKey}")
+    private String smartTrackerApiKey;
 
     // ===================== 차단 관리 =====================
     // 차단 내역 페이지: 로그인한 사용자의 차단 내역 조회
@@ -208,7 +212,7 @@ public class HistoryController {
             carouselImages.add(image);
         }
         model.addAttribute("carouselImages", carouselImages);
-
+        model.addAttribute("apiKey", smartTrackerApiKey);
         return "/history/bought";
     }
 
