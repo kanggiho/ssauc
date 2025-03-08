@@ -107,8 +107,8 @@
                             운송장 등록
                         </button>
                         <p class="tracking-number">
-                            <strong>등록된 운송장 번호:</strong>
-                            <span id="trackingNo" th:text="${soldDetail.deliveryStatus}"></span>
+                            <strong>등록된 운송장 정보:</strong>
+                            <span id="trackingNo" th:attr="data-raw-tracking=${soldDetail.deliveryStatus}"></span>
                         </p>
                     </div>
                 </div>
@@ -118,32 +118,365 @@
     </div>
 </div>
 
+<!-- 배송 운송장 등록 모달 HTML -->
+<div class="modal fade" id="trackingModal" tabindex="-1" aria-labelledby="trackingModalLabel" aria-hidden="true" layout:fragment="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="trackingModalLabel">운송장 등록</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">택배사 유형 선택:</label>
+                    <div>
+                        <button id="domesticBtn" type="button" class="btn btn-secondary">국내 택배</button>
+                        <button id="internationalBtn" type="button" class="btn btn-secondary">국제 택배</button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="courierSelect" class="form-label">택배사 선택:</label>
+                    <select id="courierSelect" class="form-select"></select>
+                </div>
+                <div class="mb-3">
+                    <label for="trackingInput" class="form-label">운송장 번호 입력:</label>
+                    <input type="text" id="trackingInput" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="saveTrackingBtn" type="button" class="btn btn-primary">등록하기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script layout:fragment="script" th:inline="javascript">
 
-    function registerTracking() {
-        const newTracking = prompt("운송장 번호를 입력하세요:");
-        if (newTracking && newTracking.trim() !== "") {
-            const orderId = /*[[${soldDetail.orderId}]]*/ 0;
-            fetch('/history/sold/update-tracking?orderId=' + orderId + '&newTracking=' + encodeURIComponent(newTracking.trim()), {
-                method: 'POST'
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.updated) {
-                        document.getElementById("trackingNo").textContent = newTracking.trim();
-                        document.querySelector('button[onclick="registerTracking()"]').textContent = "운송장 수정";
-                        alert("운송장 번호가 업데이트되었습니다.");
-                    } else {
-                        alert("운송장 번호 업데이트에 실패했습니다.");
+    document.addEventListener('DOMContentLoaded', function() {
+        updateTrackingDisplay();
+    });
+    function updateTrackingDisplay() {
+        const trackingSpan = document.getElementById('trackingNo');
+        const rawTracking = trackingSpan.getAttribute('data-raw-tracking');
+        if(rawTracking && rawTracking.includes('/')) {
+            const parts = rawTracking.split('/');
+            const code = parts[0];
+            const number = parts[1];
+            let courierName = '';
+            // 국내 택배사 배열에서 코드 검색
+            domesticCouriers.some(function(courier) {
+                if(courier.code === code) {
+                    courierName = courier.name;
+                    return true;
+                }
+                return false;
+            });
+            // 국내에 없으면 국제 택배사 배열에서 검색
+            if(!courierName) {
+                internationalCouriers.some(function(courier) {
+                    if(courier.code === code) {
+                        courierName = courier.name;
+                        return true;
                     }
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    alert("오류가 발생했습니다.");
+                    return false;
                 });
+            }
+            if(courierName) {
+                trackingSpan.textContent = '택배사: ' + courierName + ', 운송장번호: ' + number;
+            } else {
+                // 찾지 못하면 raw 값 그대로 표시
+                trackingSpan.textContent = rawTracking;
+            }
         }
     }
 
+    // 모달 열기
+    function registerTracking() {
+        // 원본 tracking 값(data-raw-tracking)으로 모달 필드 미리 채우기
+        const trackingSpan = document.getElementById('trackingNo');
+        const rawTracking = trackingSpan.getAttribute('data-raw-tracking');
+        if(rawTracking && rawTracking.includes('/')){
+            const parts = rawTracking.split('/');
+            const code = parts[0];
+            const number = parts[1];
+            // 택배 코드가 국내 목록에 있으면 국내로, 아니면 국제로 설정
+            let isDomestic = domesticCouriers.some(courier => courier.code === code);
+            if(isDomestic){
+                setCourierFilter('domestic');
+            } else {
+                setCourierFilter('international');
+            }
+            // drop-down에서 해당 코드 선택 및 입력창에 운송장번호 채우기
+            document.getElementById('courierSelect').value = code;
+            document.getElementById('trackingInput').value = number;
+        } else {
+            setCourierFilter('domestic');
+            document.getElementById('trackingInput').value = '';
+        }
+        const trackingModal = new bootstrap.Modal(document.getElementById('trackingModal'));
+        trackingModal.show();
+    }
+
+    // 택배 유형에 따라 <select> 옵션 채우는 함수
+    function setCourierFilter(filter) {
+        let couriers = [];
+        if (filter === 'domestic') {
+            couriers = domesticCouriers;
+        } else {
+            couriers = internationalCouriers;
+        }
+        const courierSelect = document.getElementById('courierSelect');
+        courierSelect.innerHTML = '';  // 기존 옵션 초기화
+        couriers.forEach((courier) => {
+            const option = document.createElement('option');
+            option.value = courier.code;
+            option.text = courier.name;
+            courierSelect.appendChild(option);
+        });
+    }
+
+    // 필터 버튼 클릭 이벤트 등록
+    document.getElementById('domesticBtn').addEventListener('click', function(){
+        setCourierFilter('domestic');
+    });
+    document.getElementById('internationalBtn').addEventListener('click', function(){
+        setCourierFilter('international');
+    });
+
+    // 모달 내 '등록하기' 버튼 클릭 이벤트: 선택한 택배사 코드와 운송장 번호 결합 후 저장
+    document.getElementById('saveTrackingBtn').addEventListener('click', function(){
+        const orderId = /*[[${soldDetail.orderId}]]*/ 0;
+        const trackingNumber = document.getElementById('trackingInput').value.trim();
+        if(trackingNumber === ''){
+            alert("운송장 번호를 입력하세요.");
+            return;
+        }
+        const courierSelect = document.getElementById('courierSelect');
+        const courierCode = courierSelect.value;
+        const combinedTracking = courierCode + '/' + trackingNumber;
+        fetch('/history/sold/update-tracking?orderId=' + orderId + '&newTracking=' + encodeURIComponent(combinedTracking), {
+            method: 'POST'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if(data.updated){
+                    // data-raw-tracking 속성 업데이트
+                    const trackingSpan = document.getElementById("trackingNo");
+                    trackingSpan.setAttribute('data-raw-tracking', combinedTracking);
+                    // 표시 텍스트도 갱신 (위의 DOMContentLoaded 처리 로직과 동일하게 적용)
+                    let courierName = '';
+                    domesticCouriers.some(function(courier) {
+                        if(courier.code === courierCode){
+                            courierName = courier.name;
+                            return true;
+                        }
+                        return false;
+                    });
+                    if(!courierName) {
+                        internationalCouriers.some(function(courier) {
+                            if(courier.code === courierCode){
+                                courierName = courier.name;
+                                return true;
+                            }
+                            return false;
+                        });
+                    }
+                    if(courierName) {
+                        trackingSpan.textContent = '택배사: ' + courierName + ', 운송장번호: ' + trackingNumber;
+                    }
+                    document.querySelector('button[onclick="registerTracking()"]').textContent = "운송장 수정";
+                    alert("운송장 번호가 업데이트되었습니다.");
+                    // 모달 닫기
+                    const modalEl = document.getElementById('trackingModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    modal.hide();
+                } else {
+                    alert("운송장 번호 업데이트에 실패했습니다.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("오류가 발생했습니다.");
+            });
+    });
+
+    <!-- 등록된 운송장 번호 표시 형식을 변경하는 스크립트 추가 -->
+    document.addEventListener('DOMContentLoaded', function() {
+        const trackingSpan = document.getElementById('trackingNo');
+        const rawTracking = trackingSpan.getAttribute('data-raw-tracking');
+        if(rawTracking && rawTracking.includes('/')) {
+            const parts = rawTracking.split('/');
+            const code = parts[0];
+            const number = parts[1];
+            let courierName = '';
+            domesticCouriers.some(function(courier) {
+                if(courier.code === code){
+                    courierName = courier.name;
+                    return true;
+                }
+                return false;
+            });
+            if(!courierName) {
+                internationalCouriers.some(function(courier) {
+                    if(courier.code === code){
+                        courierName = courier.name;
+                        return true;
+                    }
+                    return false;
+                });
+            }
+            if(courierName) {
+                trackingSpan.textContent = '택배사: ' + courierName + ', 운송장번호: ' + number;
+            }
+        }
+    });
+
+    // 국내 택배사 목록 (77개)
+    const domesticCouriers = [
+        {name: "우체국택배", code: "01"},
+        {name: "CJ대한통운", code: "04"},
+        {name: "한진택배", code: "05"},
+        {name: "로젠택배", code: "06"},
+        {name: "롯데택배", code: "08"},
+        {name: "일양로지스", code: "11"},
+        {name: "한의사랑택배", code: "16"},
+        {name: "천일택배", code: "17"},
+        {name: "건영택배", code: "18"},
+        {name: "한덱스", code: "20"},
+        {name: "대신택배", code: "22"},
+        {name: "경동택배", code: "23"},
+        {name: "GS Postbox 택배", code: "24"},
+        {name: "합동택배", code: "32"},
+        {name: "굿투럭", code: "40"},
+        {name: "애니트랙", code: "43"},
+        {name: "SLX택배", code: "44"},
+        {name: "우리택배(구호남택배)", code: "45"},
+        {name: "CU편의점택배", code: "46"},
+        {name: "우리한방택배", code: "47"},
+        {name: "농협택배", code: "53"},
+        {name: "홈픽택배", code: "54"},
+        {name: "IK물류", code: "71"},
+        {name: "성훈물류", code: "72"},
+        {name: "CR로지텍", code: "73"},
+        {name: "용마로지스", code: "74"},
+        {name: "원더스퀵", code: "75"},
+        {name: "컬리넥스트마일", code: "82"},
+        {name: "풀앳홈", code: "85"},
+        {name: "두발히어로", code: "89"},
+        {name: "위니아딤채", code: "90"},
+        {name: "지니고 당일배송", code: "92"},
+        {name: "카카오 T 당일배송", code: "94"},
+        {name: "트랙스로지스", code: "95"},
+        {name: "나은물류", code: "100"},
+        {name: "한샘서비스원", code: "101"},
+        {name: "NDEX KOREA", code: "103"},
+        {name: "도도플렉스(dodoflex)", code: "104"},
+        {name: "LG전자", code: "107"},
+        {name: "1004홈", code: "112"},
+        {name: "썬더히어로", code: "113"},
+        {name: "(주)팀프레시", code: "116"},
+        {name: "롯데칠성", code: "118"},
+        {name: "핑퐁", code: "119"},
+        {name: "발렉스 특수물류", code: "120"},
+        {name: "엔티엘피스", code: "123"},
+        {name: "지케이글로벌", code: "125"},
+        {name: "로지스팟", code: "127"},
+        {name: "홈픽 오늘도착", code: "129"},
+        {name: "로지스파트너", code: "130"},
+        {name: "딜리래빗", code: "131"},
+        {name: "지오피", code: "132"},
+        {name: "에이치케이홀딩스", code: "134"},
+        {name: "HTNS", code: "135"},
+        {name: "케이제이티", code: "136"},
+        {name: "더바오", code: "137"},
+        {name: "라스트마일", code: "138"},
+        {name: "탱고앤고", code: "142"},
+        {name: "투데이", code: "143"},
+        {name: "현대글로비스", code: "145"},
+        {name: "ARGO(테크타카)", code: "148"},
+        {name: "HY", code: "155"},
+        {name: "유피로지스(제주)", code: "156"},
+        {name: "우진인터로지스", code: "157"},
+        {name: "삼다수 가정배송", code: "159"},
+        {name: "와이드테크", code: "160"},
+        {name: "위니온", code: "163"},
+        {name: "딜리박스", code: "167"},
+        {name: "이스트라", code: "168"},
+        {name: "유피로지스", code: "170"},
+        {name: "올인닷컴", code: "171"},
+        {name: "화통", code: "172"},
+        {name: "물류대장(LCS)", code: "173"},
+        {name: "풀무원샘물㈜", code: "175"},
+        {name: "SLO(모든)", code: "179"},
+        {name: "퍼시스홀딩스", code: "183"},
+        {name: "JCLS", code: "184"}
+    ];
+
+    // 국제 택배사 목록 (60개)
+    const internationalCouriers = [
+        {name: "EMS", code: "12"},
+        {name: "DHL", code: "13"},
+        {name: "UPS", code: "14"},
+        {name: "Fedex", code: "21"},
+        {name: "TNT Express", code: "25"},
+        {name: "USPS", code: "26"},
+        {name: "GSMNtoN", code: "28"},
+        {name: "KGL네트웍스", code: "30"},
+        {name: "LX판토스", code: "37"},
+        {name: "ECMS Express", code: "38"},
+        {name: "GSI Express", code: "41"},
+        {name: "CJ대한통운 국제특송", code: "42"},
+        {name: "ACI Express", code: "48"},
+        {name: "A.C.E EXPRESS INC", code: "49"},
+        {name: "GPS Logix", code: "50"},
+        {name: "성원글로벌카고", code: "51"},
+        {name: "EuroParcel", code: "55"},
+        {name: "YJS글로벌(영국)", code: "60"},
+        {name: "은하쉬핑", code: "63"},
+        {name: "YJS글로벌(월드)", code: "65"},
+        {name: "Giant Network Group", code: "66"},
+        {name: "디디로지스", code: "67"},
+        {name: "대림통운", code: "69"},
+        {name: "LOTOS CORPORATION", code: "70"},
+        {name: "LineExpress", code: "77"},
+        {name: "제니엘시스템", code: "81"},
+        {name: "스마트로지스", code: "84"},
+        {name: "이투마스(ETOMARS)", code: "87"},
+        {name: "하이브시티", code: "91"},
+        {name: "팬스타국제특송(PIEX)", code: "93"},
+        {name: "에이씨티앤코아물류", code: "97"},
+        {name: "롯데택배 해외특송", code: "99"},
+        {name: "배송하기좋은날 (SHIPNERGY)", code: "102"},
+        {name: "브릿지로지스㈜", code: "105"},
+        {name: "MEXGLOBAL", code: "108"},
+        {name: "SBGLS", code: "111"},
+        {name: "캐나다쉬핑", code: "114"},
+        {name: "YUNDA EXPRESS", code: "117"},
+        {name: "바바바(bababa)", code: "121"},
+        {name: "BAIMA EXPRESS", code: "122"},
+        {name: "LTL", code: "124"},
+        {name: "판월드로지스틱", code: "128"},
+        {name: "직구문", code: "140"},
+        {name: "인터로지스", code: "141"},
+        {name: "큐브플로우(CUBEFLOW)", code: "144"},
+        {name: "국제로지스틱(KSE)", code: "146"},
+        {name: "에스더쉬핑", code: "147"},
+        {name: "골드스넵스", code: "149"},
+        {name: "자이언트", code: "151"},
+        {name: "엠티인터내셔널", code: "152"},
+        {name: "이지로지스틱", code: "153"},
+        {name: "케이티익스프레스", code: "154"},
+        {name: "AusPost", code: "158"},
+        {name: "SAP EXPRESS", code: "162"},
+        {name: "ICS LOGISTICS(아이씨에스 로지스틱스)", code: "164"},
+        {name: "서림특송", code: "165"},
+        {name: "Rincos", code: "166"},
+        {name: "JNT", code: "169"},
+        {name: "티에스지로지스", code: "177"},
+        {name: "지씨에스", code: "182"}
+    ];
+
 </script>
+
 </body>
 </html>
