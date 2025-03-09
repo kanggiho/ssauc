@@ -47,6 +47,7 @@
     font-size: 15px;
     text-align: center;
     font-weight: bold;
+    text-decoration: none;
 }
 
 /* 활성화된 버튼 스타일 */
@@ -56,17 +57,17 @@
 }
 
 /* 신고 내역 테이블 */
-.reported-table {
+.report-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.reported-table thead {
+.report-table thead {
     border-top: 2px solid black;
     border-bottom: 2px solid black;
 }
 
-.reported-table th {
+.report-table th {
     background-color: white;
     color: black;
     font-weight: bold;
@@ -75,23 +76,23 @@
     border-bottom: 2px solid black;
 }
 
-.reported-table td {
+.report-table td {
     padding: 12px;
     text-align: center;
 }
 
 /* 테이블 정렬 */
-.reported-table th, .reported-table td {
+.report-table th, .report-table td {
     vertical-align: middle;
 }
 
 /* 테이블 짝수 행 배경 색상 */
-.reported-table tbody tr:nth-child(even) {
+.report-table tbody tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
 /* 테이블 행 클릭 시 커서 변경 */
-.reported-table tbody tr {
+.report-table tbody tr {
     cursor: pointer;
 }
 

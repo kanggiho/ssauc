@@ -70,12 +70,53 @@ public class HistoryController {
         return "redirect:/history/ban";
     }
 
-    // ===================== 리뷰 관리 =====================
-    @GetMapping("/reported")  // 리뷰 내역 페이지로 이동
-    public String reportedPage(HttpSession session, Model model) {
+    // ===================== 신고 내역 =====================
+    // 신고 내역 리스트
+    @GetMapping("/report")  // 리뷰 내역 페이지로 이동
+    public String reportPage(@RequestParam(value = "filter", required = false, defaultValue = "product") String filter,
+                             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                             HttpSession session, Model model) {
         Users user = (Users) session.getAttribute("user");
+        if(user == null){
+            return "redirect:/login";
+        }
         Users latestUser = historyService.getCurrentUser(user.getUserId());
         model.addAttribute("user", latestUser);
+
+        int pageSize = 10;
+        if ("product".equals(filter)) {
+            Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "reportDate"));
+            Page<ProductReportDto> productReports = historyService.getProductReportHistoryPage(latestUser, pageable);
+            model.addAttribute("list", productReports.getContent());
+            model.addAttribute("totalPages", productReports.getTotalPages());
+        } else if ("user".equals(filter)) {
+            Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "reportDate"));
+            Page<UserReportDto> userReports = historyService.getUserReportHistoryPage(latestUser, pageable);
+            model.addAttribute("list", userReports.getContent());
+            model.addAttribute("totalPages", userReports.getTotalPages());
+        }
+        model.addAttribute("filter", filter);
+        model.addAttribute("currentPage", page);
+        return "/history/report";
+    }
+
+    // 신고 상세 내역
+    @GetMapping("/reported")
+    public String reportedPage(@RequestParam("filter") String filter, // 신고 유형
+                               @RequestParam("id") Long id,
+                               HttpSession session,
+                               Model model) {
+        Users user = (Users) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/login";
+        }
+        Users latestUser = historyService.getCurrentUser(user.getUserId());
+        model.addAttribute("user", latestUser);
+
+        // 신고 상세 내역 조회 (신고 유형에 따라 다르게 조회)
+        ReportDetailDto reportDetail = historyService.getReportDetail(filter, id);
+        model.addAttribute("reportDetail", reportDetail);
+
         return "/history/reported";
     }
 
@@ -144,6 +185,7 @@ public class HistoryController {
 
         return "/history/sold";
     }
+
     // 운송장 번호 등록
     @PostMapping("/sold/update-tracking")
     @ResponseBody
@@ -220,7 +262,7 @@ public class HistoryController {
         return "/history/bought";
     }
 
-    // 배송 조회 프록시 엔드포인트 (클라이언트에서 호출)
+    // 배송 조회 프록시 (클라이언트에서 호출)
     @PostMapping("/tracking-proxy")
     @ResponseBody
     public String trackingProxy(@RequestParam("t_code") String t_code,
@@ -255,6 +297,5 @@ public class HistoryController {
         historyService.completeOrder(orderId, user);
         return "완료";
     }
-
 
 }

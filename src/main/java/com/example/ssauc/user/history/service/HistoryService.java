@@ -2,9 +2,13 @@ package com.example.ssauc.user.history.service;
 
 import com.example.ssauc.user.bid.entity.AutoBid;
 import com.example.ssauc.user.bid.entity.Bid;
+import com.example.ssauc.user.bid.entity.ProductReport;
 import com.example.ssauc.user.bid.repository.AutoBidRepository;
 import com.example.ssauc.user.bid.repository.BidRepository;
+import com.example.ssauc.user.bid.repository.ProductReportRepository;
 import com.example.ssauc.user.chat.entity.Ban;
+import com.example.ssauc.user.chat.entity.Report;
+import com.example.ssauc.user.chat.repository.ReportRepository;
 import com.example.ssauc.user.history.dto.*;
 import com.example.ssauc.user.chat.repository.BanRepository;
 import com.example.ssauc.user.login.entity.Users;
@@ -32,6 +36,8 @@ public class HistoryService {
     private final BanRepository banRepository;
     private final BidRepository bidRepository;
     private final AutoBidRepository autoBidRepository;
+    private final ReportRepository reportRepository;
+    private final ProductReportRepository productReportRepository;
 
     // 세션에서 전달된 userId를 이용하여 DB에서 최신 사용자 정보를 조회합니다.
     public Users getCurrentUser(Long userId) {
@@ -40,6 +46,7 @@ public class HistoryService {
     }
 
     // ===================== 차단 관리 =====================
+    // 차단 리스트
     @Transactional(readOnly = true)
     public Page<BanHistoryDto> getBanListForUser(Long userId, Pageable pageable) {
         Page<Ban> bans = banRepository.findByUserUserId(userId, pageable);
@@ -50,6 +57,7 @@ public class HistoryService {
         ));
     }
 
+    // 차단 해제
     @Transactional
     public void unbanUser(Long banId, Long userId) {
         // 차단 내역 소유 여부 확인 후 삭제 처리
@@ -59,6 +67,76 @@ public class HistoryService {
             throw new IllegalArgumentException("차단 해제 권한이 없습니다.");
         }
         banRepository.delete(ban);
+    }
+
+    // ===================== 신고 내역 =====================
+    // 상품 신고 리스트 조회
+    @Transactional(readOnly = true)
+    public Page<ProductReportDto> getProductReportHistoryPage(Users reporter, Pageable pageable) {
+        Page<ProductReport> reports = productReportRepository.findByReporter(reporter, pageable);
+        return reports.map(report -> ProductReportDto.builder()
+                .reportId(report.getReportId())
+                .productName(report.getProduct().getName())
+                .reportReason(report.getReportReason())
+                .reportDate(report.getReportDate())
+                .processedAt(report.getProcessedAt())
+                .status(report.getStatus())
+                .build());
+    }
+
+    // 유저 신고 리스트 조회
+    @Transactional(readOnly = true)
+    public Page<UserReportDto> getUserReportHistoryPage(Users reporter, Pageable pageable) {
+        Page<Report> reports = reportRepository.findByReporter(reporter, pageable);
+        return reports.map(report -> UserReportDto.builder()
+                .reportId(report.getReportId())
+                .reportedUserName(report.getReportedUser().getUserName())
+                .reportReason(report.getReportReason())
+                .reportDate(report.getReportDate())
+                .processedAt(report.getProcessedAt())
+                .status(report.getStatus())
+                .build());
+    }
+
+    // 신고 상세 내역
+    @Transactional(readOnly = true)
+    public ReportDetailDto getReportDetail(String filter, Long id) {
+        if ("product".equals(filter)) {
+            Optional<ProductReport> productReportOpt = productReportRepository.findById(id);
+            // 하나의 메서드 내에서 두 테이블(ProductReport와 Report)을 순차적으로 확인하는 구조라 if‑present로 분기 처리
+            if (productReportOpt.isPresent()) {
+                ProductReport pr = productReportOpt.get();
+                return ReportDetailDto.builder()
+                        .type("product")
+                        .productName(pr.getProduct().getName())
+                        .reportReason(pr.getReportReason())
+                        .details(pr.getDetails())
+                        .reportDate(pr.getReportDate())
+                        .status(pr.getStatus())
+                        .processedAt(pr.getProcessedAt())
+                        .build();
+            } else {
+                throw new RuntimeException("상품 신고 내역이 존재하지 않습니다. id=" + id);
+            }
+        } else if ("user".equals(filter)) {
+            Optional<Report> reportOpt = reportRepository.findById(id);
+            if (reportOpt.isPresent()) {
+                Report r = reportOpt.get();
+                return ReportDetailDto.builder()
+                        .type("user")
+                        .reportedUserName(r.getReportedUser().getUserName())
+                        .reportReason(r.getReportReason())
+                        .details(r.getDetails())
+                        .reportDate(r.getReportDate())
+                        .status(r.getStatus())
+                        .processedAt(r.getProcessedAt())
+                        .build();
+            } else {
+                throw new RuntimeException("유저 신고 내역이 존재하지 않습니다. id=" + id);
+            }
+        } else {
+            throw new IllegalArgumentException("유효하지 않은 신고 유형: " + filter);
+        }
     }
 
     // ===================== 판매 내역 =====================
@@ -78,6 +156,7 @@ public class HistoryService {
                 p.getEndAt()
         ));
     }
+
     // 판매 마감 리스트
     @Transactional(readOnly = true)
     public Page<SellHistoryOngoingDto> getEndedSellHistoryPage(Users seller, Pageable pageable) {
@@ -94,6 +173,7 @@ public class HistoryService {
                 p.getEndAt()
         ));
     }
+
     // 판매 완료 리스트
     @Transactional(readOnly = true)
     public Page<SellHistoryCompletedDto> getCompletedSellHistoryPage(Users seller, Pageable pageable) {
@@ -113,6 +193,7 @@ public class HistoryService {
             );
         });
     }
+
     // 판매 완료 상세 내역
     @Transactional(readOnly = true)
     public SoldDetailDto getSoldDetailByProductId(Long productId) {
@@ -140,6 +221,7 @@ public class HistoryService {
                 .completedDate(order.getCompletedDate())
                 .build();
     }
+
     // 운송장 번호 등록 또는 수정
     @Transactional
     public boolean updateDeliveryStatus(Long orderId, String trackingNumber) {
@@ -177,6 +259,7 @@ public class HistoryService {
                     .build();
         });
     }
+
     // 구매 완료 리스트 (구매자 기준)
     @Transactional(readOnly = true)
     public Page<BuyHistoryDto> getPurchaseHistoryPage(Users buyer, Pageable pageable) {
@@ -192,6 +275,7 @@ public class HistoryService {
                 .completedDate(order.getCompletedDate())
                 .build());
     }
+
     // 구매 내역 상세 (특정 상품의 구매 내역, 구매자 기준)
     @Transactional(readOnly = true)
     public BoughtDetailDto getBoughtDetailByProductId(Long productId, Users buyer) {
@@ -221,6 +305,7 @@ public class HistoryService {
                 .deliveryStatus(order.getDeliveryStatus())
                 .build();
     }
+
     // 구매 내역 상세에서 거래 완료 기능
     @Transactional
     public void completeOrder(Long orderId, Users user) {
