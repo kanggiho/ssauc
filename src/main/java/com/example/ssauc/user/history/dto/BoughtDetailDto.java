@@ -20,6 +20,7 @@ public class BoughtDetailDto {
     private String sellerName;
 
     // Orders 테이블 정보
+    private Long orderId;
     private Long totalPrice;
     private String recipientName;
     private String recipientPhone;
@@ -27,4 +28,5 @@ public class BoughtDetailDto {
     private String deliveryAddress;
     private LocalDateTime orderDate;
     private LocalDateTime completedDate;
+    private String deliveryStatus;
 }

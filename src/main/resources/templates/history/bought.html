@@ -7,6 +7,7 @@
   <title>구매 내역 상세</title>
   <!-- 필요한 CSS, JS, CDN 등 -->
   <link rel="stylesheet" href="/css/mypage.css">
+  <script src="/js/smartApiCodes.js"></script>
   <style>
     .col-md-10 {
       padding-left: 80px;
@@ -25,6 +26,16 @@
       object-fit: cover;
       display: block;
     }
+    /* 스마트택배 배송 조회 버튼 */
+    .smartapi-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #17a2b8; /* 파란색 계열의 정보색상 */
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
     /* 거래 완료 버튼 */
     .complete-btn {
       padding: 8px 16px;
@@ -36,15 +47,11 @@
       cursor: pointer;
       margin-right: 16px;
     }
-    /* 스마트택배 배송 조회 버튼 */
-    .smartapi-btn {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 5px;
-      background-color: #17a2b8; /* 파란색 계열의 정보색상 */
-      color: white;
-      font-size: 14px;
+    .complete-btn.completed {
+      background-color: #ccc;
+      color: #666;
       cursor: pointer;
+      border: 1px solid #aaa;
     }
   </style>
 </head>
@@ -120,40 +127,138 @@
           <!-- 운송장 및 배송 조회 영역 -->
           <div class="tracking mt-3 d-flex align-items-center">
             <span class="tracking-label fw-bold">운송장 정보:</span>
-            <button id="trackingBtn" class="btn btn-primary btn-sm ms-2" onclick="loadTracking()">운송장 불러오기</button>
-            <span id="trackingText" class="ms-2 fw-bold" style="display: none;"></span>
-            <button class="smartapi-btn ms-auto" onclick="">배송 조회</button>
+            <button id="trackingBtn" class="btn btn-primary btn-sm ms-2" onclick="loadTracking()">운송장 정보 불러오기</button>
+            <span id="trackingText" class="ms-2" style="display: none;"></span>
+            <button class="smartapi-btn ms-auto" onclick="submitTrackingForm()">배송 조회</button>
+            <!-- 숨겨진 배송 조회 Form 추가 (target="_blank"로 새 창에서 결과 출력) -->
+            <form id="smartTrackingForm" action="/history/tracking-proxy" method="post" target="_blank" style="display: none;">
+              <div class="form-group">
+                <label for="t_code">택배사 코드</label>
+                <input type="text" class="form-control" name="t_code" id="t_code" value="">
+              </div>
+              <div class="form-group">
+                <label for="t_invoice">운송장 번호</label>
+                <input type="text" class="form-control" name="t_invoice" id="t_invoice" value="">
+              </div>
+              <button type="submit" class="btn btn-default">조회하기</button>
+            </form>
           </div>
         </div>
       </div>
       <!-- 거래 완료 영역 -->
       <div class="tracking-area d-flex">
-        <button class="complete-btn ms-auto" onclick="completeTransaction()">거래 완료</button>
+        <button id="completeBtn" class="complete-btn ms-auto" onclick="completeTransaction()"
+                th:classappend="${boughtDetail.completedDate != null} ? ' completed' : ''">거래 완료</button>
       </div>
     </div>
   </div>
 </div>
 
-<script layout:fragment="script">
+<script layout:fragment="script" th:inline="javascript">
 
+  let registeredTracking = /*[[${boughtDetail.deliveryStatus}]]*/ "";
 
-  let registeredTracking = "test";
-
+  // 운송장 정보 불러오기
   function loadTracking() {
     if (registeredTracking.trim() !== "") {
       document.getElementById("trackingBtn").style.display = "none"; // 버튼 숨김
       const trackingText = document.getElementById("trackingText");
-      trackingText.textContent = registeredTracking; // 운송장 번호 표시
+      let raw = registeredTracking.trim();
+      if (raw.includes("/")) {
+        const parts = raw.split("/");
+        const code = parts[0];
+        const number = parts[1];
+        let courierName = "";
+        // 국내 택배사 목록에서 코드 검색
+        domesticCouriers.some(function(courier) {
+          if (courier.code === code) {
+            courierName = courier.name;
+            return true;
+          }
+          return false;
+        });
+        // 국내 목록에 없으면 국제 택배사 목록에서 검색
+        if (!courierName) {
+          internationalCouriers.some(function(courier) {
+            if (courier.code === code) {
+              courierName = courier.name;
+              return true;
+            }
+            return false;
+          });
+        }
+        if (courierName) {
+          trackingText.textContent = "택배사: " + courierName + ", 운송장번호: " + number;
+        } else {
+          // 해당 코드에 매칭되는 택배사를 찾지 못하면 원본 그대로 표시
+          trackingText.textContent = raw;
+        }
+      } else {
+        trackingText.textContent = registeredTracking;
+      }
       trackingText.style.display = "inline"; // 텍스트 표시
     } else {
-      alert("운송장 정보가 등록되어 있지 않습니다."); // 운송장 정보가 없을 때 알림
+      alert("운송장 정보가 등록되어 있지 않습니다.");
     }
   }
 
-  function completeTransaction() {
-    // 거래 완료 처리 로직 (백엔드 연동 필요)
-    alert("거래 완료 처리되었습니다.");
+  // 등록된 운송장 정보를 바탕으로 스마트택배 API 프록시 호출
+  function submitTrackingForm() {
+    // registeredTracking 변수는 서버에서 전달된 배송정보
+    let tracking = registeredTracking.trim();
+    if (tracking === "배송준비") {
+      alert("아직 운송장 정보가 등록되어 있지 않습니다.");
+      return;
+    }
+    if (!tracking.includes("/")) {
+      alert("운송장 정보 형식이 올바르지 않습니다.");
+      return;
+    }
+    // "/" 구분자로 분리하여 택배사 코드와 운송장번호를 추출
+    const parts = tracking.split("/");
+    const t_code = parts[0];
+    const t_invoice = parts[1];
+    // hidden form의 input 값 채우기
+    document.getElementById("t_code").value = t_code;
+    document.getElementById("t_invoice").value = t_invoice;
+    // API KEY는 미리 설정해 둔 값 사용 (또는 필요에 따라 동적으로 설정)
+    // Form 제출 (새 창에서 열림)
+    document.getElementById("smartTrackingForm").submit();
   }
+
+  // 거래 완료 기능
+  function completeTransaction() {
+    const completeBtn = document.getElementById("completeBtn");
+    if (completeBtn.classList.contains("completed")) {
+      alert("이미 완료되었습니다.");
+      return;
+    }
+
+    if (!confirm("정말 거래를 완료하시겠습니까?")) {
+      return;
+    }
+
+    const orderId = /*[[${boughtDetail.orderId}]]*/ 0;
+
+    fetch('/history/bought/complete?orderId=' + orderId, {
+      method: 'POST'
+    })
+            .then(response => response.text())
+            .then(data => {
+              if(data.trim() === "완료") {
+                completeBtn.classList.add("completed");
+                alert("거래 완료 처리되었습니다.");
+                location.reload();
+              } else {
+                alert("거래 완료 처리에 실패했습니다.");
+              }
+            })
+            .catch(error => {
+              console.error("Error:", error);
+              alert("오류가 발생했습니다.");
+            });
+  }
+
 </script>
 </body>
 </html>

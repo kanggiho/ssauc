@@ -34,21 +34,21 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     // 기간 별 총 금액 계산
     // 결제 내역 총 금액
     @Query("SELECT COALESCE(SUM(o.totalPrice), 0) FROM Orders o " +
-            "WHERE o.buyer = :buyer  AND o.orderStatus = '거래완료'")
+            "WHERE o.buyer = :buyer  AND o.orderStatus = '완료'")
     long sumTotalPriceByBuyer(Users buyer);
 
     @Query("SELECT COALESCE(SUM(o.totalPrice), 0) FROM Orders o LEFT JOIN o.payments p " +
-            "WHERE o.buyer = :buyer AND p.paymentDate BETWEEN :start AND :end AND o.orderStatus = '거래완료'")
+            "WHERE o.buyer = :buyer AND p.paymentDate BETWEEN :start AND :end AND o.orderStatus = '완료'")
     long sumTotalPriceByBuyerAndPaymentDateBetween(@Param("buyer") Users buyer,
                                                    @Param("start") LocalDateTime start,
                                                    @Param("end") LocalDateTime end);
     // 정산 내역 총 금액
     @Query("SELECT COALESCE(SUM(o.totalPrice), 0) FROM Orders o " +
-            "WHERE o.seller = :seller AND o.orderStatus = '거래완료'")
+            "WHERE o.seller = :seller AND o.orderStatus = '완료'")
     long sumTotalPriceBySeller(Users seller);
 
     @Query("SELECT COALESCE(SUM(o.totalPrice), 0) FROM Orders o LEFT JOIN o.payments p " +
-            "WHERE o.seller = :seller AND p.paymentDate BETWEEN :start AND :end AND o.orderStatus = '거래완료'")
+            "WHERE o.seller = :seller AND p.paymentDate BETWEEN :start AND :end AND o.orderStatus = '완료'")
     long sumTotalPriceBySellerAndPaymentDateBetween(@Param("seller") Users seller,
                                                     @Param("start") LocalDateTime start,
                                                     @Param("end") LocalDateTime end);

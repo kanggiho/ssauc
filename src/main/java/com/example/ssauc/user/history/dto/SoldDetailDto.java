@@ -25,6 +25,7 @@ public class SoldDetailDto {
     private String recipientPhone;
     private String postalCode;
     private String deliveryAddress;
+    private String deliveryStatus;
     private LocalDateTime orderDate;
     private LocalDateTime completedDate;
 }

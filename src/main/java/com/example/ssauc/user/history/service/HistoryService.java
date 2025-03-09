@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -134,9 +135,22 @@ public class HistoryService {
                 .recipientPhone(order.getRecipientPhone())
                 .postalCode(order.getPostalCode())
                 .deliveryAddress(order.getDeliveryAddress())
+                .deliveryStatus(order.getDeliveryStatus())
                 .orderDate(order.getOrderDate())
                 .completedDate(order.getCompletedDate())
                 .build();
+    }
+    // 운송장 번호 등록 또는 수정
+    @Transactional
+    public boolean updateDeliveryStatus(Long orderId, String trackingNumber) {
+        Optional<Orders> optionalOrder = ordersRepository.findById(orderId);
+        if (optionalOrder.isPresent()) {
+            Orders orders = optionalOrder.get();
+            orders.setDeliveryStatus(trackingNumber);
+            ordersRepository.save(orders);
+            return true;
+        }
+        return false;
     }
 
     // ===================== 구매 내역 =====================
@@ -190,6 +204,7 @@ public class HistoryService {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("해당 상품의 주문 정보가 없습니다."));
         return BoughtDetailDto.builder()
+                .orderId(order.getOrderId())
                 .productName(product.getName())
                 .startPrice(product.getStartPrice())
                 .createdAt(product.getCreatedAt())
@@ -203,6 +218,20 @@ public class HistoryService {
                 .deliveryAddress(order.getDeliveryAddress())
                 .orderDate(order.getOrderDate())
                 .completedDate(order.getCompletedDate())
+                .deliveryStatus(order.getDeliveryStatus())
                 .build();
+    }
+    // 구매 내역 상세에서 거래 완료 기능
+    @Transactional
+    public void completeOrder(Long orderId, Users user) {
+        Orders order = ordersRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("주문 정보가 존재하지 않습니다."));
+        // 구매자 본인 여부 확인
+        if (!order.getBuyer().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("주문 완료 권한이 없습니다.");
+        }
+        order.setOrderStatus("완료");
+        order.setCompletedDate(LocalDateTime.now());
+        ordersRepository.save(order);
     }
 }
