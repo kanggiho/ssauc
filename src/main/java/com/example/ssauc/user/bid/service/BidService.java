@@ -219,8 +219,14 @@ public class BidService {
 
     public String getHighestBidUser() {
         Long tempUserId = bidRepository.findUserIdWithHighestBidPrice();
-        Users user = usersRepository.findById(tempUserId).orElseThrow();
-        return user.getUserName();
+
+        if(tempUserId == null) {
+            return "입찰자 없음";
+        }else{
+            Users user = usersRepository.findById(tempUserId).orElseThrow();
+            return user.getUserName();
+        }
+
     }
 
     public boolean isProductLike(Long productId, Long userId){
