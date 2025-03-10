@@ -202,6 +202,8 @@
 
             // Thymeleaf를 사용하여 inform.totalTime 값을 자바스크립트 변수에 할당 (초 단위)
             var totalTime = [[${inform.totalTime}]];
+            var productId = "[[${productId}]]";
+            var bidCount = [[${inform.bidCount}]];
 
             function updateTimer() {
                 // totalTime이 음수가 되면 타이머 종료
@@ -259,9 +261,6 @@
                 }
             }
 
-
-
-
             function calculateFee() {
 
                 document.addEventListener("DOMContentLoaded", function () {
@@ -301,6 +300,9 @@
                     var sessionId = "[[${sessionId}]]";
                     var sellerId = "[[${sellerId}]]";
 
+                    if (sessionId === sellerId) {
+                        bidBtn.innerText = "수정하기";
+                    }
 
                     bidBtn.addEventListener("click", function () {
 
@@ -313,14 +315,17 @@
                             }
                         } else {
                             if (sessionId === sellerId) {
-                                alert("본인 물건은 입찰 할 수 없습니다.");
+                                // 판매자인 경우, 입찰 건수가 있으면 수정 불가능, 없으면 수정 페이지로 이동
+                                if (bidCount > 0) {
+                                    alert("이미 입찰중이라 수정이 불가능합니다.");
+                                } else {
+                                    window.location.href = "/product/update?productId=" + productId;
+                                }
                             } else {
                                 // axios를 사용하여 입찰 요청 전송
-
                                 if (ablePrice()) {
-
                                     axios.post('/bid/place', {
-                                        productId: "[[${productId}]]",
+                                        productId: productId,
                                         userId: sessionId,
                                         bidAmount: bidAmount
                                     })
@@ -357,6 +362,10 @@
                     var sessionId = "[[${sessionId}]]";
                     var sellerId = "[[${sellerId}]]";
 
+                    if (sessionId === sellerId) {
+                        autoBidBtn.innerText = "삭제하기";
+                    }
+
                     autoBidBtn.addEventListener("click", function () {
 
                         if (sessionId === "guest") {
@@ -366,9 +375,23 @@
                             }
                         } else {
                             if (sessionId === sellerId) {
-                                alert("본인 물건은 입찰 할 수 없습니다.");
+                                // 판매자인 경우, 입찰 건수가 있으면 삭제 불가능, 없으면 삭제 요청 진행
+                                if (bidCount > 0) {
+                                    alert("이미 입찰중이라 삭제가 불가능합니다.");
+                                } else {
+                                    if (confirm("정말로 상품을 삭제하시겠습니까?")) {
+                                        axios.post('/product/delete', { productId: productId })
+                                            .then(function (response) {
+                                                alert(response.data);
+                                                window.location.href = "/";
+                                            })
+                                            .catch(function (error) {
+                                                alert("삭제 처리 중 오류가 발생했습니다.");
+                                                console.error(error);
+                                            });
+                                    }
+                                }
                             } else {
-
                                 // 자동입찰 모달 띄우기
                                 var autoBidModal = new bootstrap.Modal(document.getElementById('autoBidModal'));
                                 autoBidModal.show();
@@ -390,7 +413,7 @@
                         if (maxBidAmount < immediatePrice && (tempPrice + minIncrement) <= maxBidAmount) {
                             // axios를 이용해 자동입찰 요청 전송
                             axios.post('/bid/auto', {
-                                productId: "[[${productId}]]",
+                                productId: productId,
                                 userId: sessionId,
                                 maxBidAmount: maxBidAmount
                             })
@@ -414,7 +437,6 @@
 
                 });
             }
-
 
             // 즉시 구매하기 기능 구현
             function buy() {
