@@ -34,15 +34,20 @@ public class BidController {
 
             Users user = (Users) session.getAttribute("user");
             model.addAttribute("sessionId", user.getUserId());
+            model.addAttribute("sessionName", user.getUserName());
             Boolean isLikeProduct = bidService.isProductLike(productId, user.getUserId());
             model.addAttribute("isLikeProduct", isLikeProduct);
         } else {
             model.addAttribute("sessionId", "guest");
         }
 
+
+
+
         Product product = bidService.getProduct(productId);
 
         String tempMaxBidUser = bidService.getHighestBidUser();
+
 
 
 
@@ -62,6 +67,7 @@ public class BidController {
         model.addAttribute("tempMaxBidUser", tempMaxBidUser);
 
         model.addAttribute("product", product);
+
 
         return "bid/bid"; // 해당 페이지로 이동
     }
