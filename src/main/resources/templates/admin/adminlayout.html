@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head layout:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ssauc 관리자</title>
+    <!-- Custom fonts for this template-->
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <!-- Custom styles for this template-->
+    <link href="/css/adminlayout.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="sidebar">
+    <div>
+        <div class="logo" onclick="location.href='/admin/home'" style="cursor:pointer;">
+            <img src="/img/index/ssauc_logo1.png" alt="logo">
+        </div>
+        <div class="menu">
+            <!-- 메인 화면 메뉴 (active 클래스 없음) -->
+            <div class="menu-item" tabindex="0" onclick="location.href='/admin/home'" style="cursor:pointer;">메인 화면</div>
+
+            <!-- 쏙머니관리 -->
+            <div class="menu-item" tabindex="0" onclick="toggleSubmenu(this, 'pay-submenu')" style="cursor:pointer;">쏙머니관리</div>
+            <div class="submenu" id="pay-submenu" style="display: none;">
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >회원별 잔액</div>
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >출금 내역</div>
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >충전내역 조회</div>
+            </div>
+
+            <!-- 상품관리 -->
+            <div class="menu-item" tabindex="0" onclick="toggleSubmenu(this, 'product-submenu')" style="cursor:pointer;">상품관리</div>
+            <div class="submenu" id="product-submenu" style="display: none;">
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >상품 목록</div>
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >상품 검색</div>
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >최근 결제상품</div>
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >게시물 삭제</div>
+            </div>
+
+            <!-- 회원관리 -->
+            <div class="menu-item" tabindex="0" onclick="toggleSubmenu(this, 'user-submenu')" style="cursor:pointer;">회원관리</div>
+            <div class="submenu" id="user-submenu" style="display: none;">
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >회원검색 및 삭제</div>
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >신규회원</div>
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >정지회원</div>
+            </div>
+
+            <!-- 문의내역관리 -->
+            <div class="menu-item" tabindex="0" onclick="toggleSubmenu(this, 'qna-submenu')" style="cursor:pointer;">문의내역관리</div>
+            <div class="submenu" id="qna-submenu" style="display: none;">
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >문의내역</div>
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >답변</div>
+            </div>
+
+            <!-- 검색관리 -->
+            <div class="menu-item" tabindex="0" onclick="toggleSubmenu(this, 'search-submenu')" style="cursor:pointer;">검색관리</div>
+            <div class="submenu" id="search-submenu" style="display: none;">
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >검색어 분석기</div>
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >형태소 사전</div>
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >유사어 사전</div>
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >금칙어 사전</div>
+            </div>
+
+            <!-- 신고내역관리 -->
+            <div class="menu-item" tabindex="0" onclick="toggleSubmenu(this, 'report-submenu')" style="cursor:pointer;">신고내역관리</div>
+            <div class="submenu" id="report-submenu" style="display: none;">
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >신고 상세 내역</div>
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >패널티 부여</div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="user-info-button">
+            <div class="user-info">
+                <img src="/img/profile.png" alt="user">
+                <div>
+                    <div class="user-id" th:text="${adminName}">Admin</div>
+                    <div class="user-role">관리자</div>
+                </div>
+            </div>
+            <div class="logout-icon" onclick="logout()" style="cursor:pointer;">
+                <img src="/img/login/logout.png" alt="logout">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="content" layout:fragment="content">
+    <!-- 페이지 컨텐츠 -->
+</div>
+
+<!-- Bootstrap core JavaScript-->
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<!-- Core plugin JavaScript-->
+<script th:src="@{/js/jquery.easing.min.js}"></script>
+<!-- Custom scripts for all pages-->
+<script th:src="@{/js/sb-admin-2.min.js}"></script>
+<!-- Page level plugins -->
+<script th:src="@{/js/Chart.min.js}"></script>
+<!-- Page level custom scripts -->
+<script th:src="@{/js/demo/chart-area-demo.js}"></script>
+<script th:src="@{/js/demo/chart-pie-demo.js}"></script>
+
+<!-- 외부 JS 파일 (adminlayout.js)를 불러옴 -->
+<script src="/js/adminlayout.js"></script>
+
+<th:block layout:fragment="script">
+    <!-- 추가 스크립트 (필요 시) -->
+</th:block>
+</body>
+</html>

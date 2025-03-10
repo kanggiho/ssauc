@@ -13,12 +13,15 @@ import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.main.repository.ProductLikeRepository;
 import com.example.ssauc.user.product.entity.Product;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class BidService {
@@ -119,9 +122,6 @@ public class BidService {
                 .build();
         bidRepository.save(bid);
 
-        // 일반 입찰이 성공한 후 무조건 자동입찰 로직 실행
-        processAutoBidding(bidRequestDto.getProductId());
-
         return true;
     }
 
@@ -161,7 +161,7 @@ public class BidService {
 
         // 이제 등록만 하는 것이 아니라,
         // 혹시 새로 등록된/갱신된 maxBidAmount가 현재가보다 높다면 자동으로 입찰 동작을 실행한다.
-        processAutoBidding(productId);
+        //processAutoBidding(productId);
 
         return true;
     }
@@ -184,9 +184,19 @@ public class BidService {
         AutoBid topBidder = autoBidders.get(0);
         Long topMax = topBidder.getMaxBidAmount();
 
+
+        Bid lastBid = bidRepository.findTopByProductOrderByBidTimeDesc(product).orElse(null);
+        if (lastBid != null && lastBid.getUser().getUserId().equals(topBidder.getUser().getUserId())) {
+            // 이미 최고입찰자인 경우 자동입찰 진행하지 않음
+//            System.out.println("==============================================");
+//            System.out.println("1번 실행됨");
+//            System.out.println("==============================================");
+            return;
+        }
+
         Long secondMax;
         if (autoBidders.size() >= 2) {
-            secondMax = autoBidders.get(1).getMaxBidAmount();
+            secondMax = Math.max(autoBidders.get(1).getMaxBidAmount(), pdpRepository.findById(productId).orElseThrow().getTempPrice());
         } else {
             // 자동입찰자가 1명뿐이면 2등이 없으니, '현재가' 정도로 처리
             secondMax = currentPrice;
@@ -215,6 +225,35 @@ public class BidService {
             bidRepository.save(newBid);
         }
     }
+
+
+    // 스케줄러 메서드: 매 분 0초마다 자동입찰 로직 실행
+    @Scheduled(cron = "0 * * * * *")  // 초, 분, 시, 일, 월, 요일 순 (매 분 0초 실행)
+    public void scheduledAutoBidding() {
+
+
+        System.out.println("실행됨");
+        System.out.println(pdpRepository.findById(56L).orElseThrow().getTempPrice());
+
+
+        // active 상태인 자동입찰 데이터들에서 상품 목록 추출
+
+        List<AutoBid> activeAutoBids = autoBidRepository.findAll().stream()
+                .filter(AutoBid::isActive)
+                .toList();
+
+        Set<Product> productSet = activeAutoBids.stream()
+                .map(AutoBid::getProduct)
+                .collect(Collectors.toSet());
+
+        // 각 상품에 대해 자동입찰 로직 실행
+        for (Product product : productSet) {
+            processAutoBidding(product.getProductId());
+        }
+    }
+
+
+
 
 
     public String getHighestBidUser() {

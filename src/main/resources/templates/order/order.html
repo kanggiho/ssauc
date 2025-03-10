@@ -180,6 +180,7 @@
 
     <script>
 
+        let addressSaved = false;
 
         addAdress()
         saveAdress()
@@ -255,6 +256,14 @@
                     var addressDetailInput = document.getElementById("addressDetail");
                     var saveBtn = document.getElementById("saveAddressBtn");
 
+                    // 예외 처리: 모든 필드가 입력되었는지 확인
+                    if (zipcodeInput.value.trim() === "" ||
+                        addressInput.value.trim() === "" ||
+                        addressDetailInput.value.trim() === "") {
+                        alert("우편번호, 주소, 상세주소 모두 입력해주세요.");
+                        return; // 조건이 맞지 않으면 저장 진행하지 않음
+                    }
+
                     // 필드들을 비활성화(disabled) 및 스타일 적용
                     zipcodeInput.setAttribute("disabled", "true");
                     addressInput.setAttribute("disabled", "true");
@@ -271,6 +280,7 @@
 
                     // 만약 서버로 데이터를 전송해야 한다면 AJAX 호출 등을 진행
                     // 여기서는 단순히 UI 변경만 처리함
+                    addressSaved = true;
                     alert("주소가 저장되었습니다.");
                 });
             });
@@ -291,6 +301,12 @@
 
                 // 결제하기 버튼 클릭 시 모달 띄우기
                 paymentButton.addEventListener("click", function () {
+
+                    if (!addressSaved) {
+                        alert("먼저 주소를 저장해주세요.");
+                        return;
+                    }
+
                     // 현재 보유 캐시 및 결제 금액 표시
                     userCashDisplay.innerText = userCash.toLocaleString() + " P";
                     totalPaymentDisplay.innerText = totalPayment.toLocaleString() + " P";

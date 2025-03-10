@@ -1,5 +1,7 @@
 package com.example.ssauc.user.contact.controller;
 
+import com.example.ssauc.user.login.entity.Users;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +18,14 @@ public class ContactController {
 
 
     @GetMapping("qna")
-    public String qna(Model model) {
+    public String qna(Model model, HttpSession session) {
+
+        if(session.getAttribute("user") != null) {
+            Users reportUser = (Users) session.getAttribute("user");
+            String reporter = reportUser.getUserName();
+            model.addAttribute("reporter", reporter);
+        }
+
         model.addAttribute("currentPage", "qna");
         return "contact/qna";
     }

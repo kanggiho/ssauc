@@ -130,15 +130,9 @@
 
                     <!-- 작성자 -->
                     <div class="mb-3 row">
-                        <label for="qnaWriter" class="col-sm-2 col-form-label fw-bold">작성자</label>
+                        <label class="col-sm-2 col-form-label fw-bold">작성자</label>
                         <div class="col-sm-10">
-                            <input
-                                    type="text"
-                                    class="form-control"
-                                    id="qnaWriter"
-                                    name="writer"
-                                    placeholder="작성자명을 입력하세요"
-                            >
+                            <p style="margin-top: 7px" th:text="${reporter}"></p>
                         </div>
                     </div>
 
@@ -156,18 +150,6 @@
                         </div>
                     </div>
 
-                    <!-- 파일첨부 -->
-                    <div class="mb-3 row">
-                        <label for="qnaFile" class="col-sm-2 col-form-label fw-bold">파일첨부</label>
-                        <div class="col-sm-10">
-                            <input
-                                    class="form-control"
-                                    type="file"
-                                    id="qnaFile"
-                                    name="file"
-                            >
-                        </div>
-                    </div>
 
                     <!-- 등록/취소 버튼 -->
                     <div class="d-flex justify-content-end">

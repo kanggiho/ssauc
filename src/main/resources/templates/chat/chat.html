@@ -2,135 +2,183 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="layout.html">
+<!--
+  - xmlns:th="http://www.thymeleaf.org": Thymeleaf 템플릿 엔진에서 사용하는 네임스페이스를 선언합니다.
+  - xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout": Thymeleaf Layout Dialect 사용을 위한 네임스페이스 선언입니다.
+  - layout:decorate="layout.html": 현재 템플릿이 layout.html을 기본 레이아웃으로 사용함을 지정합니다.
+-->
 <head>
-
-    <!-- SockJS & STOMP 라이브러리 -->
+    <!-- SockJS & STOMP 라이브러리 로딩 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
-    <!-- 필요한 css, js, cdn 등 추가 -->
+
+    <!-- 필요한 CSS, JS, CDN 등 추가 -->
     <style>
+        /* 채팅 이미지 스타일: 고정 크기 및 이미지 비율 유지 */
         .chat-img {
-            width: 200px;       /* 고정 너비 */
-            height: 200px;      /* 고정 높이 */
-            object-fit: cover;  /* 이미지 비율 유지하며 영역 채우기 */
+            width: 200px;       /* 이미지의 너비를 200px로 고정 */
+            height: 200px;      /* 이미지의 높이를 200px로 고정 */
+            object-fit: cover;  /* 원본 이미지의 비율을 유지하며 영역을 꽉 채움 */
             display: block;
-            border-radius: 5px;
+            border-radius: 5px; /* 모서리를 둥글게 처리 */
         }
-        /* 프로필 이미지 자동 조정: 40x40 픽셀, 원형 */
+        /* 프로필 이미지 스타일: 40x40 픽셀의 원형 이미지 */
         .profile-img {
             width: 40px;
             height: 40px;
             object-fit: cover;
-            border-radius: 50%;
+            border-radius: 50%; /* 원형으로 만들기 위해 50%의 둥글기 적용 */
         }
     </style>
 </head>
 
 <body>
 <div class="container" layout:fragment="content">
-
-<script>
-    let stompClient = null;
-    const chatRoomId = 1;   // 예: 현재 채팅방 ID(동적으로 설정)
-    const senderId = 1;   // 예: 현재 사용자 ID(로그인 사용자)
-
-    // 페이지 로딩 시 WebSocket 연결
-    window.onload = function() {
-        connect();
-    };
+    <!-- 위의 div는 레이아웃 템플릿에서 "content" 영역에 삽입됩니다. -->
+    <!-- div를 여기에두어야 js가 동작 -->
 
 
 
-    // 1. WebSocket/STOMP 연결
-    function connect() {
-        let socket = new SockJS('/ws-stomp');
-        stompClient = Stomp.over(socket);
+    <script>
 
-        stompClient.connect({}, function (frame) {
-            console.log("Connected: " + frame);
+        // 전역 변수 선언
+        let stompClient = null; // STOMP 클라이언트 객체 초기화
+        const chatRoomId = 1;   // 예시: 현재 채팅방 ID (동적으로 변경 가능)
+        const senderId = 1;     //현제 userID(동적으로변경가능)
 
-            // 2. 채팅방 구독: /topic/chatroom/{chatRoomId}
-            stompClient.subscribe("/topic/chatroom/" + chatRoomId, function (message) {
-                const msg = JSON.parse(message.body);
-                // 채팅 영역에 표시
-                showMessage("User " + msg.senderId + ": " + msg.messageText);
-            });
-        });
-    }
 
-    // 2. 메시지 전송
-    function sendMessage(){
-        const input = document.getElementById('chatInput');
-        const messageText = input.value.trim();
-        alert(messageText + "====================");
-        if (!messageText) return;
 
-        // DTO 형태에 맞춰 STOMP전송
-        let msgDto = {
-            chatRoomId: chatRoomId,
-            senderId: senderId,
-            messageText: messageText
+        // 페이지가 로드될 때 WebSocket 연결 실행
+        window.onload = function() {
+            connect();
         };
 
-        // 클라이언트 -> 서버: /app/chat/message 로 전송
-        stompClient.send("/app/chat/message", {}, JSON.stringify(msgDto));
+        // 1. WebSocket/STOMP 연결 함수
+        function connect() {
+            // SockJS를 사용하여 '/ws-stomp' 엔드포인트에 연결
+            let socket = new SockJS('/ws-stomp');
+            // STOMP 프로토콜을 사용하도록 래핑
+            stompClient = Stomp.over(socket);
 
-        input.value = ""; //입력값 초기화
+            // STOMP 연결 실행. {}: 연결 헤더(빈 객체 사용), 연결 성공 시 콜백 함수 실행
+            stompClient.connect({}, function (frame) {
+                console.log("Connected: " + frame);
 
-        // 내가 전송한 메시지(우측)
-        function showLocalMessage(text) {
-            const chatBody = document.getElementById('chatBody');
-            const newMsg = document.createElement('div');
-            newMsg.classList.add('d-flex', 'mb-3', 'justify-content-end');
-            newMsg.innerHTML = `
-            <div>
-                <h6 class="mb-1 text-end">나</h6>
-                <div class="bg-primary text-white p-2 rounded" style="max-width: 70%;">
-                    ${text}
+                // 2. 채팅방 구독: 서버에서 해당 채팅방으로 전송되는 메시지를 수신
+                stompClient.subscribe("/topic/chatroom/" + chatRoomId, function (message) {
+                    // 서버로부터 받은 메시지(JSON 형식)를 파싱
+                    const msg = JSON.parse(message.body);
+
+                    // (1) 내 메시지인지 확인 (msg.senderId === senderId)
+                    if (msg.senderId === senderId) {
+                        // 내 메시지면 오른쪽에 표시
+                        showLocalMessage(msg.messageText);
+                    } else {
+                        // 상대방 메시지면 왼쪽에 표시
+                        showMessage(msg.senderId, msg.messageText);
+                    }
+                });
+            });
+        }
+
+        // 2. 메시지 전송 함수
+        function sendMessage() {
+            // 메시지 입력창 요소를 가져옴
+            const input = document.getElementById('chatInput');
+            // 입력된 값의 앞뒤 공백 제거 후 저장
+            const messageText = input.value.trim();
+            // alert로 전송할 메시지 확인 (디버깅 용)
+
+            if (!messageText) return;
+
+            // 메시지 DTO 생성: 서버에서 기대하는 메시지 데이터 구조에 맞춤
+            let msgDto = {
+                chatRoomId: chatRoomId,
+                senderId: senderId,
+                messageText: messageText
+            };
+
+
+            // 클라이언트에서 서버로 메시지를 전송.
+            // "/app/chat/message": 서버의 메시지 핸들러 매핑 경로
+            stompClient.send("/app/chat/message", {}, JSON.stringify(msgDto));
+
+
+           //showLocalMessage(messageText);
+
+
+            // 메시지 전송 후 입력창 초기화
+            input.value = "";
+
+            // (왼쪽) 상대방 메시지 표시 함수
+            function showMessage(sender, text) {
+                const chatBody = document.getElementById('chatBody');
+
+                // Bootstrap 형식으로 "왼쪽" 정렬
+                const msgDiv = document.createElement('div');
+                msgDiv.classList.add('d-flex', 'mb-3');
+
+                msgDiv.innerHTML = `
+                <div class="flex-shrink-0 me-2">
+                    <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/heejava.png"
+                         alt="User" class="profile-img">
                 </div>
-                <small class="text-muted d-block text-end">${getCurrentTime()}</small>
-            </div>
-            <div class="flex-shrink-0 ms-2">
-                <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/penguin.png"
-                     alt="User" class="profile-img">
-            </div>
-        `;
-            chatBody.appendChild(newMsg);
-            chatBody.scrollTop = chatBody.scrollHeight;
+                <div>
+                    <h6 class="mb-1">User ${sender}</h6>
+                    <div class="bg-light p-2 rounded" style="max-width: 70%;">
+                        ${text}
+                    </div>
+                    <small class="text-muted">${getCurrentTime()}</small>
+                </div>
+            `;
+
+                // 채팅 메시지 영역에 추가 후 스크롤을 최신 메시지로 이동
+                chatBody.appendChild(newMsg);
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
         }
-    }
 
-    // 서버에서 받은 메시지(좌측)
-    function showMessage(text) {
-        const chatBody = document.getElementById('chatBody');
-        const p = document.createElement('p');
-        p.innerText = text;
-        chatBody.appendChild(p);
-        chatBody.scrollTop = chatBody.scrollHeight;
-    }
+            // (오른쪽) 내 메시지 표시 함수
+            function showLocalMessage(text) {
+                const chatBody = document.getElementById('chatBody');
 
+                // Bootstrap 형식으로 "오른쪽" 정렬
+                const newMsg = document.createElement('div');
+                newMsg.classList.add('d-flex', 'mb-3', 'justify-content-end');
 
+                newMsg.innerHTML = `
+                <div>
+                    <h6 class="mb-1 text-end">나</h6>
+                    <div class="bg-primary text-white p-2 rounded" style="max-width: 70%;">
+                        ${text}
+                    </div>
+                    <small class="text-muted d-block text-end">${getCurrentTime()}</small>
+                </div>
+                <div class="flex-shrink-0 ms-2">
+                    <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/penguin.png"
+                         alt="User" class="profile-img">
+                </div>
+            `;
 
+                chatBody.appendChild(newMsg);
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
 
-    // 시간 표시용
-    function getCurrentTime() {
-        const now = new Date();
-        let hours = now.getHours();
-        let minutes = now.getMinutes();
-        if (minutes < 10) {
-            minutes = '0' + minutes;
-        }
-        return `${hours}:${minutes}`;
-    }
+            // 현재 시간을 반환하는 함수
+            function getCurrentTime() {
+                const now = new Date();
+                let hours = now.getHours();
+                let minutes = now.getMinutes();
+                if (minutes < 10) {
+                    minutes = '0' + minutes; // 10분 미만일 경우 앞에 0 추가
+                }
+                return `${hours}:${minutes}`;
+            }
 
-</script>
+    </script>
 
-
-
-
-
-    <!-- 필요한 태그 추가 -->
+    <!-- 채팅 UI 영역 -->
     <div class="container py-5">
         <div class="card shadow-sm">
             <!-- 채팅방 헤더 -->
@@ -139,8 +187,7 @@
             </div>
 
             <!-- 채팅 메시지 영역 (스크롤 가능) -->
-
-            <!-- 여기 id="chatBody" 추가 -->
+            <!-- id="chatBody"를 통해 JavaScript에서 메시지 영역을 제어 -->
             <div class="card-body" id="chatBody" style="height: 500px; overflow-y: auto;">
                 <!-- 예시 메시지 (텍스트, 왼쪽: 상대방) -->
                 <div class="d-flex mb-3">
@@ -172,7 +219,7 @@
                     </div>
                 </div>
 
-                <!-- 예시 이미지 메시지 (이미지는 항상 같은 크기로 조정) -->
+                <!-- 예시 이미지 메시지 (이미지 크기 고정) -->
                 <div class="d-flex mb-3 justify-content-end">
                     <div>
                         <h6 class="mb-1 text-end">나</h6>
@@ -188,7 +235,7 @@
                     </div>
                 </div>
 
-                <!-- 예시 메시지 (텍스트, 왼쪽: 상대방) -->
+                <!-- 또 다른 예시 메시지 (텍스트, 왼쪽: 상대방) -->
                 <div class="d-flex mb-3">
                     <div class="flex-shrink-0 me-2">
                         <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/heejava.png"
@@ -205,7 +252,7 @@
             </div>
 
             <!-- 메시지 입력 영역 -->
-            <!-- 여기 form에 id="chatForm", input에 id="chatInput" 추가 -->
+            <!-- form 태그에 id="chatForm", input 태그에 id="chatInput"을 지정하여 JS에서 제어 -->
             <div class="card-footer">
                 <form id="chatForm" onsubmit="event.preventDefault(); sendMessage();">
                     <div class="input-group">
@@ -220,5 +267,3 @@
 </div>
 </body>
 </html>
-
-

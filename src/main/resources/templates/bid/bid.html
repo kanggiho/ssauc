@@ -63,6 +63,7 @@
 
                     <div class="d-flex justify-content-between align-items-center">
                         <h2 class="fw-bold" th:text="${inform.getName()}" id="product_na">상품명</h2>
+                        <h5 style="color: red; margin-left: 300px; margin-top: 10px" th:if="${tempMaxBidUser == sessionName}" th:text="'현재 최고가 입찰중!'" class="fw-bold"></h5>
                         <div>
                             <!-- 관심품목: 채워진 하트 아이콘 -->
                             <button class="btn btn-outline-secondary btn-sm me-2" title="관심품목" id="interestBtn">
@@ -210,6 +211,12 @@
                 if (totalTime < 0) {
                     clearInterval(timerInterval);
                     document.getElementById("timer").textContent = "종료";
+
+                    // 즉시 구매, 입찰, 자동입찰 버튼 비활성화
+                    document.getElementById("tempBuyBtn").disabled = true;
+                    document.getElementById("bidBtn").disabled = true;
+                    document.getElementById("autoBidBtn").disabled = true;
+
                     return;
                 }
 
@@ -373,6 +380,8 @@
                                 // 확인 버튼을 누르면 로그인 페이지로 이동
                                 window.location.href = "/login";
                             }
+                        } else if("[[${tempMaxBidUser}]]" === "[[${sessionName}]]"){
+                            alert("현재 최고가 입찰 중 입니다.")
                         } else {
                             if (sessionId === sellerId) {
                                 // 판매자인 경우, 입찰 건수가 있으면 삭제 불가능, 없으면 삭제 요청 진행
@@ -514,7 +523,7 @@
                                 alert("본인과 채팅 할 수 없습니다.");
                             } else {
                                 // 즉시구매
-                                window.location.href = "/bid/report?reported=" + [[${productId}]];
+                                window.location.href = "/chat/chat";
                             }
                         }
 
