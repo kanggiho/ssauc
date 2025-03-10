@@ -28,8 +28,8 @@ body {
     margin-top: 15px;
 }
 .logo img {
-    width: 40px;
-    height: 40px;
+    width: 200px;
+    height: 104px;
 }
 .logo span {
     font-family: 'Lufga', Arial, sans-serif;
@@ -127,8 +127,8 @@ body {
     background-color: #303030;
 }
 .logout-icon img {
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
 }
 .content {
     flex-grow: 1;
