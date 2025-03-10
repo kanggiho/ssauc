@@ -9,10 +9,6 @@
   <link rel="stylesheet" href="/css/mypage.css">
   <script src="/js/smartApiCodes.js"></script>
   <style>
-    .col-md-10 {
-      padding-left: 80px;
-      padding-top: 24px;
-    }
     /* 캐러셀 전체 영역 및 각 슬라이드의 고정 높이 설정 */
     .carousel-inner,
     .carousel-item {
@@ -56,13 +52,12 @@
   </style>
 </head>
 <body>
-<div class="container" layout:fragment="content">
-  <div class="row">
+<div class="container2" layout:fragment="content">
     <!-- 왼쪽 Sidebar (mypage 그대로) -->
     <div class="sidebar" th:replace="~{mypage/mypage :: sidebar}"></div>
     <!-- 오른쪽 메인 컨텐츠 -->
-    <div class="col-md-10">
-      <h2 class="mb-4">구매 내역 상세</h2>
+    <div class="main2">
+      <h2 class="mb-4">구매 상세 내역</h2>
 
       <!-- Section 1 -->
       <div class="card mb-4">
@@ -150,7 +145,6 @@
         <button id="completeBtn" class="complete-btn ms-auto" onclick="completeTransaction()"
                 th:classappend="${boughtDetail.completedDate != null} ? ' completed' : ''">거래 완료</button>
       </div>
-    </div>
   </div>
 </div>
 

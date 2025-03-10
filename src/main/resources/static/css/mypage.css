@@ -1,3 +1,22 @@
+/* 마이페이지 하위 페이지들에 적용 */
+.container2 {
+    display: flex;
+    width: 100%;
+    max-width: 1200px;
+    margin: 40px auto;
+    gap: 40px;
+}
+.main2 {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.main2 h2 {
+    font-size: 24px;
+    font-weight: bold;
+}
+
 /* 마이페이지 전체 컨테이너 */
 .mypage-container {
     display: flex; /* 사이드바와 메인 콘텐츠를 가로 배치 */
