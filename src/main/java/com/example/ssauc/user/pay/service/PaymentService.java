@@ -84,25 +84,6 @@ public class PaymentService {
             productRepository.completeSell(product.getProductId());
         } catch (Exception e){
             e.printStackTrace();
-            System.out.println("오류남");
-            System.out.println("오류남");
-            System.out.println("오류남");
-            System.out.println("오류남");
-            System.out.println("오류남");
-            System.out.println("오류남");
-            System.out.println("오류남");
-            System.out.println("오류남");
-            System.out.println("오류남");
-            System.out.println("오류남");
-            System.out.println("오류남");
-            System.out.println("오류남");
-            System.out.println("오류남");
-            System.out.println("오류남");
-            System.out.println("오류남");
-            System.out.println("오류남");
-            System.out.println("오류남");
-            System.out.println("오류남");
-            System.out.println("오류남");
             return false;
         }
         return true;

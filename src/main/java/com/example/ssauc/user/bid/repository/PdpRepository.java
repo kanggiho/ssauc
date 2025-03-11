@@ -3,15 +3,23 @@ package com.example.ssauc.user.bid.repository;
 import com.example.ssauc.user.bid.dto.ProductInformDto;
 import com.example.ssauc.user.list.dto.ListDto;
 import com.example.ssauc.user.product.entity.Product;
+import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PdpRepository extends JpaRepository<Product, Long> {
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("SELECT p FROM Product p WHERE p.productId = :productId")
+  Optional<Product> findProductForUpdate(@Param("productId") Long productId);
+
 
   @Query("SELECT new com.example.ssauc.user.bid.dto.ProductInformDto("
           + "p.name, p.tempPrice, p.createdAt, p.endAt, p.startPrice, p.price, p.imageUrl, "
