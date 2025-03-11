@@ -2,7 +2,6 @@ package com.example.ssauc.user.list.controller;
 
 import com.example.ssauc.user.list.Service.ListService;
 import com.example.ssauc.user.list.dto.TempDto;
-import com.example.ssauc.user.list.dto.WithLikeDto;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -67,11 +66,44 @@ public class ListController {
     }
 
     @GetMapping("/price")
-    public String getProductsByPrice(@RequestParam("minPrice") int minPrice, @RequestParam("maxPrice") int maxPrice,
-                                     @PageableDefault(size = 30) Pageable pageable, HttpSession session,
-                                     Model model) {
-        Page<TempDto> priceFilteredList = listService.getProductsByPrice(pageable, session, minPrice, maxPrice);
-        model.addAttribute("secondList", priceFilteredList);
-        return "list/list"; // 가격별 상품 리스트 페이지
+    public String getProductsByPrice(
+            @RequestParam(name = "minPrice", required = false, defaultValue = "0") int minPrice,
+            @RequestParam(name = "maxPrice", required = false, defaultValue = "99999999") int maxPrice,
+            @PageableDefault(size = 30) Pageable pageable,
+            HttpSession session,
+            Model model) {
+
+        Page<TempDto> filteredProducts = listService.getProductsByPrice(pageable, session, minPrice, maxPrice);
+
+        model.addAttribute("secondList", filteredProducts);
+        model.addAttribute("minPrice", minPrice);
+        model.addAttribute("maxPrice", maxPrice);
+
+        return "list/list";
+    }
+
+
+    @GetMapping("/availableBid")
+    public String getAvailableBid(Pageable pageable, HttpSession session, Model model) {
+
+        if(session.getAttribute("userId") != null) {
+            Page<TempDto> availableBid = listService.getAvailableBidWithLike(pageable, session);
+            log.info("==============================");
+            List<TempDto> list = availableBid.getContent();
+            log.info("list size: withLike : " + list.size());
+            log.info("list content:" + list);
+            log.info("==============================");
+            model.addAttribute("secondList", availableBid);
+            return "list/list";
+        }
+
+        Page<TempDto> availableBid = listService.getAvailableBid(pageable);
+        log.info("==============================");
+        List<TempDto> list = availableBid.getContent();
+        log.info("list size:" + list.size());
+        log.info("list content:" + list);
+        log.info("==============================");
+        model.addAttribute("secondList", availableBid);
+        return "list/list";
     }
 }

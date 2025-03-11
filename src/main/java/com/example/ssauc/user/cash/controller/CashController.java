@@ -7,7 +7,8 @@ import com.example.ssauc.user.cash.entity.Withdraw;
 import com.example.ssauc.user.cash.service.CashService;
 import com.example.ssauc.user.login.entity.Users;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,14 +22,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Controller
-@RequestMapping("cash")
+@RequiredArgsConstructor
+@RequestMapping("/cash")
 public class CashController {
 
-    @Autowired
-    private CashService cashService;
+    private final CashService cashService;
 
     @GetMapping("/cash")
-    public String cashPage(@RequestParam(value = "filter", required = false, defaultValue = "calculate") String filter,
+    public String cashPage(@RequestParam(value = "filter", required = false, defaultValue = "payment") String filter,
                            @RequestParam(value = "startDate", required = false) String startDateStr,
                            @RequestParam(value = "endDate", required = false) String endDateStr,
                            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
@@ -36,14 +37,17 @@ public class CashController {
                            Model model) {
 
         Users user = (Users) session.getAttribute("user");
-        if (user == null) {
+        Users latestUser = cashService.getCurrentUser(user.getUserId());
+        model.addAttribute("user", latestUser);
+
+        if (latestUser == null) {
             return "redirect:/login";
         }
         model.addAttribute("filter", filter);
 
         LocalDateTime startDate = null;
         LocalDateTime endDate = null;
-        if(startDateStr != null && !startDateStr.isEmpty() && endDateStr != null && !endDateStr.isEmpty()){
+        if (startDateStr != null && !startDateStr.isEmpty() && endDateStr != null && !endDateStr.isEmpty()) {
             // 변환 예시: 시작일은 00:00, 종료일은 23:59:59로 설정
             startDate = LocalDate.parse(startDateStr).atStartOfDay();
             endDate = LocalDate.parse(endDateStr).atTime(23, 59, 59);
@@ -54,40 +58,74 @@ public class CashController {
 
         // 이번 달 환급 신청 횟수를 requested_at 기준으로 계산
         // 이번 달 환급 신청 횟수를 서비스에서 가져옴
-        int currentWithdrawCount = cashService.getCurrentWithdrawCount(user);
+        int currentWithdrawCount = cashService.getCurrentWithdrawCount(latestUser);
         model.addAttribute("currentWithdrawCount", currentWithdrawCount);
 
         // 날짜 필터가 있는 경우와 없는 경우를 분기해서 처리
         if ("charge".equals(filter)) {
+            // 충전 내역
+            pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "chargeId"));
             Page<ChargeDto> chargePage;
-            if(startDate != null && endDate != null){
-                chargePage = cashService.getChargesByUser(user, startDate, endDate, pageable);
-            } else {
-                chargePage = cashService.getChargesByUser(user, pageable);
+            long totalAmount = 0;
+            if (startDate != null && endDate != null) { // 날짜 필터 적용 o
+                chargePage = cashService.getChargesByUser(latestUser, startDate, endDate, pageable);
+                totalAmount = cashService.getTotalChargeAmount(latestUser, startDate, endDate);
+            } else { // 날짜 필터 적용 x
+                chargePage = cashService.getChargesByUser(latestUser, pageable);
+                totalAmount = cashService.getTotalChargeAmount(latestUser);
             }
             model.addAttribute("chargeList", chargePage.getContent());
             model.addAttribute("totalPages", chargePage.getTotalPages());
             model.addAttribute("currentPage", page);
+            model.addAttribute("totalAmount", totalAmount);
         } else if ("withdraw".equals(filter)) {
+            // 환급 내역
+            pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "withdrawId"));
             Page<WithdrawDto> withdrawPage;
-            if(startDate != null && endDate != null){
-                withdrawPage = cashService.getWithdrawsByUser(user, startDate, endDate, pageable);
+            long totalAmount = 0;
+            if (startDate != null && endDate != null) {
+                withdrawPage = cashService.getWithdrawsByUser(latestUser, startDate, endDate, pageable);
+                totalAmount = cashService.getTotalWithdrawAmount(latestUser, startDate, endDate);
             } else {
-                withdrawPage = cashService.getWithdrawsByUser(user, pageable);
+                withdrawPage = cashService.getWithdrawsByUser(latestUser, pageable);
+                totalAmount = cashService.getTotalWithdrawAmount(latestUser);
             }
             model.addAttribute("withdrawList", withdrawPage.getContent());
             model.addAttribute("totalPages", withdrawPage.getTotalPages());
             model.addAttribute("currentPage", page);
-        } else if ("calculate".equals(filter)) {
+            model.addAttribute("totalAmount", totalAmount);
+        } else if ("payment".equals(filter)) {
+            // 결제 내역 (구매한 주문만)
+            pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "orderId"));
             Page<CalculateDto> calculatePage;
-            if(startDate != null && endDate != null){
-                calculatePage = cashService.getCalculateByUser(user, startDate, endDate, pageable);
+            long totalAmount = 0;
+            if (startDate != null && endDate != null) {
+                calculatePage = cashService.getPaymentCalculatesByUser(latestUser, startDate, endDate, pageable);
+                totalAmount = cashService.getTotalPaymentAmount(latestUser, startDate, endDate);
             } else {
-                calculatePage = cashService.getCalculateByUser(user, pageable);
+                calculatePage = cashService.getPaymentCalculatesByUser(latestUser, pageable);
+                totalAmount = cashService.getTotalPaymentAmount(latestUser);
             }
             model.addAttribute("calculateList", calculatePage.getContent());
             model.addAttribute("totalPages", calculatePage.getTotalPages());
             model.addAttribute("currentPage", page);
+            model.addAttribute("totalAmount", totalAmount);
+        } else if ("settlement".equals(filter)) {
+            // 정산 내역 (판매한 주문만)
+            pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "orderId"));
+            Page<CalculateDto> calculatePage;
+            long totalAmount = 0;
+            if (startDate != null && endDate != null) {
+                calculatePage = cashService.getSettlementCalculatesByUser(latestUser, startDate, endDate, pageable);
+                totalAmount = cashService.getTotalSettlementAmount(latestUser, startDate, endDate);
+            } else {
+                calculatePage = cashService.getSettlementCalculatesByUser(latestUser, pageable);
+                totalAmount = cashService.getTotalSettlementAmount(latestUser);
+            }
+            model.addAttribute("calculateList", calculatePage.getContent());
+            model.addAttribute("totalPages", calculatePage.getTotalPages());
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalAmount", totalAmount);
         }
 
         // startDateStr와 endDateStr도 모델에 담으면 페이지 링크에 유지할 수 있음
@@ -116,7 +154,7 @@ public class CashController {
     @ResponseBody
     public ResponseEntity<?> completePayment(@RequestBody ChargeRequestDto request, HttpSession session) {
         Users user = (Users) session.getAttribute("user");
-        if(user == null) {
+        if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
         try {
@@ -148,13 +186,13 @@ public class CashController {
     @ResponseBody
     public ResponseEntity<?> requestWithdraw(@RequestBody WithdrawRequestDto request, HttpSession session) {
         Users user = (Users) session.getAttribute("user");
-        if(user == null) {
+        if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
         try {
-            Withdraw withdraw = cashService.requestWithdraw(user, request.getAmount(), request.getBank(), request.getAccount());
+            cashService.requestWithdraw(user, request.getAmount(), request.getBank(), request.getAccount());
             return ResponseEntity.ok("환급 요청이 접수되었습니다.");
-        } catch(Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("환급 요청 처리 중 오류 발생");
         }
     }

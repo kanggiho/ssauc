@@ -151,7 +151,8 @@ dependencies {
     // AWS SDK for S3
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.500'
 
-
+    // resize image
+    implementation 'net.coobird:thumbnailator:0.4.14'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
@@ -168,6 +169,11 @@ dependencies {
 
     // OpenAI GPT-3 Java (TheoKanning)
     implementation 'com.theokanning.openai-gpt3-java:service:0.15.0'
+
+
+    // Apache POI 엑셀내보내기
+    implementation 'org.apache.poi:poi:5.2.3'
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
 
 
 }

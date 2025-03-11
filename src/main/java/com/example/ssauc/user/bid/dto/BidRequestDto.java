@@ -1,14 +1,14 @@
 package com.example.ssauc.user.bid.dto;
+
 import lombok.*;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@ToString
-public class OrderRequestDto {
+public class BidRequestDto {
     private Long productId;
-    private Long buyerId;
-    private Long sellerId;
+    private String userId;
+    private int bidAmount;
 }

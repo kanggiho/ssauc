@@ -1,5 +1,6 @@
 package com.example.ssauc.user.login.entity;
 
+import com.example.ssauc.user.bid.entity.AutoBid;
 import com.example.ssauc.user.bid.entity.Bid;
 import com.example.ssauc.user.chat.entity.Ban;
 import com.example.ssauc.user.chat.entity.ChatMessage;
@@ -78,6 +79,9 @@ public class Users {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bid> bids;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AutoBid> autoBids;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecentlyViewed> recentlyViewedProducts;

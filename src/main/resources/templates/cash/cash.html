@@ -24,7 +24,7 @@
             <div class="cash-box">
                 <p class="cash-title"> SSAUC 머니 ></p>
                 <div class="cash-box-content">
-                    <h2 class="cash-amount" th:text="${T(java.lang.String).format('%,d 원', session.user.cash)}">0 원</h2>
+                    <h2 class="cash-amount" th:text="${T(java.lang.String).format('%,d 원', user.cash)}">0 원</h2>
                     <div class="cash-buttons">
                         <button class="charge" id="openChargeModal">충전</button>
                         <button class="refund">환급</button>
@@ -52,17 +52,74 @@
         <!-- 내역 필터 -->
         <div class="filter-section">
             <div class="filter-buttons">
-                <!-- 결제/정산은 나중 처리 -->
-                <a th:href="@{/cash/cash(filter='calculate')}" class="filter-btn"
-                   th:classappend="${filter=='calculate'} ? ' active' : ''">결제 / 정산</a>
+                <!-- 결제 (구매) 내역 -->
+                <a th:href="@{/cash/cash(filter='payment')}" class="filter-btn"
+                   th:classappend="${filter=='payment'} ? ' active' : ''">결제</a>
+                <!-- 정산 (판매) 내역 -->
+                <a th:href="@{/cash/cash(filter='settlement')}" class="filter-btn"
+                   th:classappend="${filter=='settlement'} ? ' active' : ''">정산</a>
+                <!-- 충전 내역 -->
                 <a th:href="@{/cash/cash(filter='charge')}" class="charge filter-btn"
                    th:classappend="${filter=='charge'} ? ' active' : ''">충전</a>
+                <!-- 환급 내역 -->
                 <a th:href="@{/cash/cash(filter='withdraw')}" class="refund filter-btn"
                    th:classappend="${filter=='withdraw'} ? ' active' : ''">환급</a>
             </div>
         </div>
 
-        <!-- 내역 테이블: filter 값에 따라 다른 테이블 출력 -->
+        <!-- 결제 내역 테이블 (User == 구매자) -->
+        <div th:if="${filter == 'payment'}">
+            <table class="cash-table">
+                <thead>
+                <tr>
+                    <th>결제 ID</th>
+                    <th>상품명</th>
+                    <th>결제 금액</th>
+                    <th>결제 시간</th>
+                    <th>상태</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="calculate : ${calculateList}">
+                    <td th:text="${calculate.orderId}">1</td>
+                    <td th:text="${calculate.productName}">상품명</td>
+                    <td th:text="${T(java.lang.String).format('%,d', calculate.paymentAmount)}">50,000</td>
+                    <td th:text="${#temporals.format(calculate.paymentTime, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30</td>
+                    <td th:text="${calculate.orderStatus}">완료</td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="total-summary">
+                <p>💶 기간 내 결제 금액: <span th:text="${T(java.lang.String).format('%,d 원', totalAmount)}">0 원</span></p>
+            </div>
+        </div>
+        <!-- 정산 내역 테이블 (User == 판매자) -->
+        <div th:if="${filter == 'settlement'}">
+            <table class="cash-table">
+                <thead>
+                <tr>
+                    <th>정산 ID</th>
+                    <th>상품명</th>
+                    <th>정산 금액</th>
+                    <th>정산 시간</th>
+                    <th>상태</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="calculate : ${calculateList}">
+                    <td th:text="${calculate.orderId}">1</td>
+                    <td th:text="${calculate.productName}">상품명</td>
+                    <td th:text="${T(java.lang.String).format('%,d', calculate.paymentAmount)}">50,000</td>
+                    <td th:text="${#temporals.format(calculate.paymentTime, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30</td>
+                    <td th:text="${calculate.orderStatus}">완료</td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="total-summary">
+                <p>💷 기간 내 정산 금액: <span th:text="${T(java.lang.String).format('%,d 원', totalAmount)}">0 원</span></p>
+            </div>
+        </div>
+        <!-- 충전 내역 테이블 -->
         <div th:if="${filter == 'charge'}">
             <table class="cash-table">
                 <thead>
@@ -88,8 +145,11 @@
                 </tr>
                 </tbody>
             </table>
+            <div class="total-summary">
+                <p>💵 기간 내 충전 금액: <span th:text="${T(java.lang.String).format('%,d 원', totalAmount)}">0 원</span></p>
+            </div>
         </div>
-
+        <!-- 환급 내역 테이블 -->
         <div th:if="${filter == 'withdraw'}">
             <table class="cash-table">
                 <thead>
@@ -113,37 +173,14 @@
                 </tr>
                 </tbody>
             </table>
+            <div class="total-summary">
+                <p>💴 기간 내 환급 금액: <span th:text="${T(java.lang.String).format('%,d 원', totalAmount)}">0 원</span></p>
+            </div>
         </div>
 
-        <!-- 결제/정산: 아직 미구현 -->
-        <div th:if="${filter == 'calculate'}">
-            <table class="cash-table">
-                <thead>
-                <tr>
-                    <th>결제/정산 ID</th>
-                    <th>거래 상품명</th>
-                    <th>결제/정산 금액</th>
-                    <th>결제/정산 시간</th>
-                    <th>결제/정산 상태</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="calculate : ${calculateList}">
-                    <td th:text="${calculate.orderId}">1</td>
-                    <td th:text="${calculate.productName}">상품명</td>
-                    <td th:text="${(calculate.paymentAmount.substring(0,1)) +
-               T(java.lang.String).format('%,d', T(java.lang.Long).parseLong(calculate.paymentAmount.substring(1)))}">
-                        +1,600,000
-                    </td>
-                    <td th:text="${#temporals.format(calculate.paymentTime, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30</td>
-                    <td th:text="${calculate.orderStatus}">완료</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
 
         <!-- 페이지네이션 -->
-        <div class="pagination">
+        <div class="pagination" th:if="${totalPages > 1}">
             <!-- 이전 페이지 버튼 (현재 페이지가 1보다 클 때만 표시) -->
             <a th:if="${currentPage > 1}"
                th:href="@{/cash/cash(filter=${filter}, page=${currentPage - 1}, startDate=${startDate}, endDate=${endDate})}">
@@ -165,7 +202,6 @@
         </div>
     </main>
 </div>
-
 
 <!-- 충전 모달: 충전 금액 선택 + PortOne 결제 로직 -->
 <dialog id="chargeModal" layout:fragment="dialog">
@@ -211,23 +247,10 @@
                     <span id="displayPrice">0원</span>
                 </div>
             </article>
+            <div id="chargeErrorMsg" class="error-msg"></div>
             <button id="checkoutButton" type="submit">충전하기</button>
         </form>
     </main>
-
-    <!-- 실패 다이얼로그 (간단 표시용) -->
-    <dialog id="failDialog">
-        <header><h1>결제 실패</h1></header>
-        <p id="failMessage"></p>
-        <button type="button" class="closeDialog">닫기</button>
-    </dialog>
-
-    <!-- 성공 다이얼로그 (간단 표시용) -->
-    <dialog id="successDialog">
-        <header><h1>결제 성공</h1></header>
-        <p>결제에 성공했습니다.</p>
-        <button type="button" class="closeDialog">닫기</button>
-    </dialog>
 </dialog>
 
 <!-- 환급 모달 -->
@@ -237,7 +260,7 @@
     <h2> 환급 신청 </h2>
     <div class="refund-cash-info">
         현재 보유 중인 머니:
-        <span id="currentCashRefund" th:text="${T(java.lang.String).format('%,d 원', session.user.cash)}">0 원</span>
+        <span id="currentCashRefund" th:text="${T(java.lang.String).format('%,d 원', user.cash)}">0 원</span>
     </div>
     <div class="withdraw-info">
         이번 달 환급 횟수:
@@ -285,11 +308,36 @@
             <label>총 환급 금액:</label>
             <span id="netWithdrawAmount">0원</span>
         </div>
+        <div id="withdrawErrorMsg" class="error-msg"></div>
         <button type="submit" id="withdrawSubmitButton">환급 신청</button>
     </form>
 </dialog>
 
+<!-- Custom Alert Modal Markup -->
+<div id="customAlert" class="custom-alert" layout:fragment="alert">
+    <div class="custom-alert-content">
+        <p id="customAlertMessage"></p>
+        <button id="customAlertOk">확인</button>
+    </div>
+</div>
+
 <script layout:fragment="script" th:inline="javascript">
+
+    // Custom Alert 함수 정의 (native alert 대신 사용)
+    function customAlert(message, callback) {
+        const alertBox = document.getElementById("customAlert");
+        const alertMessage = document.getElementById("customAlertMessage");
+        const alertOk = document.getElementById("customAlertOk");
+        alertMessage.textContent = message;
+        alertBox.style.display = "block";
+        alertOk.onclick = function() {
+            alertBox.style.display = "none";
+            if (callback) {
+                callback();
+            }
+        }
+    }
+
     // ====== 충전 모달 처리 ======
     const openChargeModalBtn = document.getElementById("openChargeModal");
     const chargeModal = document.getElementById("chargeModal");
@@ -301,6 +349,7 @@
         chargeModal.showModal();
         // PortOne 결제 로직 실행
         checkout.load();
+        document.getElementById("chargeErrorMsg").style.visibility = "hidden";
     });
 
     closeModalBtn.addEventListener("click", () => {
@@ -313,6 +362,7 @@
         document.getElementById("customAmount").value = "";
         document.getElementById("customAmount").classList.remove("hidden2");
         document.getElementById("displayPrice").textContent = currentCash.toLocaleString() + "원";
+        document.getElementById("chargeErrorMsg").style.visibility = "hidden";
     }
 
     // ====== 충전 모달 안에서 실행 ======
@@ -322,10 +372,7 @@
         const amountSelect = document.getElementById("amountSelect");
         const customAmount = document.getElementById("customAmount");
         const displayPrice = document.getElementById("displayPrice");
-
-        const failDialog = document.getElementById("failDialog");
         const failMessage = document.getElementById("failMessage");
-        const successDialog = document.getElementById("successDialog");
 
         // 1. SDK, API 데이터 로드
         this.load = async () => {
@@ -400,18 +447,20 @@
 
             item.price = baseAmount > 0 ? baseAmount : 0;
             displayPrice.textContent = (currentCash + item.price).toLocaleString() + "원";
+            document.getElementById("chargeErrorMsg").style.visibility = "hidden";
         }
 
         // 4. 결제 요청
         async function handlePayment() {
             if (item.price <= 0) {
-                alert("충전 금액을 선택해주세요.");
+                document.getElementById("chargeErrorMsg").innerText = "충전 금액을 선택해주세요.";
+                document.getElementById("chargeErrorMsg").style.visibility = "visible";
                 return;
             }
             setWaitingPayment(true);
 
             // 먼저 모달을 완전히 닫음(숨김)
-            chargeModal.close(); // chargeModal은 모달 dialog 요소
+            chargeModal.close();
 
             // 고유 paymentId
             function randomId() {
@@ -436,8 +485,8 @@
                 // 결제 실패
                 setWaitingPayment(false);
                 failMessage.textContent = payment.message;
-                // failDialog.open = true;
-                alert("결제 실패: \n" + payment.message);
+                customAlert("결제 실패: \n" + payment.message);
+
                 return;
             }
 
@@ -454,14 +503,12 @@
             setWaitingPayment(false);
             if (completeResponse.ok) {
                 // 결제 완료
-                // successDialog.open = true;
-                alert("결제 성공!");
-                location.reload();
+                // customAlert에 콜백 함수를 추가하여, 사용자가 확인 버튼을 누른 후에 location.reload()가 실행
+                customAlert("결제 성공!", () => { location.reload(); });
             } else {
                 const errText = await completeResponse.text();
                 // failMessage.textContent = errText;
-                alert("결제 실패: \n" + errText);
-                // failDialog.open = true;
+                customAlert("결제 실패: \n" + errText);
             }
         }
 
@@ -484,6 +531,7 @@
     // 환급 버튼 클릭 시 환급 모달 열기
     refundButton.addEventListener("click", () => {
         withdrawModal.showModal();
+        document.getElementById("withdrawErrorMsg").style.visibility = "hidden";
     });
 
     // 모달 닫기 버튼
@@ -496,6 +544,7 @@
         withdrawAmountSelect.value = "custom";
         withdrawCustomAmount.value = "";
         netWithdrawAmountSpan.textContent = "0원";
+        document.getElementById("withdrawErrorMsg").style.visibility = "hidden";
     }
 
     // 환급 금액 선택 변경 이벤트 등록
@@ -516,6 +565,7 @@
         let commission = currentCount >= 3 ? 1000 : 0;
         let net = baseAmount - commission;
         netWithdrawAmountSpan.textContent = net.toLocaleString() + "원";
+        document.getElementById("withdrawErrorMsg").style.visibility = "hidden";
     }
 
     // 환급 신청 폼 제출 처리
@@ -530,14 +580,16 @@
 
         // 환급 금액이 사용자가 가진 머니(currentCash)보다 초과하면 안 됨.
         if (amount > currentCash) {
-            alert("환급 신청 금액은 보유한 머니 이하이어야 합니다.");
+            document.getElementById("withdrawErrorMsg").innerText = "환급 신청 금액은 보유한 쏙머니 이하이어야 합니다.";
+            document.getElementById("withdrawErrorMsg").style.visibility = "visible";
             return;
         }
 
         const bank = document.getElementById("withdrawBank").value;
         const account = document.getElementById("withdrawAccount").value;
         if(amount <= 0 || bank === "" || account.trim() === "") {
-            alert("모든 항목을 정확히 입력해주세요.");
+            document.getElementById("withdrawErrorMsg").innerText = "모든 항목을 정확히 입력해주세요.";
+            document.getElementById("withdrawErrorMsg").style.visibility = "visible";
             return;
         }
         // POST 요청으로 환급 신청
@@ -552,16 +604,17 @@
                 })
             });
             if(response.ok) {
-                alert("환급 요청이 접수되었습니다.");
                 withdrawModal.close();
-                location.reload(); // 내역 갱신 등 필요 시
+                customAlert("환급 요청이 접수되었습니다.", () => { location.reload(); });
             } else {
                 const errText = await response.text();
-                alert("환급 요청 실패: " + errText);
+                customAlert("환급 요청 실패: " + errText);
             }
         } catch (error) {
+            withdrawModal.close();
+            location.reload(); // 내역 갱신 등 필요 시
             console.error(error);
-            alert("환급 요청 중 오류가 발생했습니다.");
+            customAlert("환급 요청 중 오류가 발생했습니다.", () => { location.reload(); });
         }
     });
 </script>

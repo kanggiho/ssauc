@@ -9,31 +9,54 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public interface OrdersRepository extends JpaRepository<Orders, Long> {
-    // 세션 사용자와 seller 또는 buyer가 같은 주문을 조회 --> 결제/정산 내역에서 사용
-    List<Orders> findBySellerOrBuyer(Users seller, Users buyer);
-    // 페이징 처리 메서드
-    Page<Orders> findBySellerOrBuyer(Users seller, Users buyer, Pageable pageable);
+
+    // 결제 내역 (구매자 기준 주문) 조회
+    Page<Orders> findByBuyer(Users buyer, Pageable pageable);
 
     @Query("SELECT o FROM Orders o LEFT JOIN o.payments p " +
-            "WHERE (o.seller = :seller AND o.completedDate BETWEEN :start AND :end) " +
-            "OR (o.buyer = :buyer AND p.paymentDate BETWEEN :start AND :end)")
-    List<Orders> findBySellerOrBuyerAndPaymentTimeBetween(@Param("seller") Users seller,
-                                                          @Param("buyer") Users buyer,
-                                                          @Param("start") LocalDateTime start,
-                                                          @Param("end") LocalDateTime end);
+            "WHERE o.buyer = :buyer AND p.paymentDate BETWEEN :start AND :end")
+    Page<Orders> findByBuyerAndPaymentTimeBetween(@Param("buyer") Users buyer,
+                                                  @Param("start") LocalDateTime start,
+                                                  @Param("end") LocalDateTime end,
+                                                  Pageable pageable);
+    // 정산 내역 (판매자 기준 주문) 조회
+    Page<Orders> findBySeller(Users seller, Pageable pageable);
 
-    // 날짜 필터 포함한 페이징 예시 (JPQL 또는 Query 메서드 사용)
     @Query("SELECT o FROM Orders o LEFT JOIN o.payments p " +
-            "WHERE (o.seller = :seller AND o.completedDate BETWEEN :start AND :end) " +
-            "OR (o.buyer = :buyer AND p.paymentDate BETWEEN :start AND :end)")
-    Page<Orders> findBySellerOrBuyerAndPaymentTimeBetween(@Param("seller") Users seller,
-                                                          @Param("buyer") Users buyer,
-                                                          @Param("start") LocalDateTime start,
-                                                          @Param("end") LocalDateTime end,
-                                                          Pageable pageable);
+            "WHERE o.seller = :seller AND p.paymentDate BETWEEN :start AND :end")
+    Page<Orders> findBySellerAndPaymentTimeBetween(@Param("seller") Users seller,
+                                                   @Param("start") LocalDateTime start,
+                                                   @Param("end") LocalDateTime end,
+                                                   Pageable pageable);
+    // 기간 별 총 금액 계산
+    // 결제 내역 총 금액
+    @Query("SELECT COALESCE(SUM(o.totalPrice), 0) FROM Orders o " +
+            "WHERE o.buyer = :buyer  AND o.orderStatus = '완료'")
+    long sumTotalPriceByBuyer(Users buyer);
+
+    @Query("SELECT COALESCE(SUM(o.totalPrice), 0) FROM Orders o LEFT JOIN o.payments p " +
+            "WHERE o.buyer = :buyer AND p.paymentDate BETWEEN :start AND :end AND o.orderStatus = '완료'")
+    long sumTotalPriceByBuyerAndPaymentDateBetween(@Param("buyer") Users buyer,
+                                                   @Param("start") LocalDateTime start,
+                                                   @Param("end") LocalDateTime end);
+    // 정산 내역 총 금액
+    @Query("SELECT COALESCE(SUM(o.totalPrice), 0) FROM Orders o " +
+            "WHERE o.seller = :seller AND o.orderStatus = '완료'")
+    long sumTotalPriceBySeller(Users seller);
+
+    @Query("SELECT COALESCE(SUM(o.totalPrice), 0) FROM Orders o LEFT JOIN o.payments p " +
+            "WHERE o.seller = :seller AND p.paymentDate BETWEEN :start AND :end AND o.orderStatus = '완료'")
+    long sumTotalPriceBySellerAndPaymentDateBetween(@Param("seller") Users seller,
+                                                    @Param("start") LocalDateTime start,
+                                                    @Param("end") LocalDateTime end);
+    // 주문 상태가 "거래완료"인 주문 페이징 처리
+    Page<Orders> findBySellerAndOrderStatus(Users seller, String orderStatus, Pageable pageable);
 
 
+    // 로그인 사용자가 buyer 또는 seller인 주문 중 아직 리뷰를 작성하지 않은 주문(pending 상태) 조회
+    @Query("SELECT o FROM Orders o LEFT JOIN o.reviews r WITH r.reviewer.userId = :userId " +
+            "WHERE (o.buyer.userId = :userId OR o.seller.userId = :userId) AND r IS NULL")
+    Page<Orders> findPendingReviewOrders(@Param("userId") Long userId, Pageable pageable);
 }

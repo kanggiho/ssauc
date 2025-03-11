@@ -8,6 +8,7 @@ import lombok.*;
 @Table(name = "admin")
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Admin {

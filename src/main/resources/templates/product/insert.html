@@ -136,7 +136,7 @@
     <!-- 버튼 영역 -->
     <div class="button-group">
         <button class="cancel">취소</button>
-        <button class="submit">물품 등록</button>
+        <button class="submit">상품 등록</button>
     </div>
 </div>
 
@@ -181,16 +181,14 @@
             accumulatedFiles.forEach((file, index) => {
                 const reader = new FileReader();
                 reader.onload = function (e) {
+                    const container = document.createElement("div");
+                    container.classList.add("image-container");
+
                     const img = document.createElement('img');
                     img.src = e.target.result;
-                    img.style.maxWidth = "150px";
-                    img.style.maxHeight = "150px";
-                    img.style.margin = "10px";
-                    img.style.cursor = "pointer";
 
                     if (index === representativeIndex) {  // 대표 이미지 강조
                         img.style.border = "3px solid red";
-                        img.style.transform = "scale(1.15)";
                         img.style.animation = "border-glow 0.7s infinite alternate";
                     }
 
@@ -199,7 +197,21 @@
                         updatePreview(); // 미리보기 갱신
                     });
 
-                    dropzone.appendChild(img);
+                    // 🌟 삭제 버튼 추가
+                    const deleteBtn = document.createElement("button");
+                    deleteBtn.innerText = "X";
+                    deleteBtn.classList.add("delete-btn");
+
+                    deleteBtn.addEventListener("click", (e) => {
+                        e.stopPropagation(); // 부모 클릭 이벤트 방지
+                        accumulatedFiles.splice(index, 1); // 배열에서 삭제
+                        representativeIndex = 0; // 대표 이미지 초기화
+                        updatePreview(); // 미리보기 갱신
+                    });
+
+                    container.appendChild(img);
+                    container.appendChild(deleteBtn);
+                    dropzone.appendChild(container);
                 };
                 reader.readAsDataURL(file);
             });
@@ -337,7 +349,7 @@
                 }
 
                 // 등록 확인 후 전송
-                if (!confirm("물품을 등록하시겠습니까?")) {
+                if (!confirm("상품을 등록하시겠습니까?")) {
                     return;
                 }
 
@@ -375,6 +387,13 @@
             });
         } else {
             console.error("등록 버튼을 찾을 수 없습니다.");
+        }
+
+        const cancelButton = document.querySelector(".cancel");
+        if (cancelButton) {
+            cancelButton.addEventListener("click", () => {
+                window.location.href = "/";
+            });
         }
     });
 </script>

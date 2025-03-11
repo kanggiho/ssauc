@@ -18,38 +18,37 @@ public class BoardController {
     // [POST] 문의 등록 처리
     @PostMapping("/create")
     public String createQna(
+            @RequestParam(required = false) String category, //카테고리 필드검증
             @RequestParam String subject,
             @RequestParam String message,
-            Model model,
-            HttpSession session
-
+            @SessionAttribute(name="user", required=false) Users user // 세션에서 가져옴
     ) {
-        // 1) 로그인 사용자 (임시로 가정)
-        Users User = (Users) session.getAttribute("user");
+        //로그인 확인
+        if (user == null) {
+            // 로그인 안 된 경우 처리
+            return "redirect:/login";
+        }
 
-        // 실제로는 Spring Security 세션/Principal 등에서 가져와야 함
+        // 2) 필수 값(제목, 내용,카테고리) 검증
+        if (subject == null || subject.trim().isEmpty()
+                ||category == null || category.trim().isEmpty()
+                || message == null || message.trim().isEmpty()) {
 
-        // 2) DB 저장
-        Board saved = boardService.createBoard(User, subject, message);
 
-        // 3) 결과 (목록 등으로 이동)
-        // 여기서는 단순히 저장 후 목록페이지로 redirect
-        return "redirect:/contact/qna/list";
-    }
+            // 비어있으면 등록 실패 → 에러 파라미터와 함께 redirect
+            return "redirect:/contact/qna?error=emptyFields";
+        }
 
-    // [GET] 목록 보기
-    @GetMapping("/list")
-    public String list(Model model) {
-        model.addAttribute("boardList", boardService.getBoardList());
-        return "/contact/qna_list"; // 목록 화면 (예시)
-    }
 
-    // [GET] 상세 보기
-    @GetMapping("/{boardId}")
-    public String detail(@PathVariable Long boardId, Model model) {
-        Board board = boardService.getBoard(boardId);
-        model.addAttribute("board", board);
-        return "contact/qna_detail";
+        try {
+            // 3) DB 저장
+            Board saved = boardService.createBoard(user, subject, message);
+            // 4) 성공 시 success 파라미터
+            return "redirect:/contact/qna?success=true";
+        } catch (Exception e) {
+            // 5) 예외 발생 시 error 파라미터
+            return "redirect:/contact/qna?error=exception";
+        }
     }
 }
 
