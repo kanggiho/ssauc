@@ -1,4 +1,4 @@
-package com.example.ssauc.admin;
+package com.example.ssauc.admin.service;
 
 
 import com.example.ssauc.admin.entity.Admin;
