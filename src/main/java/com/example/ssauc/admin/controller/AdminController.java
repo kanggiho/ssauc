@@ -1,6 +1,6 @@
 package com.example.ssauc.admin.controller;
 
-import com.example.ssauc.admin.AdminService;
+import com.example.ssauc.admin.service.AdminService;
 import com.example.ssauc.admin.entity.Admin;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,14 +41,6 @@ public class AdminController {
             model.addAttribute("loginError", "아이디 또는 비밀번호가 올바르지 않습니다.");
             return "/admin/admin";
         }
-        System.out.println("==========================================");
-        System.out.println("==========================================");
-        System.out.println("==========================================");
-        System.out.println("==========================================");
-        System.out.println("==========================================");
-        System.out.println("==========================================");
-        System.out.println("==========================================");
-        System.out.println(admin);
         // 검증 성공 시 session에 admin 정보를 저장하고, home 페이지로 리다이렉트
         session.setAttribute("admin", admin);
         return "redirect:/admin/home";
@@ -60,6 +52,4 @@ public class AdminController {
         session.invalidate();  // 세션 초기화
         return "redirect:/admin";  // 로그인 화면(예: /admin)으로 리다이렉트
     }
-
-
 }
