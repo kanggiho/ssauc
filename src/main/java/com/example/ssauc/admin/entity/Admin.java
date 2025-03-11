@@ -3,6 +3,9 @@ package com.example.ssauc.admin.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Builder
 @Table(name = "admin")
@@ -26,4 +29,8 @@ public class Admin {
 
     @Column(name = "password", length = 255, nullable = false)
     private String password;
+
+    // 관계 설정
+    @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL)
+    private List<Reply> replies = new ArrayList<>();
 }
