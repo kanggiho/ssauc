@@ -1,11 +1,10 @@
-<!--insert.html-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="layout.html">
 <head>
     <meta charset="UTF-8">
-    <title>상품 등록</title>
+    <title>상품 수정</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/insert.css">
 </head>
@@ -14,34 +13,20 @@
 <div class="product-container" layout:fragment="content">
     <!-- 상품 정보 입력 섹션 -->
     <section class="product-info">
-        <h2>상품 정보</h2>
+        <h2>상품 정보 수정</h2>
         <table class="product-table">
             <tr>
                 <td class="label-cell"> 상품 제목</td>
-                <td class="input-cell"><input type="text" placeholder="상품 제목을 입력해주세요."></td>
+                <td class="input-cell"><input type="text" th:value="${product.name}" placeholder="상품 제목을 입력해주세요."></td>
                 <td class="label-cell"> 카테고리</td>
                 <td class="input-cell">
                     <select>
-                        <option>선택하세요</option>
-                        <option>디지털기기</option>
-                        <option>가구/인테리어</option>
-                        <option>유아동</option>
-                        <option>여성의류</option>
-                        <option>여성잡화</option>
-                        <option>남성패션/잡화</option>
-                        <option>생활가전</option>
-                        <option>생활/주방</option>
-                        <option>스포츠/레저</option>
-                        <option>취미/게임/음반</option>
-                        <option>뷰티/미용</option>
-                        <option>식품</option>
-                        <option>가공식품</option>
-                        <option>건강기능식품</option>
-                        <option>반려동물용품</option>
-                        <option>티켓/교환권</option>
-                        <option>도서</option>
-                        <option>유아도서</option>
-                        <option>기타 중고물품</option>
+                        <option value="">선택하세요</option>
+                        <option th:each="cat : ${categories}"
+                                th:value="${cat.name}"
+                                th:text="${cat.name}"
+                                th:selected="${cat.name} == ${product.category.name}">
+                        </option>
                     </select>
                 </td>
             </tr>
@@ -49,7 +34,11 @@
                 <td class="label-cell"> 이미지 등록 <br><small>(최소 1장 ~ 최대 5장)</small></td>
                 <td class="input-cell" colspan="3">
                     <div class="image-upload">
-                        <div class="image-dropzone" id="dropzone">업로드한 파일을 확인하세요.</div>
+                        <div class="image-dropzone" id="dropzone">
+                            <div th:each="img : ${product.imageUrl.split(',')}" style="display:inline-block; margin: 5px;">
+                                <img th:src="${img}" style="max-width:150px; max-height:150px;">
+                            </div>
+                        </div>
                         <input type="file" id="fileInput" multiple style="display: none;">
                         <button class="file-btn" onclick="document.getElementById('fileInput').click();">파일 첨부</button>
                         <p>대표 이미지를 선택하려면 해당 이미지를 클릭하세요.</p>
@@ -58,7 +47,9 @@
             </tr>
             <tr>
                 <td class="label-cell"> 상품 설명</td>
-                <td class="input-cell" colspan="3"><textarea placeholder="내용을 입력해주세요."></textarea></td>
+                <td class="input-cell" colspan="3">
+                    <textarea placeholder="내용을 입력해주세요." th:text="${product.description}"></textarea>
+                </td>
             </tr>
         </table>
     </section>
@@ -69,64 +60,42 @@
         <table class="auction-table">
             <tr>
                 <td class="label-cell">시작가</td>
-                <td class="input-cell"><input type="number" class="start-price" placeholder="0"> 원</td>
+                <td class="input-cell"><input type="number" class="start-price"  th:value="${product.startPrice}" placeholder="0"> 원</td>
                 <td class="label-cell">즉시 구매가</td>
-                <td class="input-cell"><input type="number" class="instant-price" placeholder="0"> 원</td>
+                <td class="input-cell"><input type="number" class="instant-price" th:value="${product.price}" placeholder="0"> 원</td>
                 <td class="label-cell">최소입찰단위</td>
                 <td class="input-cell">
                     <select class="min-increment">
-                        <option>선택하세요</option>
-                        <option>100원</option>
-                        <option>500원</option>
-                        <option>1000원</option>
-                        <option>5000원</option>
-                        <option>10000원</option>
-                        <option>100000원</option>
+                        <option value="">선택하세요</option>
+                        <option th:value="100" th:selected="${product.minIncrement == 100}">100원</option>
+                        <option th:value="500" th:selected="${product.minIncrement == 500}">500원</option>
+                        <option th:value="1000" th:selected="${product.minIncrement == 1000}">1000원</option>
+                        <option th:value="5000" th:selected="${product.minIncrement == 5000}">5000원</option>
+                        <option th:value="10000" th:selected="${product.minIncrement == 10000}">10000원</option>
+                        <option th:value="100000" th:selected="${product.minIncrement == 100000}">100000원</option>
                     </select>
                 </td>
             </tr>
             <tr>
                 <td class="label-cell"> 거래 유형</td>
                 <td class="input-cell deal-type">
-                    <label class="check-box"><input type="checkbox"> 직거래</label>
-                    <label class="check-box box2"><input type="checkbox"> 택배</label>
+                    <label class="check-box"><input type="checkbox" th:checked="${product.dealType == 0 || product.dealType == 2}"> 직거래</label>
+                    <label class="check-box box2"><input type="checkbox" th:checked="${product.dealType == 1 || product.dealType == 2}"> 택배</label>
                 </td>
                 <td class="label-cell"> 마감 시간</td>
                 <td class="input-cell" colspan="3">
-                    <input type="date" class="auction-date"> 일
+                    <input type="date" class="auction-date" th:value="${#temporals.format(product.endAt, 'yyyy-MM-dd')}"> 일
                     <select class="auction-time">
-                        <option>1</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option>4</option>
-                        <option>5</option>
-                        <option>6</option>
-                        <option>7</option>
-                        <option>8</option>
-                        <option>9</option>
-                        <option>10</option>
-                        <option>11</option>
-                        <option>12</option>
-                        <option>13</option>
-                        <option>14</option>
-                        <option>15</option>
-                        <option>16</option>
-                        <option>17</option>
-                        <option>18</option>
-                        <option>19</option>
-                        <option>20</option>
-                        <option>21</option>
-                        <option>22</option>
-                        <option>23</option>
-                        <option>24</option>
+                        <option th:each="h : ${#numbers.sequence(0,23)}"
+                                th:value="${h}"
+                                th:text="${h}"
+                                th:selected="${#temporals.format(product.endAt, 'HH') == h}"></option>
                     </select> 시
                     <select class="auction-time">
-                        <option>0</option>
-                        <option>10</option>
-                        <option>20</option>
-                        <option>30</option>
-                        <option>40</option>
-                        <option>50</option>
+                        <option th:each="m : ${#numbers.sequence(0,55,5)}"
+                                th:value="${m}"
+                                th:text="${m}"
+                                th:selected="${#temporals.format(product.endAt, 'mm') == m}"></option>
                     </select> 분
                 </td>
             </tr>
@@ -136,15 +105,19 @@
     <!-- 버튼 영역 -->
     <div class="button-group">
         <button class="cancel">취소</button>
-        <button class="submit">상품 등록</button>
+        <button class="submit">수정 완료</button>
     </div>
 </div>
 
-<script layout:fragment="script">
+<script layout:fragment="script" th:inline="javascript">
     document.addEventListener("DOMContentLoaded", () => {
 
         let accumulatedFiles = [];  // 전역 배열 선언: 누적된 파일들을 저장
         let representativeIndex = 0;  // 대표 이미지 인덱스 (기본적으로 첫 번째 이미지)
+
+        // 기존에 업로드된 이미지 URL들을 배열로 저장
+        let existingImages = /*[[${#strings.escapeJavaScript(product.imageUrl)}]]*/ "";
+        existingImages = existingImages ? existingImages.split(",") : [];
 
         const fileInput = document.getElementById('fileInput');
         const dropzone = document.getElementById('dropzone');
@@ -234,7 +207,10 @@
                 }
                 // 파일 업로드: accumulatedFiles 배열 사용 (누적된 파일들을 전송)
                 let uploadedImageUrls = "";
-                if (accumulatedFiles.length > 0) {
+                // 새 파일이 없으면 기존 이미지를 사용하도록 함
+                if (existingImages.length > 0) {
+                    uploadedImageUrls = existingImages.join(",");
+                } else if (accumulatedFiles.length > 0) {
                     let formDataFiles = new FormData();
                     // 대표 이미지를 맨 앞으로 이동
                     let reorderedFiles = [accumulatedFiles[representativeIndex], ...accumulatedFiles.filter((_, i) => i !== representativeIndex)];
@@ -337,12 +313,13 @@
                 }
 
                 // 등록 확인 후 전송
-                if (!confirm("상품을 등록하시겠습니까?")) {
+                if (!confirm("상품을 수정하시겠습니까?")) {
                     return;
                 }
 
                 // 폼 데이터 구성
                 const formData = {
+                    productId: [[${product.productId}]],
                     categoryName: categoryName,
                     name: name,
                     description: description,
@@ -357,24 +334,24 @@
                 };
 
                 try {
-                    const response = await fetch('/product/insert', {
+                    const response = await fetch('/product/update', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(formData)
                     });
                     if (response.ok) {
-                        alert("물품이 등록되었습니다!");
-                        window.location.href = "/";
+                        alert("상품 수정 성공!");
+                        window.location.href = "/bid/bid?productId=" + formData.productId;
                     } else {
-                        alert("등록에 실패했습니다.");
+                        alert("수정에 실패했습니다.");
                     }
                 } catch (error) {
                     console.error("Error:", error);
-                    alert("등록 중 오류가 발생했습니다.");
+                    alert("수정 중 오류가 발생했습니다.");
                 }
             });
         } else {
-            console.error("등록 버튼을 찾을 수 없습니다.");
+            console.error("수정 버튼을 찾을 수 없습니다.");
         }
     });
 </script>
