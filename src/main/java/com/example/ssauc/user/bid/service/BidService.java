@@ -12,9 +12,11 @@ import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.main.repository.ProductLikeRepository;
 import com.example.ssauc.user.product.entity.Product;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -101,8 +103,10 @@ public class BidService {
 
 
     // 일반 입찰 기능 구현
+    @Transactional
     public boolean placeBid(BidRequestDto bidRequestDto) {
-        Product bidProduct = getProduct(bidRequestDto.getProductId());
+        Product bidProduct = pdpRepository.findProductForUpdate(bidRequestDto.getProductId())
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
         Users bidUser = getUser(Long.valueOf(bidRequestDto.getUserId()));
         long bidAmount = (long) bidRequestDto.getBidAmount();
 
@@ -127,12 +131,14 @@ public class BidService {
 
 
     // 자동 입찰 기능 구현
+    @Transactional
     public boolean autoBid(AutoBidRequestDto autoBidRequestDto) {
         Long productId = autoBidRequestDto.getProductId();
         String userIdStr = autoBidRequestDto.getUserId();
         Long maxBidAmount = (long)autoBidRequestDto.getMaxBidAmount();
 
-        Product product = getProduct(productId);
+        Product product = pdpRepository.findProductForUpdate(autoBidRequestDto.getProductId())
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
         Users user = getUser(Long.valueOf(userIdStr));
 
         // 이미 같은 (user, product)에 대한 자동입찰이 있는지 확인
@@ -166,8 +172,10 @@ public class BidService {
         return true;
     }
 
-    private void processAutoBidding(Long productId) {
-        Product product = getProduct(productId);
+    @Transactional
+    public void processAutoBidding(Long productId) {
+        Product product = pdpRepository.findProductForUpdate(productId)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
         Long currentPrice = product.getTempPrice(); // 현재가
         Long minIncrement = (long)product.getMinIncrement();
 
@@ -229,6 +237,7 @@ public class BidService {
 
     // 스케줄러 메서드: 매 분 0초마다 자동입찰 로직 실행
     @Scheduled(cron = "0 * * * * *")  // 초, 분, 시, 일, 월, 요일 순 (매 분 0초 실행)
+    @Transactional
     public void scheduledAutoBidding() {
 
 
