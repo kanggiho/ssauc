@@ -241,8 +241,8 @@ public class BidService {
     public void scheduledAutoBidding() {
 
 
-        System.out.println("실행됨");
-        System.out.println(pdpRepository.findById(56L).orElseThrow().getTempPrice());
+        //System.out.println("실행됨");
+        //System.out.println(pdpRepository.findById(56L).orElseThrow().getTempPrice());
 
 
         // active 상태인 자동입찰 데이터들에서 상품 목록 추출
