@@ -72,7 +72,7 @@ public class HistoryController {
 
     // ===================== 신고 내역 =====================
     // 신고 내역 리스트
-    @GetMapping("/report")  // 리뷰 내역 페이지로 이동
+    @GetMapping("/report")
     public String reportPage(@RequestParam(value = "filter", required = false, defaultValue = "product") String filter,
                              @RequestParam(value = "page", required = false, defaultValue = "1") int page,
                              HttpSession session, Model model) {

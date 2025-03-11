@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 
 public interface OrdersRepository extends JpaRepository<Orders, Long> {
 
-    // 결제 내역
     // 결제 내역 (구매자 기준 주문) 조회
     Page<Orders> findByBuyer(Users buyer, Pageable pageable);
 
@@ -54,4 +53,10 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
                                                     @Param("end") LocalDateTime end);
     // 주문 상태가 "거래완료"인 주문 페이징 처리
     Page<Orders> findBySellerAndOrderStatus(Users seller, String orderStatus, Pageable pageable);
+
+
+    // 로그인 사용자가 buyer 또는 seller인 주문 중 아직 리뷰를 작성하지 않은 주문(pending 상태) 조회
+    @Query("SELECT o FROM Orders o LEFT JOIN o.reviews r WITH r.reviewer.userId = :userId " +
+            "WHERE (o.buyer.userId = :userId OR o.seller.userId = :userId) AND r IS NULL")
+    Page<Orders> findPendingReviewOrders(@Param("userId") Long userId, Pageable pageable);
 }
