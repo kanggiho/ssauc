@@ -112,28 +112,83 @@
 <script layout:fragment="script" th:inline="javascript">
     document.addEventListener("DOMContentLoaded", () => {
 
-        let accumulatedFiles = [];  // 전역 배열 선언: 누적된 파일들을 저장
-        let representativeIndex = 0;  // 대표 이미지 인덱스 (기본적으로 첫 번째 이미지)
-
-        // 기존에 업로드된 이미지 URL들을 배열로 저장
-        let existingImages = /*[[${#strings.escapeJavaScript(product.imageUrl)}]]*/ "";
-        existingImages = existingImages ? existingImages.split(",") : [];
+        // 🌟🌟🌟🌟🌟 1. 기존 이미지 URL 문자열을 배열로 변환하고 별도 배열로 관리
+        let existingImagesStr = /*[[${#strings.escapeJavaScript(product.imageUrl)}]]*/ "";
+        let existingImages = existingImagesStr ? existingImagesStr.split(",") : [];
+        // 새 파일은 별도로 관리 (빈 배열)
+        let newFiles = [];
+        // 대표 이미지 선택은 두 배열을 합친 순서에서 진행 (초기 대표는 0번째)
+        let representativeIndex = 0;
 
         const fileInput = document.getElementById('fileInput');
         const dropzone = document.getElementById('dropzone');
 
-        // 파일 선택 시 미리보기 및 누적 처리
+        // 🌟🌟🌟🌟🌟 updatePreview(): 기존 이미지와 새 파일의 미리보기를 합쳐서 보여줌
+        function updatePreview() {
+            dropzone.innerHTML = "";
+            // 결합된 배열: 기존 이미지(URL 문자열) 먼저, 그 다음 새 파일(File 객체)
+            const combined = [...existingImages, ...newFiles];
+            combined.forEach((item, index) => {
+                const container = document.createElement("div");
+                container.classList.add("image-container");
+
+                const img = document.createElement('img');
+                // 🌟🌟🌟🌟🌟 item이 문자열이면 기존 이미지 URL, File 객체이면 Data URL 사용
+                if (typeof item === 'string') {
+                    img.src = item;
+                } else {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(item);
+                }
+
+                if (index === representativeIndex) {
+                    img.style.border = "3px solid red";
+                    img.style.animation = "border-glow 0.7s infinite alternate";
+                }
+
+                // 대표 이미지 선택: 클릭 시 representativeIndex 갱신
+                img.addEventListener("click", () => {
+                    representativeIndex = index;
+                    updatePreview();
+                });
+
+                // 삭제 버튼
+                const deleteBtn = document.createElement("button");
+                deleteBtn.innerText = "X";
+                deleteBtn.classList.add("delete-btn");
+
+                deleteBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    // 삭제 시, 항목이 기존 이미지면 기존 배열에서 제거, 새 파일이면 newFiles에서 제거
+                    if (index < existingImages.length) {
+                        existingImages.splice(index, 1);
+                    } else {
+                        let newIndex = index - existingImages.length;
+                        newFiles.splice(newIndex, 1);
+                    }
+                    // 대표 이미지 인덱스 초기화
+                    representativeIndex = 0;
+                    updatePreview();
+                });
+
+                container.appendChild(img);
+                container.appendChild(deleteBtn);
+                dropzone.appendChild(container);
+            });
+        }
+
+        // 파일 선택 시 새 File 객체들을 newFiles 배열에 추가 (기존 이미지는 그대로 유지)
         fileInput.addEventListener('change', (event) => {
-            // 새로 선택한 파일들을 배열로 변환
-            const newFiles = Array.from(event.target.files);
-            // 총 파일 수가 5장을 초과하는지 확인
-            if (accumulatedFiles.length + newFiles.length > 5) {
+            const selectedFiles = Array.from(event.target.files);
+            if ((existingImages.length + newFiles.length + selectedFiles.length) > 5) {
                 alert("최대 5장의 이미지만 첨부할 수 있습니다.");
-                fileInput.value = ""; // fileInput 초기화
+                fileInput.value = "";
                 return;
             }
-            // 새로 선택한 파일들을 하나씩 검증 후 누적
-            newFiles.forEach(file => {
+            selectedFiles.forEach(file => {
                 if (!file.type.startsWith('image/')) {
                     alert("이미지 파일만 업로드 가능합니다.");
                     return;
@@ -142,41 +197,15 @@
                     alert("파일 크기는 3MB를 초과할 수 없습니다.");
                     return;
                 }
-                accumulatedFiles.push(file);
+                newFiles.push(file);
             });
-            fileInput.value = ""; // 선택 후 초기화해서 재사용 가능하도록 함
+            fileInput.value = "";
+            representativeIndex = 0; // 새 파일 추가 시 대표 이미지 인덱스 초기화
             updatePreview();
         });
 
-        // 누적된 모든 파일들을 이용하여 미리보기 업데이트
-        function updatePreview() {
-            dropzone.innerHTML = "";
-            accumulatedFiles.forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.maxWidth = "150px";
-                    img.style.maxHeight = "150px";
-                    img.style.margin = "10px";
-                    img.style.cursor = "pointer";
-
-                    if (index === representativeIndex) {  // 대표 이미지 강조
-                        img.style.border = "3px solid red";
-                        img.style.transform = "scale(1.15)";
-                        img.style.animation = "border-glow 0.7s infinite alternate";
-                    }
-
-                    img.addEventListener("click", () => {
-                        representativeIndex = index; // 선택한 이미지의 인덱스를 대표로 설정
-                        updatePreview(); // 미리보기 갱신
-                    });
-
-                    dropzone.appendChild(img);
-                };
-                reader.readAsDataURL(file);
-            });
-        }
+        // 초기 미리보기: 기존 이미지만 보여줌
+        updatePreview();
 
         const submitButton = document.querySelector(".submit");
 
@@ -201,21 +230,28 @@
                 const auctionHour = auctionTimeSelects[0].value;
                 const auctionMinute = auctionTimeSelects[1].value;
 
-                if (accumulatedFiles.length === 0) {
+                // 필수 입력값 체크
+                if ((existingImages.length + newFiles.length) === 0) {
                     alert("최소 1장의 이미지를 업로드해야 합니다.");
                     return;
                 }
+
+                // 최종 결합 배열: 기존 이미지와 새 파일을 합침
+                const combined = [...existingImages, ...newFiles];
+
                 // 파일 업로드: accumulatedFiles 배열 사용 (누적된 파일들을 전송)
-                let uploadedImageUrls = "";
-                // 새 파일이 없으면 기존 이미지를 사용하도록 함
-                if (existingImages.length > 0) {
-                    uploadedImageUrls = existingImages.join(",");
-                } else if (accumulatedFiles.length > 0) {
+                // 최종 파일 순서(finalOrder): 기존 URL과 새 File 객체가 모두 포함됨
+                let finalImageUrls = "";
+                // 모든 항목이 문자열이면, 새 파일이 없는 것이므로 기존 이미지를 그대로 사용
+                if (newFiles.length > 0) {
+                    // 새 파일이 있는 경우 새 파일만 업로드
                     let formDataFiles = new FormData();
-                    // 대표 이미지를 맨 앞으로 이동
-                    let reorderedFiles = [accumulatedFiles[representativeIndex], ...accumulatedFiles.filter((_, i) => i !== representativeIndex)];
-                    // accumulatedFiles의 파일들을 모두 FormData에 추가
-                    reorderedFiles.forEach(file => formDataFiles.append("files", file));
+                    // newFiles 배열 순서를 유지하되, 대표 이미지 순서를 반영
+                    let repIndexNew = representativeIndex - existingImages.length;
+                    if (repIndexNew < 0) repIndexNew = 0;
+                    let orderedNewFiles = [ ...newFiles ];
+                    orderedNewFiles = [ orderedNewFiles[repIndexNew], ...orderedNewFiles.filter((_, i) => i !== repIndexNew) ];
+                    orderedNewFiles.forEach(file => formDataFiles.append("files", file));
                     try {
                         const uploadResponse = await fetch('/product/uploadMultiple', {
                             method: 'POST',
@@ -226,11 +262,36 @@
                             return;
                         }
                         const uploadResult = await uploadResponse.json();
-                        uploadedImageUrls = uploadResult.urls; // 콤마로 구분된 URL 문자열
+                        let uploadedUrlsArray = uploadResult.urls.split(",");
+                        // 재구성: combined 배열 순서를 유지하며 File 객체는 업로드된 URL로 대체
+                        let finalUrls = [];
+                        let fileCounter = 0;
+                        const combined = [...existingImages, ...newFiles];
+                        combined.forEach(item => {
+                            if (item instanceof File) {
+                                finalUrls.push(uploadedUrlsArray[fileCounter]);
+                                fileCounter++;
+                            } else {
+                                finalUrls.push(item);
+                            }
+                        });
+                        // 🌟🌟🌟🌟🌟 대표 이미지 재정렬: combined 순서에서 representativeIndex 요소를 맨 앞으로 이동
+                        if (representativeIndex > 0 && finalUrls.length > representativeIndex) {
+                            finalUrls = [ finalUrls[representativeIndex], ...finalUrls.filter((_, i) => i !== representativeIndex) ];
+                        }
+                        finalImageUrls = finalUrls.join(",");
                     } catch (error) {
                         console.error("Error during file upload:", error);
                         alert("이미지 업로드 중 오류가 발생했습니다.");
                         return;
+                    }
+                } else {
+                    // 신규 파일이 없더라도 기존 이미지 배열을 대표 이미지 순서대로 재정렬
+                    if (representativeIndex > 0) {
+                        const reorderedExisting = [ existingImages[representativeIndex], ...existingImages.filter((_, i) => i !== representativeIndex) ];
+                        finalImageUrls = reorderedExisting.join(",");
+                    } else {
+                        finalImageUrls = existingImages.join(",");
                     }
                 }
 
@@ -325,7 +386,7 @@
                     description: description,
                     startPrice: parseInt(startPrice),
                     price: parseInt(price),
-                    imageUrl: uploadedImageUrls,  // imageUrl 필드는 S3 업로드 후 반환받은 URL들 사용
+                    imageUrl: finalImageUrls,
                     auctionDate: auctionDate,
                     auctionHour: parseInt(auctionHour),
                     auctionMinute: parseInt(auctionMinute),
@@ -352,6 +413,19 @@
             });
         } else {
             console.error("수정 버튼을 찾을 수 없습니다.");
+        }
+
+        // 수정 취소 버튼
+        const cancelButton = document.querySelector(".cancel");
+        if (cancelButton) {
+            cancelButton.addEventListener("click", () => {
+                const productId = /*[[${product.productId}]]*/ "";
+                if (productId) {
+                    window.location.href = `/bid/bid?productId=${productId}`;
+                } else {
+                    alert("상품 정보를 가져올 수 없습니다.");
+                }
+            });
         }
     });
 </script>
