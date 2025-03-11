@@ -13,7 +13,7 @@ public class ChatController {
     public String chat(Model model) {
         Long currentUserId = 7L;
 
-        model.addAttribute("message_id", currentUserId);
+        model.addAttribute("", currentUserId);
 
 
         return "chat/chat";

@@ -18,27 +18,38 @@ public class BoardController {
     // [POST] 문의 등록 처리
     @PostMapping("/create")
     public String createQna(
+            @RequestParam(required = false) String category, //카테고리 필드검증
             @RequestParam String subject,
             @RequestParam String message,
             @SessionAttribute(name="user", required=false) Users user // 세션에서 가져옴
     ) {
+        //로그인 확인
         if (user == null) {
             // 로그인 안 된 경우 처리
             return "redirect:/login";
         }
 
+        // 2) 필수 값(제목, 내용,카테고리) 검증
+        if (subject == null || subject.trim().isEmpty()
+                ||category == null || category.trim().isEmpty()
+                || message == null || message.trim().isEmpty()) {
 
 
+            // 비어있으면 등록 실패 → 에러 파라미터와 함께 redirect
+            return "redirect:/contact/qna?error=emptyFields";
+        }
 
-        // 2) DB 저장
-        Board saved = boardService.createBoard(user, subject, message);
 
-        // 3) 결과 (목록 등으로 이동)
-        // 여기서는 단순히 저장 후 목록페이지로 redirect
-        return "redirect:/contact/qna";
+        try {
+            // 3) DB 저장
+            Board saved = boardService.createBoard(user, subject, message);
+            // 4) 성공 시 success 파라미터
+            return "redirect:/contact/qna?success=true";
+        } catch (Exception e) {
+            // 5) 예외 발생 시 error 파라미터
+            return "redirect:/contact/qna?error=exception";
+        }
     }
-
-
 }
 
 
