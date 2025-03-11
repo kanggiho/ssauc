@@ -18,18 +18,29 @@ public class Ban {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ban_id")
-    private Long banId;
+    private Long banId; // 차단 PK
 
     // 차단한 사용자
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
+    private Users user; // FK: user_id
 
     // 차단 당한 사용자
     @ManyToOne
     @JoinColumn(name = "blocked_user_id", nullable = false)
-    private Users blockedUser;
+    private Users blockedUser; // FK: blocked_user_id
 
+
+    //차단시간
     @Column(name = "blocked_at")
     private LocalDateTime blockedAt;
+
+    // user, blockedUser, blockedAt 을 받는 생성자
+    public Ban(Users user, Users blockedUser, LocalDateTime blockedAt) {
+        this.user = user;
+        this.blockedUser = blockedUser;
+        this.blockedAt = blockedAt;
+    }
+
+
 }

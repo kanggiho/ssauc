@@ -176,15 +176,64 @@
                 return `${hours}:${minutes}`;
             }
 
+
+        // =======================================
+        // [추가] 차단 기능
+        // =======================================
+        function ban() {
+            // 예시: 차단할 상대방 userId (동적으로 결정 가능)
+            // 실제로는 현재 채팅중인 상대방 ID를 가져오거나, 모달/입력창에서 받는 로직
+            const targetUserId = prompt("차단할 사용자 ID를 입력하세요:");
+
+            if (!targetUserId) {
+                alert("취소되었습니다.");
+                return;
+            }
+
+            // /ban/block?targetUserId=xxx 라는 API를 호출 (POST 방식)
+            fetch(`/ban/block?targetUserId=${targetUserId}`, {
+                method: "POST"
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("차단 요청 실패");
+                    }
+                    return response.text();
+                })
+                .then(result => {
+                    alert(result);
+                    // 예: "사용자 7 차단 완료 (banId=3)" 등
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert("차단 중 오류가 발생했습니다.");
+                });
+        }
+
+
     </script>
 
     <!-- 채팅 UI 영역 -->
     <div class="container py-5">
         <div class="card shadow-sm">
+
+
+
             <!-- 채팅방 헤더 -->
-            <div class="card-header bg-dark text-white">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">채팅방</h5>
             </div>
+
+            <!-- 버튼 그룹 -->
+            <div>
+                <button class="btn btn-outline-danger btn-sm me-2" onclick="ban()">
+                    차단
+                </button>
+                <button class="btn btn-outline-warning btn-sm" onclick="report()">
+                    신고
+                </button>
+            </div>
+        </div>
 
             <!-- 채팅 메시지 영역 (스크롤 가능) -->
             <!-- id="chatBody"를 통해 JavaScript에서 메시지 영역을 제어 -->
