@@ -1,8 +1,8 @@
 package com.example.ssauc.repositoryTests;
 
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.mypage.entity.UserActivity;
 import com.example.ssauc.user.login.repository.UsersRepository;
+import com.example.ssauc.user.mypage.entity.UserActivity;
 import com.example.ssauc.user.mypage.repository.UserActivityRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

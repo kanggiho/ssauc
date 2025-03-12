@@ -24,6 +24,7 @@ public class AdminQnaService
     @Autowired
     private AdminReplyRepository adminReplyRepository;
 
+
     public Page<Board> getBoards(int page, String sortField, String sortDir) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortField);
         return adminBoardRepository.findAll(PageRequest.of(page, 10, sort));

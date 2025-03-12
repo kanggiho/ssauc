@@ -7,16 +7,15 @@
     <title>리뷰 내역</title>
     <!-- 스타일시트 연결 -->
     <link rel="stylesheet" href="/css/mypage.css">
-    <link rel="stylesheet" href="/css/evaluation.css">
 </head>
 <body>
 
-<div class="evaluated-container" layout:fragment="content">
+<div class="history-container" layout:fragment="content">
     <!-- 왼쪽 사이드바 (mypage와 동일) -->
     <div th:replace="~{mypage/mypage :: sidebar}"></div>
 
     <!-- 메인 컨텐츠 -->
-    <main class="evaluated-main">
+    <main class="history-main">
         <!-- 페이지 제목 -->
         <h2>리뷰 내역</h2>
 
@@ -39,7 +38,7 @@
         </div>
 
         <div th:if="${filter=='pending'}">
-            <table class="evaluated-table">
+            <table class="history-table">
                 <thead>
                 <tr>
                     <th>리뷰를 받을 사람</th>
@@ -49,20 +48,23 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="review : ${reviewList}">
+                <tr th:each="review : ${reviewList}"
+                    th:with="urlPrefix=${review.transactionType.trim() == '구매' ? '/history/bought?id=' : '/history/sold?id='}">
                     <td>
                         <img class="historyImage" th:src="${review.profileImageUrl}" alt="프로필 이미지"/>
                         <span th:text="${review.reviewTarget}">user</span>
                     </td>
                     <td>
                         <img class="historyImage" th:src="${review.productImageUrl}" alt="상품 이미지"/>
-                        <span th:text="${review.productName}">상품 A</span>
+                        <span th:text="${review.productName}" class="productBid"
+                              th:data-href="|${urlPrefix}${review.productId}|"
+                              onclick="location.href=this.dataset.href">상품 A</span>
                     </td>
                     <td>
                         <span th:text="${review.transactionType}">구매</span>
                     </td>
                     <td>
-                        <button class="write-btn" style="cursor: pointer;"
+                        <button class="history-btn" style="cursor: pointer;"
                                 th:onclick="|location.href='mypage/evaluate?orderId=' + ${review.orderId}|">
                             리뷰 작성
                         </button>
@@ -73,7 +75,7 @@
         </div>
 
         <div th:if="${filter=='received'}">
-            <table class="evaluated-table">
+            <table class="history-table">
                 <thead>
                 <tr>
                     <th>리뷰를 준 사람</th>
@@ -84,19 +86,22 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="review : ${reviewList}">
+                <tr th:each="review : ${reviewList}"
+                    th:with="urlPrefix=${review.transactionType.trim() == '구매' ? '/history/bought?id=' : '/history/sold?id='}">
                     <td>
                         <img class="historyImage" th:src="${review.profileImageUrl}" alt="프로필 이미지"/>
                         <span th:text="${review.reviewTarget}">user</span>
                     </td>
                     <td>
                         <img class="historyImage" th:src="${review.productImageUrl}" alt="상품 이미지"/>
-                        <span th:text="${review.productName}">상품 A</span>
+                        <span th:text="${review.productName}" class="productBid"
+                              th:data-href="|${urlPrefix}${review.productId}|"
+                              onclick="location.href=this.dataset.href">상품 A</span>
                     </td>
                     <td th:text="${review.transactionType}">구매</td>
                     <td th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}">2025-02-06 14:30:00</td>
                     <td>
-                        <button class="write-btn" style="cursor: pointer;"
+                        <button class="history-btn" style="cursor: pointer;"
                                 th:onclick="|location.href='/mypage/evaluated?reviewId=' + ${review.reviewId}|">
                             리뷰 보기
                         </button>
@@ -107,7 +112,7 @@
         </div>
 
         <div th:if="${filter=='written'}">
-            <table class="evaluated-table">
+            <table class="history-table">
                 <thead>
                 <tr>
                     <th>리뷰를 받은 사람</th>
@@ -118,19 +123,22 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="review : ${reviewList}">
+                <tr th:each="review : ${reviewList}"
+                    th:with="urlPrefix=${review.transactionType.trim() == '구매' ? '/history/bought?id=' : '/history/sold?id='}">
                     <td>
                         <img class="historyImage" th:src="${review.profileImageUrl}" alt="프로필 이미지"/>
                         <span th:text="${review.reviewTarget}">user</span>
                     </td>
                     <td>
                         <img class="historyImage" th:src="${review.productImageUrl}" alt="상품 이미지"/>
-                        <span th:text="${review.productName}">상품 A</span>
+                        <span th:text="${review.productName}" class="productBid"
+                              th:data-href="|${urlPrefix}${review.productId}|"
+                              onclick="location.href=this.dataset.href">상품 A</span>
                     </td>
                     <td th:text="${review.transactionType}">판매</td>
                     <td th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}">2025-02-06 14:30:00</td>
                     <td>
-                        <button class="write-btn" style="cursor: pointer;"
+                        <button class="history-btn" style="cursor: pointer;"
                                 th:onclick="|location.href='/mypage/evaluated?reviewId=' + ${review.reviewId}|">
                             리뷰 보기
                         </button>

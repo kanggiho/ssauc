@@ -52,7 +52,8 @@ public class HistoryService {
         Page<Ban> bans = banRepository.findByUserUserId(userId, pageable);
         return bans.map(ban -> new BanHistoryDto(
                 ban.getBanId(),
-                ban.getBlockedUser().getUserName(), // Users 엔티티의 userName 필드 사용
+                ban.getBlockedUser().getUserName(),
+                ban.getBlockedUser().getProfileImage(),
                 ban.getBlockedAt()
         ));
     }
@@ -74,14 +75,23 @@ public class HistoryService {
     @Transactional(readOnly = true)
     public Page<ProductReportDto> getProductReportHistoryPage(Users reporter, Pageable pageable) {
         Page<ProductReport> reports = productReportRepository.findByReporter(reporter, pageable);
-        return reports.map(report -> ProductReportDto.builder()
-                .reportId(report.getReportId())
-                .productName(report.getProduct().getName())
-                .reportReason(report.getReportReason())
-                .reportDate(report.getReportDate())
-                .processedAt(report.getProcessedAt())
-                .status(report.getStatus())
-                .build());
+
+        return reports.map(report -> {
+
+            String productImageUrl = report.getProduct().getImageUrl();
+            String mainImage = productImageUrl != null ? productImageUrl.split(",")[0] : null;
+
+            return ProductReportDto.builder()
+                    .reportId(report.getReportId())
+                    .productId(report.getProduct().getProductId())
+                    .productName(report.getProduct().getName())
+                    .productImageUrl(mainImage)
+                    .reportReason(report.getReportReason())
+                    .reportDate(report.getReportDate())
+                    .processedAt(report.getProcessedAt())
+                    .status(report.getStatus())
+                    .build();
+        });
     }
 
     // 유저 신고 리스트 조회
@@ -91,6 +101,7 @@ public class HistoryService {
         return reports.map(report -> UserReportDto.builder()
                 .reportId(report.getReportId())
                 .reportedUserName(report.getReportedUser().getUserName())
+                .profileImageUrl(report.getReportedUser().getProfileImage())
                 .reportReason(report.getReportReason())
                 .reportDate(report.getReportDate())
                 .processedAt(report.getProcessedAt())
@@ -147,14 +158,22 @@ public class HistoryService {
         // 즉, 상품의 endAt >= (현재 시간 - 10분)인 경우만 포함
         LocalDateTime cutoff = LocalDateTime.now().minusMinutes(10);
         Page<Product> productsPage = productRepository.findBySellerAndStatusAndEndAtGreaterThanEqual(seller, "판매중", cutoff, pageable);
-        return productsPage.map(p -> new SellHistoryOngoingDto(
-                p.getProductId(),
-                p.getName(),
-                p.getTempPrice(),
-                p.getPrice(),
-                p.getCreatedAt(),
-                p.getEndAt()
-        ));
+
+        return productsPage.map(p -> {
+
+            String productImageUrl = p.getImageUrl();
+            String mainImage = productImageUrl != null ? productImageUrl.split(",")[0] : null;
+
+            return SellHistoryOngoingDto.builder()
+                    .productId(p.getProductId())
+                    .productName(p.getName())
+                    .productImageUrl(mainImage)
+                    .tempPrice(p.getTempPrice())
+                    .price(p.getPrice())
+                    .createdAt(p.getCreatedAt())
+                    .endAt(p.getEndAt())
+                    .build();
+        });
     }
 
     // 판매 마감 리스트
@@ -164,14 +183,21 @@ public class HistoryService {
         // 즉, 상품의 endAt < (현재 시간 - 10분)인 경우
         LocalDateTime cutoff = LocalDateTime.now().minusMinutes(10);
         Page<Product> productsPage = productRepository.findBySellerAndStatusAndEndAtBefore(seller, "판매중", cutoff, pageable);
-        return productsPage.map(p -> new SellHistoryOngoingDto(
-                p.getProductId(),
-                p.getName(),
-                p.getTempPrice(),
-                p.getPrice(),
-                p.getCreatedAt(),
-                p.getEndAt()
-        ));
+        return productsPage.map(p -> {
+
+            String productImageUrl = p.getImageUrl();
+            String mainImage = productImageUrl != null ? productImageUrl.split(",")[0] : null;
+
+            return SellHistoryOngoingDto.builder()
+                    .productId(p.getProductId())
+                    .productName(p.getName())
+                    .productImageUrl(mainImage)
+                    .tempPrice(p.getTempPrice())
+                    .price(p.getPrice())
+                    .createdAt(p.getCreatedAt())
+                    .endAt(p.getEndAt())
+                    .build();
+        });
     }
 
     // 판매 완료 리스트
@@ -182,15 +208,21 @@ public class HistoryService {
             // 판매 완료된 상품의 주문 정보는 보통 하나가 존재한다고 가정합니다.
             Orders order = p.getOrders().stream().findFirst()
                     .orElseThrow(() -> new RuntimeException("판매 완료 상품에 주문 정보가 없습니다."));
-            return new SellHistoryCompletedDto(
-                    order.getOrderId(),
-                    p.getProductId(),
-                    p.getName(),
-                    order.getBuyer().getUserName(),
-                    order.getTotalPrice(),
-                    order.getOrderDate(),
-                    order.getCompletedDate()
-            );
+
+            String productImageUrl = p.getImageUrl();
+            String mainImage = productImageUrl != null ? productImageUrl.split(",")[0] : null;
+
+            return SellHistoryCompletedDto.builder()
+                    .orderId(order.getOrderId())
+                    .productId(p.getProductId())
+                    .productImageUrl(mainImage)
+                    .productName(p.getName())
+                    .buyerName(order.getBuyer().getUserName())
+                    .profileImageUrl(order.getBuyer().getProfileImage())
+                    .totalPrice(order.getTotalPrice())
+                    .orderDate(order.getOrderDate())
+                    .completedDate(order.getCompletedDate())
+                    .build();
         });
     }
 
@@ -247,11 +279,16 @@ public class HistoryService {
             AutoBid autoBid = autoBidRepository.findByUserAndProductAndActive(buyer, bid.getProduct(), true);
             Long maxBidAmount = (autoBid != null) ? autoBid.getMaxBidAmount() : null;
 
+            String productImageUrl = bid.getProduct().getImageUrl();
+            String mainImage = productImageUrl != null ? productImageUrl.split(",")[0] : null;
+
             return BuyBidHistoryDto.builder()
                     .bidId(bid.getBidId())
                     .productId(bid.getProduct().getProductId())
                     .productName(bid.getProduct().getName())
+                    .productImageUrl(mainImage)
                     .sellerName(bid.getProduct().getSeller().getUserName())
+                    .profileImageUrl(bid.getProduct().getSeller().getProfileImage())
                     .endAt(bid.getProduct().getEndAt())
                     .bidPrice(bid.getBidPrice())
                     .maxBidAmount(maxBidAmount)
@@ -265,15 +302,24 @@ public class HistoryService {
     public Page<BuyHistoryDto> getPurchaseHistoryPage(Users buyer, Pageable pageable) {
         // Orders에서 buyer가 일치하는 주문을 조회합니다.
         Page<Orders> ordersPage = ordersRepository.findByBuyer(buyer, pageable);
-        return ordersPage.map(order -> BuyHistoryDto.builder()
-                .orderId(order.getOrderId())
-                .productId(order.getProduct().getProductId())
-                .productName(order.getProduct().getName())
-                .sellerName(order.getSeller().getUserName())
-                .totalPrice(order.getTotalPrice())
-                .orderDate(order.getOrderDate())
-                .completedDate(order.getCompletedDate())
-                .build());
+
+
+        return ordersPage.map(order -> {
+            String productImageUrl = order.getProduct().getImageUrl();
+            String mainImage = productImageUrl != null ? productImageUrl.split(",")[0] : null;
+
+            return BuyHistoryDto.builder()
+                    .orderId(order.getOrderId())
+                    .productId(order.getProduct().getProductId())
+                    .productName(order.getProduct().getName())
+                    .productImageUrl(mainImage)
+                    .sellerName(order.getSeller().getUserName())
+                    .profileImageUrl(order.getSeller().getProfileImage())
+                    .totalPrice(order.getTotalPrice())
+                    .orderDate(order.getOrderDate())
+                    .completedDate(order.getCompletedDate())
+                    .build();
+        });
     }
 
     // 구매 내역 상세 (특정 상품의 구매 내역, 구매자 기준)
