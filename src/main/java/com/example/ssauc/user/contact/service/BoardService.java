@@ -24,7 +24,7 @@ public class BoardService {
                 .subject(subject)
                 .message(message)
                 .createdAt(LocalDateTime.now()) // 등록 시점
-                .status("등록")          // 기본 상태값 (필요시 수정)
+                .status("답변대기")          // 기본 상태값 (필요시 수정)
                 .build();
         return boardRepository.save(board);
     }
