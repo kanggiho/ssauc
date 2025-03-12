@@ -13,12 +13,12 @@
 </head>
 <body>
 
-<div class="cash-container" layout:fragment="content">
+<div class="history-container" layout:fragment="content">
     <!-- 왼쪽 사이드바 (mypage와 동일) -->
     <div th:replace="~{mypage/mypage :: sidebar}"></div>
 
     <!-- 메인 컨텐츠 -->
-    <main class="cash-main">
+    <main class="history-main">
         <!-- SSAUC 머니 요약 -->
         <div class="cash-summary">
             <div class="cash-box">
@@ -69,7 +69,7 @@
 
         <!-- 결제 내역 테이블 (User == 구매자) -->
         <div th:if="${filter == 'payment'}">
-            <table class="cash-table">
+            <table class="history-table">
                 <thead>
                 <tr>
                     <th>결제 ID</th>
@@ -77,15 +77,25 @@
                     <th>결제 금액</th>
                     <th>결제 시간</th>
                     <th>상태</th>
+                    <th>조치</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="calculate : ${calculateList}">
                     <td th:text="${calculate.orderId}">1</td>
-                    <td th:text="${calculate.productName}">상품명</td>
+                    <td class="productBid" th:onclick="|location.href='/bid/bid?productId=' + ${calculate.productId}|">
+                        <img class="historyImage" th:src="${calculate.productImageUrl}" alt="상품 대표 이미지"/>
+                        <span th:text="${calculate.productName}">상품 A</span>
+                    </td>
                     <td th:text="${T(java.lang.String).format('%,d', calculate.paymentAmount)}">50,000</td>
                     <td th:text="${#temporals.format(calculate.paymentTime, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30</td>
                     <td th:text="${calculate.orderStatus}">완료</td>
+                    <td>
+                        <button class="history-btn" style="cursor: pointer;"
+                                th:onclick="|location.href='/history/bought?id=' + ${calculate.productId}|">
+                            상세
+                        </button>
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -95,7 +105,7 @@
         </div>
         <!-- 정산 내역 테이블 (User == 판매자) -->
         <div th:if="${filter == 'settlement'}">
-            <table class="cash-table">
+            <table class="history-table">
                 <thead>
                 <tr>
                     <th>정산 ID</th>
@@ -103,15 +113,25 @@
                     <th>정산 금액</th>
                     <th>정산 시간</th>
                     <th>상태</th>
+                    <th>조치</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="calculate : ${calculateList}">
                     <td th:text="${calculate.orderId}">1</td>
-                    <td th:text="${calculate.productName}">상품명</td>
+                    <td class="productBid" th:onclick="|location.href='/bid/bid?productId=' + ${calculate.productId}|">
+                        <img class="historyImage" th:src="${calculate.productImageUrl}" alt="상품 대표 이미지"/>
+                        <span th:text="${calculate.productName}">상품 A</span>
+                    </td>
                     <td th:text="${T(java.lang.String).format('%,d', calculate.paymentAmount)}">50,000</td>
                     <td th:text="${#temporals.format(calculate.paymentTime, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30</td>
                     <td th:text="${calculate.orderStatus}">완료</td>
+                    <td>
+                        <button class="history-btn" style="cursor: pointer;"
+                                th:onclick="|location.href='/history/sold?id=' + ${calculate.productId}|">
+                            상세
+                        </button>
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -121,7 +141,7 @@
         </div>
         <!-- 충전 내역 테이블 -->
         <div th:if="${filter == 'charge'}">
-            <table class="cash-table">
+            <table class="history-table">
                 <thead>
                 <tr>
                     <th>충전 ID</th>
@@ -140,8 +160,9 @@
                     <td th:text="${charge.status}">완료</td>
                     <td th:text="${#temporals.format(charge.createdAt, 'yyyy-MM-dd HH:mm')}">2025-02-26 10:30:00</td>
                     <td>
-                        <a th:href="${charge.receiptUrl}" target="_blank">영수증 보기</a>
+                        <a th:href="${charge.receiptUrl}" target="_blank" class="history-btn">영수증 보기</a>
                     </td>
+
                 </tr>
                 </tbody>
             </table>
@@ -151,7 +172,7 @@
         </div>
         <!-- 환급 내역 테이블 -->
         <div th:if="${filter == 'withdraw'}">
-            <table class="cash-table">
+            <table class="history-table">
                 <thead>
                 <tr>
                     <th>환급 ID</th>

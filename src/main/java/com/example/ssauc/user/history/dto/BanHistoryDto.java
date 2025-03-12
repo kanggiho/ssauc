@@ -12,5 +12,6 @@ import java.time.LocalDateTime;
 public class BanHistoryDto {
     private Long banId;
     private String blockedUserName;
+    private String profileImage;
     private LocalDateTime blockedAt;
 }

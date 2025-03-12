@@ -7,16 +7,15 @@
     <title>신고 내역</title>
     <!-- 스타일시트 연결 -->
     <link rel="stylesheet" href="/css/mypage.css">
-    <link rel="stylesheet" href="/css/report.css">
 </head>
 <body>
 
-<div class="reported-container" layout:fragment="content">
+<div class="history-container" layout:fragment="content">
     <!-- 왼쪽 사이드바 (mypage와 동일) -->
     <div th:replace="~{mypage/mypage :: sidebar}"></div>
 
     <!-- 메인 컨텐츠 -->
-    <main class="reported-main">
+    <main class="history-main">
         <!-- 페이지 제목 -->
         <h2>신고 내역</h2>
 
@@ -36,7 +35,7 @@
 
         <!-- 상품 신고 리스트 -->
         <div th:if="${filter=='product'}">
-            <table class="report-table">
+            <table class="history-table">
                 <thead>
                 <tr>
                     <th>신고 대상</th>
@@ -44,17 +43,25 @@
                     <th>신고 시간</th>
                     <th>처리 시간</th>
                     <th>처리 상태</th>
+                    <th>조치</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="report : ${list}"
-                    th:onclick="|location.href='/history/reported?filter=product&id=' + ${report.reportId}|"
-                    style="cursor: pointer;">
-                    <td th:text="${report.productName}">상품 이름</td>
+                <tr th:each="report : ${list}">
+                    <td class="productBid" th:onclick="|location.href='/bid/bid?productId=' + ${report.productId}|">
+                        <img class="historyImage" th:src="${report.productImageUrl}" alt="상품 대표 이미지"/>
+                        <span th:text="${report.productName}">상품 A</span>
+                    </td>
                     <td th:text="${report.reportReason}">사유</td>
                     <td th:text="${#temporals.format(report.reportDate, 'yyyy-MM-dd HH:mm:ss')}">신고 시간</td>
                     <td th:text="${report.processedAt != null ? #temporals.format(report.processedAt, 'yyyy-MM-dd HH:mm:ss') : '-'}">처리 시간</td>
                     <td th:text="${report.status}">상태</td>
+                    <td>
+                        <button class="history-btn" style="cursor: pointer;"
+                                th:onclick="|location.href='/history/reported?filter=product&id=' + ${report.reportId}|">
+                            상세
+                        </button>
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -62,7 +69,7 @@
 
         <!-- 유저 신고 리스트 -->
         <div th:if="${filter=='user'}">
-            <table class="report-table">
+            <table class="history-table">
                 <thead>
                 <tr>
                     <th>신고 대상</th>
@@ -70,17 +77,25 @@
                     <th>신고 시간</th>
                     <th>처리 시간</th>
                     <th>처리 상태</th>
+                    <th>조치</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="report : ${list}"
-                    th:onclick="|location.href='/history/reported?filter=user&id=' + ${report.reportId}|"
-                    style="cursor: pointer;">
-                    <td th:text="${report.reportedUserName}">신고 대상 유저</td>
+                <tr th:each="report : ${list}">
+                    <td>
+                        <img class="historyImage" th:src="${report.profileImageUrl}" alt="프로필 이미지"/>
+                        <span th:text="${report.reportedUserName}">user</span>
+                    </td>
                     <td th:text="${report.reportReason}">사유</td>
                     <td th:text="${#temporals.format(report.reportDate, 'yyyy-MM-dd HH:mm')}">신고 시간</td>
                     <td th:text="${report.processedAt != null ? #temporals.format(report.processedAt, 'yyyy-MM-dd HH:mm') : '-'}">처리 시간</td>
                     <td th:text="${report.status}">상태</td>
+                    <td>
+                        <button class="history-btn" style="cursor: pointer;"
+                                th:onclick="|location.href='/history/reported?filter=user&id=' + ${report.reportId}|">
+                            상세
+                        </button>
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -103,25 +118,7 @@
     </main>
 </div>
 
-<!-- 필터 버튼 전환 스크립트 -->
 <script>
-    function setActiveFilter(selectedButton, tabId) {
-        // 모든 버튼에서 active 클래스를 제거
-        const buttons = document.querySelectorAll(".filter-btn");
-        buttons.forEach(button => {
-            button.classList.remove("active");
-        });
-        // 클릭한 버튼에 active 추가
-        selectedButton.classList.add("active");
-
-        // 모든 탭 숨김
-        const tabContents = document.querySelectorAll(".tab-content");
-        tabContents.forEach(tab => {
-            tab.style.display = "none";
-        });
-        // 선택한 탭 보이기
-        document.getElementById(tabId).style.display = "block";
-    }
 </script>
 
 </body>
