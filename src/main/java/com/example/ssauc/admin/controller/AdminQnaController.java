@@ -1,9 +1,13 @@
 package com.example.ssauc.admin.controller;
 
+import com.example.ssauc.admin.dto.ReplyDto;
+import com.example.ssauc.admin.entity.Admin;
+import com.example.ssauc.admin.entity.Reply;
 import com.example.ssauc.admin.service.AdminQnaService;
 import com.example.ssauc.user.contact.entity.Board;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,23 +50,46 @@ public class AdminQnaController {
         // boardId를 이용해 신고 내역 정보를 조회
         Board board = adminQnaService.findBoardById(boardId);
         model.addAttribute("board", board);
+
+        // reply 테이블에 해당 boardId가 존재하는지 확인
+        Reply reply = adminQnaService.findReplyByBoardId(boardId);
+        if(reply != null){
+            System.out.println("널 아님");
+            model.addAttribute("reply", reply);
+            model.addAttribute("isReply", true);
+        } else {
+            System.out.println("널 임");
+            model.addAttribute("isReply", false);
+        }
+
         return "/admin/adminqnadetail";
     }
 
     @PostMapping("/result")
-    public ResponseEntity<String> processBoardResult(@RequestParam("action") String action, @RequestParam("boardId") long boardId) {
-        // 전달받은 action 값 확인
-        System.out.println("선택된 처리 조치: " + action);
+    public ResponseEntity<String> processBoardResult(HttpSession session,
+                                                     @RequestParam("answerTitle") String answerTitle,
+                                                     @RequestParam("answerContent") String answerContent,
+                                                     @RequestParam("boardId") long boardId) {
+        // 전달받은 값 확인
+        System.out.printf("선택된 처리 조치: %s %s %d%n", answerTitle, answerContent, boardId);
 
+        if(session.getAttribute("admin")!=null){
+            Admin tempAdmin = (Admin) session.getAttribute("admin");
+            ReplyDto replyDto = new ReplyDto(boardId, answerTitle, answerContent, tempAdmin);
 
-        if(adminQnaService.updateBoardInfo(action, boardId)){
-            return ResponseEntity.ok("등록완료");
+            if(adminQnaService.updateBoardInfo(replyDto)){
+                return ResponseEntity.ok("등록완료");
+            }else{
+                return ResponseEntity
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("등록실패");
+            }
         }else{
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("등록실패");
-
+                    .body("로그인오류");
         }
+
     }
 
     @GetMapping("/export")
