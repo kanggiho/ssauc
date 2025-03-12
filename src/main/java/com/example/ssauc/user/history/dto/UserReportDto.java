@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class UserReportDto {
     private Long reportId;
     private String reportedUserName;
+    private String profileImageUrl;
     private String reportReason;
     private LocalDateTime reportDate;
     private LocalDateTime processedAt;

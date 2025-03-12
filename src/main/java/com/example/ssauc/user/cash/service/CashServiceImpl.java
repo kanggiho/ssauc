@@ -66,10 +66,16 @@ public class CashServiceImpl implements CashService {
         Page<Orders> ordersPage = ordersRepository.findByBuyer(user, pageable);
         return ordersPage.map(order -> {
             Payment payment = order.getPayments().get(0);
+
+            String productImageUrl = order.getProduct().getImageUrl();
+            String mainImage = productImageUrl != null ? productImageUrl.split(",")[0] : null;
+
             return CalculateDto.builder()
                     .orderId(order.getOrderId())
                     .paymentAmount(order.getTotalPrice())
+                    .productId(order.getProduct().getProductId())
                     .productName(order.getProduct().getName())
+                    .productImageUrl(mainImage)
                     .paymentTime(payment.getPaymentDate())
                     .orderStatus(order.getOrderStatus())
                     .build();
@@ -80,10 +86,16 @@ public class CashServiceImpl implements CashService {
         Page<Orders> ordersPage = ordersRepository.findByBuyerAndPaymentTimeBetween(user, startDate, endDate, pageable);
         return ordersPage.map(order -> {
             Payment payment = order.getPayments().get(0);
+
+            String productImageUrl = order.getProduct().getImageUrl();
+            String mainImage = productImageUrl != null ? productImageUrl.split(",")[0] : null;
+
             return CalculateDto.builder()
                     .orderId(order.getOrderId())
                     .paymentAmount(order.getTotalPrice())
+                    .productId(order.getProduct().getProductId())
                     .productName(order.getProduct().getName())
+                    .productImageUrl(mainImage)
                     .paymentTime(payment.getPaymentDate())
                     .orderStatus(order.getOrderStatus())
                     .build();
@@ -96,10 +108,16 @@ public class CashServiceImpl implements CashService {
         Page<Orders> ordersPage = ordersRepository.findBySeller(user, pageable);
         return ordersPage.map(order -> {
             Payment payment = order.getPayments().get(0);
+
+            String productImageUrl = order.getProduct().getImageUrl();
+            String mainImage = productImageUrl != null ? productImageUrl.split(",")[0] : null;
+
             return CalculateDto.builder()
                     .orderId(order.getOrderId())
                     .paymentAmount(order.getTotalPrice())
+                    .productId(order.getProduct().getProductId())
                     .productName(order.getProduct().getName())
+                    .productImageUrl(mainImage)
                     .paymentTime(payment.getPaymentDate())
                     .orderStatus(order.getOrderStatus())
                     .build();
@@ -110,10 +128,16 @@ public class CashServiceImpl implements CashService {
         Page<Orders> ordersPage = ordersRepository.findBySellerAndPaymentTimeBetween(user, startDate, endDate, pageable);
         return ordersPage.map(order -> {
             Payment payment = order.getPayments().get(0);
+
+            String productImageUrl = order.getProduct().getImageUrl();
+            String mainImage = productImageUrl != null ? productImageUrl.split(",")[0] : null;
+
             return CalculateDto.builder()
                     .orderId(order.getOrderId())
                     .paymentAmount(order.getTotalPrice())
+                    .productId(order.getProduct().getProductId())
                     .productName(order.getProduct().getName())
+                    .productImageUrl(mainImage)
                     .paymentTime(payment.getPaymentDate())
                     .orderStatus(order.getOrderStatus())
                     .build();

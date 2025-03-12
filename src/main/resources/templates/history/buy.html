@@ -7,16 +7,15 @@
     <title>구매 현황</title>
     <!-- 스타일시트 연결 -->
     <link rel="stylesheet" href="/css/mypage.css">
-    <link rel="stylesheet" href="/css/buy.css">
 </head>
 <body>
 
-<div class="buy-container" layout:fragment="content">
+<div class="history-container" layout:fragment="content">
     <!-- 왼쪽 사이드바 (mypage와 동일) -->
     <div th:replace="~{mypage/mypage :: sidebar}"></div>
 
     <!-- 메인 컨텐츠 -->
-    <main class="buy-main">
+    <main class="history-main">
         <!-- 페이지 제목 -->
         <h2>구매 현황</h2>
 
@@ -36,7 +35,7 @@
 
         <!-- 입찰중 리스트 -->
         <div th:if="${filter=='bidding'}">
-            <table class="buy-table">
+            <table class="history-table">
                 <thead>
                 <tr>
                     <th>상품 이름</th>
@@ -48,11 +47,15 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="bid : ${list}"
-                    th:onclick="|location.href='/bid/bid?productId=' + ${bid.productId}|"
-                    style="cursor: pointer;">
-                    <td th:text="${bid.productName}">상품 A</td>
-                    <td th:text="${bid.sellerName}">판매자123</td>
+                <tr th:each="bid : ${list}">
+                    <td class="productBid" th:onclick="|location.href='/bid/bid?productId=' + ${bid.productId}|">
+                        <img class="historyImage" th:src="${bid.productImageUrl}" alt="상품 대표 이미지"/>
+                        <span th:text="${bid.productName}">상품 A</span>
+                    </td>
+                    <td>
+                        <img class="historyImage" th:src="${bid.profileImageUrl}" alt="프로필 이미지"/>
+                        <span th:text="${bid.sellerName}">user</span>
+                    </td>
                     <td th:text="${bid.tempPrice}">현재가</td>
                     <td th:text="${bid.bidPrice}">10000</td>
                     <td th:text="${bid.maxBidAmount}">15000</td>
@@ -64,7 +67,7 @@
 
         <!-- 구매 완료 리스트 -->
         <div th:if="${filter=='complete'}">
-            <table class="buy-table">
+            <table class="history-table">
                 <thead>
                 <tr>
                     <th>상품 이름</th>
@@ -72,17 +75,28 @@
                     <th>구매 가격</th>
                     <th>구매 시간</th>
                     <th>거래 완료 시간</th>
+                    <th>조치</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="order : ${list}"
-                    th:onclick="|location.href='/history/bought?id=' + ${order.productId}|"
-                    style="cursor: pointer;">
-                    <td th:text="${order.productName}">상품 A</td>
-                    <td th:text="${order.sellerName}">판매자123</td>
+                <tr th:each="order : ${list}">
+                    <td class="productBid" th:onclick="|location.href='/bid/bid?productId=' + ${order.productId}|">
+                        <img class="historyImage" th:src="${order.productImageUrl}" alt="상품 대표 이미지"/>
+                        <span th:text="${order.productName}">상품 A</span>
+                    </td>
+                    <td>
+                        <img class="historyImage" th:src="${order.profileImageUrl}" alt="프로필 이미지"/>
+                        <span th:text="${order.sellerName}">user</span>
+                    </td>
                     <td th:text="${order.totalPrice}">50,000 원</td>
                     <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm:ss')}">2025-02-05 14:30:00</td>
                     <td th:text="${#temporals.format(order.completedDate, 'yyyy-MM-dd HH:mm:ss')}">2025-02-06 17:00:00</td>
+                    <td>
+                        <button class="history-btn" style="cursor: pointer;"
+                                th:onclick="|location.href='/history/bought?id=' + ${order.productId}|">
+                            상세
+                        </button>
+                    </td>
                 </tr>
                 </tbody>
             </table>

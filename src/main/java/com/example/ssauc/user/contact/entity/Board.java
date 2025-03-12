@@ -1,5 +1,6 @@
 package com.example.ssauc.user.contact.entity;
 
+import com.example.ssauc.admin.entity.Reply;
 import com.example.ssauc.user.login.entity.Users;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Board {
@@ -35,4 +37,8 @@ public class Board {
 
     @Column(length = 50)
     private String status;           // 답변 상태
+
+    // 관계 설정
+    @OneToOne(mappedBy = "board", cascade = CascadeType.ALL)
+    private Reply reply;
 }
