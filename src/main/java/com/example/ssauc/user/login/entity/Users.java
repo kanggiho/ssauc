@@ -46,7 +46,7 @@ public class Users {
     @Column(nullable = false, length = 255)
     private String password;
 
-    @Column(length = 20, unique = true)
+    @Column(length = 15, unique = true)
     private String phone;
 
     @Column(length = 500)

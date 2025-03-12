@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 public interface UsersRepository extends JpaRepository<Users, Long> {
-  Users findByEmail(String email);
-  Optional<Users> findByUserName(String userName);
+  Optional<Users> findByEmail(String email);
+
 
   @Transactional
   @Modifying
@@ -27,6 +27,13 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
   @Modifying
   @Query("UPDATE Users u SET u.warningCount = u.warningCount + :warningCount WHERE u.userId = :userId")
   int updateUserByWarningCount(@Param("warningCount") int warningCount, @Param("userId") Long userId);
+
+
+
+  Optional<Users> findByUserNameAndPhone(String userName, String phone);
+  boolean existsByEmail(String email);
+  boolean existsByUserName(String userName);
+  boolean existsByPhone(String phone);
 
 
 

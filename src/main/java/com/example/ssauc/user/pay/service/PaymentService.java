@@ -1,18 +1,16 @@
 package com.example.ssauc.user.pay.service;
 
 
+import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.order.dto.OrderRequestDto;
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.order.entity.Orders;
 import com.example.ssauc.user.order.repository.OrdersRepository;
 import com.example.ssauc.user.pay.entity.Payment;
 import com.example.ssauc.user.pay.repository.PaymentRepository;
 import com.example.ssauc.user.product.entity.Product;
 import com.example.ssauc.user.product.repository.ProductRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

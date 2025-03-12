@@ -59,23 +59,23 @@
                         </div>
                     </form>
 
-                    <!-- 유저 기능 아이콘 -->
-                    <div class="user-menu">
-                        <!-- ✅ 로그인 상태에 따라 다른 UI 표시 -->
-                        <th:block th:if="${session.user == null}">
-                            <!-- 로그인하지 않은 상태 -->
-                            <a href="/login">로그인</a>
-                            <a href="/register">회원가입</a>
+                    <!-- 유저메뉴 (JWT 로그인 상태인지 #authentication으로 체크) -->
+                    <div class="user-menu d-flex align-items-center">
+                        <!-- [JWT/Thymeleaf] 로그인 여부 판별 -->
+                        <th:block th:if="${#authentication == null or #authentication.name == 'anonymousUser'}">
+                            <!-- 비로그인 상태 -->
+                            <a href="/login" class="me-3 text-dark text-decoration-none">로그인</a>
+                            <a href="/signup" class="me-3 text-dark text-decoration-none">회원가입</a>
                         </th:block>
 
-                        <th:block th:if="${session.user != null}">
-                            <a th:href="@{/mypage}">
 
-                                <img th:src="${session.user.getProfileImage()}" style="height: 30px; width: 30px; margin-right: 5px; border-radius: 50%; object-fit: cover;">
-                            </a>
-                            <!-- 로그인한 상태 -->
-                            <span class="me-3 text-dark fw-bold" th:text="'환영합니다, ' + ${session.user.userName} + ' 님'"></span>
-                            <a href="/logout" class="text-danger">로그아웃</a>
+                        <th:block th:unless="${#authentication == null or #authentication.name == 'anonymousUser'}">
+                            <!-- 로그인 상태 -->
+                            <span class="me-3 text-dark fw-bold"
+                                  th:text="'환영합니다, ' + ${#authentication.name} + ' 님!'">
+        환영합니다, 사용자 님!
+    </span>
+                            <a href="/logout" class="text-danger me-3 text-decoration-none">로그아웃</a>
                         </th:block>
                         <!-- 알림 버튼 -->
                         <div class="dropdown">
@@ -89,10 +89,16 @@
                                 <li class="no-notification text-center text-muted py-3">알림이 없습니다.</li>
                             </ul>
                         </div>
-                        <!-- 좋아요 아이콘 -->
-                        <a th:href="${session.user != null} ? @{/list/likelist} : @{/login}" class="me-3 text-dark">
-                            <i class="bi bi-heart"></i>
+                        <!-- 인증되지 않은 경우 -->
+                        <a th:if="${#authentication == null or #authentication.name == 'anonymousUser'}" th:href="@{/login}" class="me-3 text-dark">
+                            <i class="bi bi-heart"></i> 좋아요
                         </a>
+
+                        <!-- 인증된 경우 -->
+                        <a th:if="${#authentication != null and #authentication.name != 'anonymousUser'}" th:href="@{/list/likelist}" class="me-3 text-dark">
+                            <i class="bi bi-heart"></i> 좋아요
+                        </a>
+
 
                         <a th:href="@{/chat/chat}" class="me-3 text-dark">
                             <i class="bi bi-chat-dots"></i>

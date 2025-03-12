@@ -39,3 +39,5 @@ out/
 /logs/
 
 application.yml
+
+firebase-service-account.json

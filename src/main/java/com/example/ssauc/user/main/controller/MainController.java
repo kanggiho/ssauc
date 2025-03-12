@@ -10,16 +10,6 @@ public class MainController {
         return "index";
     }
 
-    @GetMapping("signin")
-    public String signin() {
-        return "user/signin";
-    }
-
-    @GetMapping("signup")
-    public String signup() {
-        return "user/signup";
-    }
-
     @GetMapping("community")
     public String community() {
         return "community/community";
