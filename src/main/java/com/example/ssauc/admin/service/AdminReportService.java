@@ -49,7 +49,7 @@ public class AdminReportService {
 
 
         // report 업데이트
-        int updateReport = adminReportRepository.updateReportByReportId("완료", LocalDateTime.now() ,reportId);
+        int updateReport = adminReportRepository.updateReportByReportId("처리완료", LocalDateTime.now() ,reportId);
 
         // reportedUser 업데이트
         int updateReportedUser = usersRepository.updateUserByWarningCount(temp,report.getReportedUser().getUserId());

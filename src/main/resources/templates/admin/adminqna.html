@@ -76,7 +76,10 @@
                                 <td class="text-center">[[${board.subject}]]</td>
                                 <td class="text-center">[[${board.user.userName}]]</td>
                                 <td class="text-center">[[${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}]]</td>
-                                <td class="text-center">[[${board.status}]]</td>
+                                <td class="text-center"
+                                    th:style="(${board.status} == '답변대기') ? 'color:red !important;' : ((${board.status} == '답변완료') ? 'color:green !important;' : '')">
+                                    [[${board.status}]]
+                                </td>
                             </tr>
                             <!-- 신고 목록이 없을 경우 -->
                             <tr th:if="${#lists.isEmpty(boardList?.content)}">
