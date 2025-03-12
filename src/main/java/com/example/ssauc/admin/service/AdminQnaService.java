@@ -18,7 +18,7 @@ public class AdminQnaService
     private AdminBoardRepository adminBoardRepository;
 
     @Autowired
-    private UsersRepository usersRepository;
+    private UsersRepository userRepository;
 
     public Page<Board> getBoards(int page, String sortField, String sortDir) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortField);

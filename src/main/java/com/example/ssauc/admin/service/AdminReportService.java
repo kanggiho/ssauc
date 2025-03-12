@@ -2,7 +2,6 @@ package com.example.ssauc.admin.service;
 
 import com.example.ssauc.admin.repository.AdminReportRepository;
 import com.example.ssauc.user.chat.entity.Report;
-import com.example.ssauc.user.chat.repository.ReportRepository;
 import com.example.ssauc.user.login.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,7 +19,7 @@ public class AdminReportService {
     private AdminReportRepository adminReportRepository;
 
     @Autowired
-    private UsersRepository usersRepository;
+    private UsersRepository userRepository;
 
     public Page<Report> getReports(int page, String sortField, String sortDir) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortField);
@@ -52,7 +51,7 @@ public class AdminReportService {
         int updateReport = adminReportRepository.updateReportByReportId("완료", LocalDateTime.now() ,reportId);
 
         // reportedUser 업데이트
-        int updateReportedUser = usersRepository.updateUserByWarningCount(temp,report.getReportedUser().getUserId());
+        int updateReportedUser = userRepository.updateUserByWarningCount(temp,report.getReportedUser().getUserId());
 
 
         return updateReport == 1 && updateReportedUser == 1;
