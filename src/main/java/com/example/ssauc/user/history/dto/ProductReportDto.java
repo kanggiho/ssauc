@@ -15,7 +15,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ProductReportDto {
     private Long reportId;
+    private Long productId;
     private String productName;
+    private String productImageUrl;
     private String reportReason;
     private LocalDateTime reportDate;
     private LocalDateTime processedAt;

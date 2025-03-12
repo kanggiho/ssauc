@@ -7,21 +7,20 @@
     <title>차단 내역</title>
     <!-- 스타일시트 연결 -->
     <link rel="stylesheet" href="/css/mypage.css">
-    <link rel="stylesheet" href="/css/ban.css">
 </head>
 <body>
 
-<div class="ban-container" layout:fragment="content">
+<div class="history-container" layout:fragment="content">
     <!-- 왼쪽 사이드바 (mypage와 동일) -->
     <div th:replace="~{mypage/mypage :: sidebar}"></div>
 
     <!-- 메인 컨텐츠 -->
-    <main class="ban-main">
+    <main class="history-main">
         <!-- 페이지 제목 -->
         <h2>차단 내역</h2>
 
         <!-- 차단 내역 테이블 -->
-        <table class="ban-table">
+        <table class="history-table">
             <thead>
             <tr>
                 <th>대상 회원</th>
@@ -31,20 +30,23 @@
             </thead>
             <tbody>
             <tr th:each="ban : ${banList}">
-                <td th:text="${ban.blockedUserName}">회원명</td>
+                <td>
+                    <img class="historyImage" th:src="${ban.profileImage}" alt="프로필 이미지"/>
+                    <span th:text="${ban.blockedUserName}">user</span>
+                </td>
                 <td th:text="${#temporals.format(ban.blockedAt, 'yyyy-MM-dd HH:mm')}">차단시간</td>
                 <td>
                     <!-- 차단 해제 폼 -->
                     <form class="unbanForm" th:action="@{/history/ban/unban}" method="post">
                         <input type="hidden" name="banId" th:value="${ban.banId}" />
-                        <button type="submit" class="unban-btn">차단 해제</button>
+                        <button type="submit" class="history-btn">차단 해제</button>
                     </form>
                 </td>
             </tr>
             </tbody>
         </table>
 
-        <!-- 페이지네이션 (필요시) -->
+        <!-- 페이지네이션 -->
         <div class="pagination" th:if="${totalPages > 1}">
             <!-- 이전 페이지 버튼 (현재 페이지가 1보다 클 때만 표시) -->
             <a th:if="${currentPage > 1}" th:href="@{/history/ban(page=${currentPage - 1})}">
@@ -66,8 +68,8 @@
     </main>
 </div>
 
-<!-- 차단 해제 버튼 클릭 이벤트 스크립트 -->
 <script layout:fragment="script" th:inline="javascript">
+    <!-- 차단 해제 버튼 클릭 이벤트 스크립트 -->
     document.addEventListener("DOMContentLoaded", function() {
         const unbanForms = document.querySelectorAll("form.unbanForm");
         unbanForms.forEach(form => {

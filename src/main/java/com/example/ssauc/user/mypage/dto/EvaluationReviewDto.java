@@ -19,6 +19,7 @@ public class EvaluationReviewDto {
     private String reviewTarget;
     private String profileImageUrl;
     // 주문한 상품의 이름 (orders → product)
+    private Long productId;
     private String productName;
     private String productImageUrl;
     // 리뷰 작성일
