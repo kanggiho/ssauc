@@ -24,6 +24,11 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
+    public Users getCurrentUser(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
+    }
+
     public String register(UserRegistrationDTO dto) {
         // 이메일, 닉네임, 비밀번호 유효성 검사
         if (!dto.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
