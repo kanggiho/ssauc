@@ -7,7 +7,6 @@ import com.example.ssauc.user.product.dto.ProductInsertDto;
 import com.example.ssauc.user.product.dto.ProductUpdateDto;
 import com.example.ssauc.user.product.entity.Product;
 import com.example.ssauc.user.product.service.ProductService;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -16,6 +15,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;
@@ -43,12 +44,12 @@ public class ProductController {
 
     // GET: 상품 등록 페이지
     @GetMapping("/insert")
-    public String insertPage(HttpSession session, Model model) {
-        Users user = (Users) session.getAttribute("user");
-        if (user == null) {
+    public String insertPage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        if (userDetails == null) {
             return "redirect:/login";
         }
-        Users latestUser = productService.getCurrentUser(user.getUserId());
+        String userName = userDetails.getUsername();
+        Users latestUser = productService.getCurrentUser(userName);
         model.addAttribute("user", latestUser);
         return "product/insert";
     }
@@ -56,18 +57,17 @@ public class ProductController {
     // POST: 상품 등록 처리 (AJAX로 호출)
     @PostMapping("/insert")
     @ResponseBody
-    public ResponseEntity<String> insertProduct(@RequestBody ProductInsertDto productInsertDto, HttpSession session) {
-        // 세션에서 판매자 정보 획득 (세션 키가 "user")
-        Users user = (Users) session.getAttribute("user");
-        if (user == null) {
+    public ResponseEntity<String> insertProduct(@RequestBody ProductInsertDto productInsertDto, @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
-        Users latestUser = productService.getCurrentUser(user.getUserId());
+        String userName = userDetails.getUsername();
+        Users latestUser = productService.getCurrentUser(userName);
         productService.insertProduct(productInsertDto, latestUser);
         return ResponseEntity.ok("상품 등록 성공!");
     }
 
-    // ↓ 새 엔드포인트 추가 (다중 파일 업로드) ↓
+    // 다중 파일 업로드
     @PostMapping("/uploadMultiple")
     @ResponseBody
     public ResponseEntity<?> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files) {
@@ -122,14 +122,16 @@ public class ProductController {
     }
 
     @GetMapping("/update")
-    public String updatePage(@RequestParam("productId") Long productId, HttpSession session, Model model) {
-        Users user = (Users) session.getAttribute("user");
-        if (user == null) {
+    public String updatePage(@RequestParam("productId") Long productId, @AuthenticationPrincipal UserDetails userDetails, Model model) {
+        if (userDetails == null) {
             return "redirect:/login";
         }
-        // 판매자 여부 체크 (product의 seller와 세션 사용자 일치 여부)
+        String userName = userDetails.getUsername();
+        Users latestUser = productService.getCurrentUser(userName);
+
+        // 판매자 여부 체크 (product의 seller와 사용자 일치 여부)
         Product product = productService.getProductById(productId);
-        if (!product.getSeller().getUserId().equals(user.getUserId())) {
+        if (!product.getSeller().getUserId().equals(latestUser.getUserId())) {
             return "redirect:/bid?productId=" + productId;
         }
         model.addAttribute("product", product);
@@ -140,31 +142,34 @@ public class ProductController {
 
     @PostMapping("/update")
     @ResponseBody
-    public ResponseEntity<String> updateProduct(@RequestBody ProductUpdateDto dto, HttpSession session) {
-        Users user = (Users) session.getAttribute("user");
-        if (user == null) {
+    public ResponseEntity<String> updateProduct(@RequestBody ProductUpdateDto dto, @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
+        String userName = userDetails.getUsername();
+        Users latestUser = productService.getCurrentUser(userName);
         // 입찰 중인 상품은 수정할 수 없음
         if (productService.hasBids(dto.getProductId())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 입찰중이라 수정이 불가능합니다.");
         }
-        productService.updateProduct(dto, user);
+        productService.updateProduct(dto, latestUser);
         return ResponseEntity.ok("상품 수정 성공!");
     }
 
     @PostMapping("/delete")
     @ResponseBody
-    public ResponseEntity<String> deleteProduct(@RequestBody Map<String, Long> payload, HttpSession session) {
-        Users user = (Users) session.getAttribute("user");
-        if (user == null) {
+    public ResponseEntity<String> deleteProduct(@RequestBody Map<String, Long> payload, @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
+        String userName = userDetails.getUsername();
+        Users latestUser = productService.getCurrentUser(userName);
+
         Long productId = payload.get("productId");
         if (productService.hasBids(productId)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 입찰중이라 삭제가 불가능합니다.");
         }
-        productService.deleteProduct(productId, user);
+        productService.deleteProduct(productId, latestUser);
         return ResponseEntity.ok("상품 삭제 성공!");
     }
 

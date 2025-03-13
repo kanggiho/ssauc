@@ -40,8 +40,8 @@ public class HistoryService {
     private final ProductReportRepository productReportRepository;
 
     // 세션에서 전달된 userId를 이용하여 DB에서 최신 사용자 정보를 조회합니다.
-    public Users getCurrentUser(Long userId) {
-        return usersRepository.findById(userId)
+    public Users getCurrentUser(String userName) {
+        return usersRepository.findByUserName(userName)
                 .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
     }
 

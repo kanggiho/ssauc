@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 public interface CashService {
 
-    Users getCurrentUser(Long userId);
+    Users getCurrentUser(String userName);
 
     // ===================== 결제 내역 =====================
     Page<CalculateDto> getPaymentCalculatesByUser(Users user, Pageable pageable);

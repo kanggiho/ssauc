@@ -5,16 +5,19 @@ import com.example.ssauc.user.mypage.dto.EvaluationDto;
 import com.example.ssauc.user.mypage.dto.EvaluationPendingDto;
 import com.example.ssauc.user.mypage.dto.EvaluationReviewDto;
 import com.example.ssauc.user.mypage.service.MypageService;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Controller
 @RequiredArgsConstructor
@@ -24,10 +27,13 @@ public class MypageController {
     private final MypageService mypageService;
 
     @GetMapping  // GET 요청을 받아서 mypage.html을 반환
-    public String mypage(HttpSession session, Model model) {
+    public String mypage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         // DB에서 최신 사용자 정보를 조회
-        Users user = (Users) session.getAttribute("user");
-        Users latestUser = mypageService.getCurrentUser(user.getUserId());
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
+        String userName = userDetails.getUsername();
+        Users latestUser = mypageService.getCurrentUser(userName);
         model.addAttribute("user", latestUser);
         return "/mypage/mypage"; // templates/mypage/mypage.html
     }
@@ -35,13 +41,13 @@ public class MypageController {
     // 리뷰 현황 (작성 가능, 받은, 보낸)
     @GetMapping("/evaluation")
     public String evaluatePage(@RequestParam(value = "filter", required = false, defaultValue = "pending") String filter,
-                           @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-                           HttpSession session, Model model) {
-        Users user = (Users) session.getAttribute("user");
-        if (user == null) {
+                               @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                               @AuthenticationPrincipal UserDetails userDetails, Model model) {
+        if (userDetails == null) {
             return "redirect:/login";
         }
-        Users latestUser = mypageService.getCurrentUser(user.getUserId());
+        String userName = userDetails.getUsername();
+        Users latestUser = mypageService.getCurrentUser(userName);
         model.addAttribute("user", latestUser);
 
         int pageSize = 10;
@@ -71,15 +77,15 @@ public class MypageController {
     @GetMapping("/evaluate")
     public String evaluationPage(@RequestParam("orderId") Long orderId,
                                  @RequestParam("productId") Long productId,
-                                 HttpSession session, Model model) {
-        Users user = (Users) session.getAttribute("user");
-        if (user == null) {
+                                 @AuthenticationPrincipal UserDetails userDetails, Model model) {
+        if (userDetails == null) {
             return "redirect:/login";
         }
-        Users latestUser = mypageService.getCurrentUser(user.getUserId());
+        String userName = userDetails.getUsername();
+        Users latestUser = mypageService.getCurrentUser(userName);
         model.addAttribute("user", latestUser);
         // 주문 정보를 기반으로 평가 데이터 준비 (상품명, 상대방 이름, 거래 유형 등)
-        EvaluationDto evaluationDto = mypageService.getEvaluationData(orderId, user);
+        EvaluationDto evaluationDto = mypageService.getEvaluationData(orderId, latestUser);
         model.addAttribute("evaluationDto", evaluationDto);
         model.addAttribute("productName", evaluationDto.getProductName());
         model.addAttribute("otherUserName", evaluationDto.getOtherUserName());
@@ -90,12 +96,13 @@ public class MypageController {
     // 리뷰 제출 처리 - JSON POST 요청을 받음
     @PostMapping("/evaluate/submit")
     @ResponseBody
-    public ResponseEntity<?> submitEvaluation(@RequestBody EvaluationDto evaluationDto, HttpSession session) {
-        Users user = (Users) session.getAttribute("user");
-        if (user == null) return ResponseEntity.status(401).body("로그인이 필요합니다.");
-
+    public ResponseEntity<?> submitEvaluation(@RequestBody EvaluationDto evaluationDto, @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+        String userName = userDetails.getUsername();
+        Users latestUser = mypageService.getCurrentUser(userName);
         try {
-            Users latestUser = mypageService.getCurrentUser(user.getUserId());
             mypageService.submitEvaluation(evaluationDto, latestUser);
             return ResponseEntity.ok("평가가 완료되었습니다.");
         } catch (Exception e) {
@@ -105,9 +112,12 @@ public class MypageController {
 
     // 리뷰 상세 페이지
     @GetMapping("/evaluated")
-    public String evaluatedPage(HttpSession session, Model model) {
-        Users user = (Users) session.getAttribute("user");
-        Users latestUser = mypageService.getCurrentUser(user.getUserId());
+    public String evaluatedPage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
+        String userName = userDetails.getUsername();
+        Users latestUser = mypageService.getCurrentUser(userName);
         model.addAttribute("user", latestUser);
         return "/mypage/evaluated";
     }
