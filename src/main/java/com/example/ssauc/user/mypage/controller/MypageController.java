@@ -1,6 +1,7 @@
 package com.example.ssauc.user.mypage.controller;
 
 import com.example.ssauc.user.login.entity.Users;
+import com.example.ssauc.user.mypage.dto.EvaluationDto;
 import com.example.ssauc.user.mypage.dto.EvaluationPendingDto;
 import com.example.ssauc.user.mypage.dto.EvaluationReviewDto;
 import com.example.ssauc.user.mypage.service.MypageService;
@@ -10,11 +11,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -67,15 +67,44 @@ public class MypageController {
         return "/mypage/evaluation";
     }
 
-    @GetMapping("/evaluate")  // 리뷰 내역 페이지로 이동
-    public String evaluationPage(HttpSession session, Model model) {
+    // 리뷰 작성 페이지
+    @GetMapping("/evaluate")
+    public String evaluationPage(@RequestParam("orderId") Long orderId,
+                                 @RequestParam("productId") Long productId,
+                                 HttpSession session, Model model) {
         Users user = (Users) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/login";
+        }
         Users latestUser = mypageService.getCurrentUser(user.getUserId());
         model.addAttribute("user", latestUser);
+        // 주문 정보를 기반으로 평가 데이터 준비 (상품명, 상대방 이름, 거래 유형 등)
+        EvaluationDto evaluationDto = mypageService.getEvaluationData(orderId, user);
+        model.addAttribute("evaluationDto", evaluationDto);
+        model.addAttribute("productName", evaluationDto.getProductName());
+        model.addAttribute("otherUserName", evaluationDto.getOtherUserName());
+
         return "/mypage/evaluate";
     }
 
-    @GetMapping("/evaluated")  // 리뷰 상세 페이지로 이동
+    // 리뷰 제출 처리 - JSON POST 요청을 받음
+    @PostMapping("/evaluate/submit")
+    @ResponseBody
+    public ResponseEntity<?> submitEvaluation(@RequestBody EvaluationDto evaluationDto, HttpSession session) {
+        Users user = (Users) session.getAttribute("user");
+        if (user == null) return ResponseEntity.status(401).body("로그인이 필요합니다.");
+
+        try {
+            Users latestUser = mypageService.getCurrentUser(user.getUserId());
+            mypageService.submitEvaluation(evaluationDto, latestUser);
+            return ResponseEntity.ok("평가가 완료되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("평가 제출에 실패했습니다: " + e.getMessage());
+        }
+    }
+
+    // 리뷰 상세 페이지
+    @GetMapping("/evaluated")
     public String evaluatedPage(HttpSession session, Model model) {
         Users user = (Users) session.getAttribute("user");
         Users latestUser = mypageService.getCurrentUser(user.getUserId());
