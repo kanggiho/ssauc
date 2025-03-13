@@ -40,11 +40,27 @@
     <!-- div를 여기에두어야 js가 동작 -->
 
 
-    <script>
+    <!-- 로그인되지 않은 경우 (익명 사용자) -->
+    <th:block th:if="${#authentication == null or #authentication.name == 'anonymousUser'}">
+        <script th:inline="javascript">
+            // 미로그인 상태에서는 senderId = 0(또는 null 등)으로 처리
+            const senderId = 0;
+        </script>
+    </th:block>
+
+    <!-- 로그인된 경우 (JWT 인증된 사용자) -->
+    <th:block th:unless="${#authentication == null or #authentication.name == 'anonymousUser'}">
+    <script th:inline="javascript">
         // 전역 변수 선언
         let stompClient = null; // STOMP 클라이언트 객체 초기화
         const chatRoomId = 1;   // 예시: 현재 채팅방 ID (동적으로 변경 가능)
-        const senderId = 1;     //현제 userID(동적으로변경가능)
+
+        // JWT 인증 정보를 통해 사용자 ID를 얻어온다고 가정
+        // 예) #authentication.name 이 곧 사용자 식별자라면:
+         const senderId =  '[[${#authentication.principal.userId}]]';
+
+
+
 
 
         // 페이지가 로드될 때 WebSocket 연결 실행
@@ -103,21 +119,22 @@
             stompClient.send("/app/chat/message", {}, JSON.stringify(msgDto));
 
 
-            //showLocalMessage(messageText);
+            showLocalMessage(messageText);
 
 
             // 메시지 전송 후 입력창 초기화
             input.value = "";
+        }
 
-            // (왼쪽) 상대방 메시지 표시 함수
-            function showMessage(sender, text) {
-                const chatBody = document.getElementById('chatBody');
+        // (왼쪽) 상대방 메시지 표시 함수
+        function showMessage(sender, text) {
+            const chatBody = document.getElementById('chatBody');
 
-                // Bootstrap 형식으로 "왼쪽" 정렬
-                const msgDiv = document.createElement('div');
-                msgDiv.classList.add('d-flex', 'mb-3');
+            // Bootstrap 형식으로 "왼쪽" 정렬
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('d-flex', 'mb-3');
 
-                msgDiv.innerHTML = `
+            msgDiv.innerHTML = `
                 <div class="flex-shrink-0 me-2">
                     <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/heejava.png"
                          alt="User" class="profile-img">
@@ -131,10 +148,9 @@
                 </div>
             `;
 
-                // 채팅 메시지 영역에 추가 후 스크롤을 최신 메시지로 이동
-                chatBody.appendChild(newMsg);
-                chatBody.scrollTop = chatBody.scrollHeight;
-            }
+            // 채팅 메시지 영역에 추가 후 스크롤을 최신 메시지로 이동
+            chatBody.appendChild(newMsg);
+            chatBody.scrollTop = chatBody.scrollHeight;
         }
 
         // (오른쪽) 내 메시지 표시 함수
@@ -208,6 +224,8 @@
                 });
         }
     </script>
+    </th:block>
+
 
 
     <!--     [추가] 신고 기능-->
