@@ -19,8 +19,6 @@ public class AdminProductService {
     @Autowired
     private AdminProductRepository adminProductRepository;
 
-    @Autowired
-    private UsersRepository userRepository;
 
     public Page<Product> getProducts(int page, String sortField, String sortDir) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortField);

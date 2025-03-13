@@ -51,7 +51,7 @@ body {
     font-weight: 600;
     font-size: 20px;
     transition: background-color 0.3s ease;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 .menu-item:hover,
 .menu-item.active {
