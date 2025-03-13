@@ -35,6 +35,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         if (authentication.getPrincipal() instanceof OAuth2User) {
             OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
             String email = (String) oAuth2User.getAttributes().get("email");
+            String profileImage = (String) oAuth2User.getAttributes().get("https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/default-profile.png");
             if (StringUtils.hasText(email)) {
                 // 1) Access Token 생성
                 String accessToken = jwtUtil.generateAccessToken(email);

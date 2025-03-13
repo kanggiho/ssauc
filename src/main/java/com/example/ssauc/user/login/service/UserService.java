@@ -66,7 +66,6 @@ public class UserService {
         if (userOpt.isPresent()) {
             Users user = userOpt.get();
             log.info("사용자 조회 성공: {}", normalizedEmail);
-            log.debug("DB 저장 비밀번호 (암호화된 값): {}", user.getPassword());
             if (passwordEncoder.matches(password, user.getPassword())) {
                 log.info("비밀번호 일치함: {}", normalizedEmail);
                 String accessToken = jwtUtil.generateAccessToken(normalizedEmail);
