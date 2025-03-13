@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 public class ChatMessageDto {
     private Long chatRoomId;
-    private long senderId;
+    private Long senderId;
     private String messageText;
 
 

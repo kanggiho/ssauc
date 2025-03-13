@@ -24,10 +24,10 @@ public class MypageServiceImpl implements MypageService {
     private final ReviewRepository reviewRepository;
     private final OrdersRepository ordersRepository;
 
-    // 세션에서 전달된 userId를 이용하여 DB에서 최신 사용자 정보를 조회합니다.
+    // JWT 기반 DB에서 최신 사용자 정보를 조회
     @Override
-    public Users getCurrentUser(Long userId) {
-        return usersRepository.findById(userId)
+    public Users getCurrentUser(String userName) {
+        return usersRepository.findByUserName(userName)
                 .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
     }
 
