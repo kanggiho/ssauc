@@ -19,4 +19,5 @@ public interface AdminProductRepository extends JpaRepository<Product, Long> {
   @Query("UPDATE Product p SET p.status = :status WHERE p.productId = :productId")
   int updateProductByProductId(@Param("status") String status, @Param("productId") Long productId);
 
+  Page<Product> findByNameContainingIgnoreCase(String keyword, Pageable pageable);
 }

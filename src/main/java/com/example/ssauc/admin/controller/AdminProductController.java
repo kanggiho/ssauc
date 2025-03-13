@@ -28,17 +28,29 @@ public class AdminProductController {
 
 
     @GetMapping
-    public String getProductList(Model model,
-                                @RequestParam(defaultValue = "0") int page,
-                                @RequestParam(defaultValue = "productId,asc") String sort) {
+    public String getProductsList(Model model,
+                                  @RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "productId,asc") String sort,
+                                  @RequestParam(required = false) String keyword) {
+
         String[] sortParams = sort.split(",");
         String sortField = sortParams[0];
         String sortDir = sortParams[1];
-        Page<Product> productList = adminProductService.getProducts(page, sortField, sortDir);
+
+        Page<Product> productList;
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            productList = adminProductService.searchProductsByName(keyword, page, sortField, sortDir);
+        } else {
+            productList = adminProductService.getProducts(page, sortField, sortDir);
+        }
+
         model.addAttribute("productList", productList);
-        model.addAttribute("currentSort", sort); // 현재 정렬 상태 전달
+        model.addAttribute("currentSort", sort);
+        model.addAttribute("keyword", keyword); // 검색어 유지
         return "/admin/adminproduct";
     }
+
 
     @GetMapping("/detail")
     public String productDetail(@RequestParam("productId") Long productId, Model model){

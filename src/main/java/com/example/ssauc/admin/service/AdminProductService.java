@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,11 @@ public class AdminProductService {
     public Page<Product> getProducts(int page, String sortField, String sortDir) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortField);
         return adminProductRepository.findAll(PageRequest.of(page, 10, sort));
+    }
+
+    public Page<Product> searchProductsByName(String keyword, int page, String sortField, String sortDir) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.fromString(sortDir), sortField));
+        return adminProductRepository.findByNameContainingIgnoreCase(keyword, pageable);
     }
 
     public Product findProductById(Long productId) {

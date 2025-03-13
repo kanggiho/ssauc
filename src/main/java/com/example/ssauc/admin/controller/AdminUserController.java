@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+
 @Slf4j
 @RequestMapping("/admin/user")
 @Controller
@@ -34,19 +35,31 @@ public class AdminUserController {
 
     @GetMapping
     public String getUsersList(Model model,
-                                 @RequestParam(defaultValue = "0") int page,
-                                 @RequestParam(defaultValue = "userId,asc") String sort) {
+                               @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "userId,asc") String sort,
+                               @RequestParam(required = false) String keyword) {
+
         String[] sortParams = sort.split(",");
         String sortField = sortParams[0];
         String sortDir = sortParams[1];
-        Page<Users> usersList = adminUserService.getUsers(page, sortField, sortDir);
+
+        Page<Users> usersList;
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            usersList = adminUserService.searchUsersByName(keyword, page, sortField, sortDir);
+        } else {
+            usersList = adminUserService.getUsers(page, sortField, sortDir);
+        }
+
         model.addAttribute("usersList", usersList);
-        model.addAttribute("currentSort", sort); // 현재 정렬 상태 전달
+        model.addAttribute("currentSort", sort);
+        model.addAttribute("keyword", keyword); // 검색어 유지
         return "/admin/adminuser";
     }
 
+
     @GetMapping("/detail")
-    public String usersDetail(@RequestParam("userId") Long userId, Model model){
+    public String usersDetail(@RequestParam("userId") Long userId, Model model) {
         // userId를 이용해 신고 내역 정보를 조회
         Users user = adminUserService.findUsersById(userId);
         model.addAttribute("user", user);

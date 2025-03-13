@@ -22,4 +22,6 @@ public interface AdminUserRepository extends JpaRepository<Users, Long> {
 
 
   List<Users> findByWarningCountGreaterThanEqual(int warningCount);
+
+  Page<Users> findByUserNameContainingIgnoreCase(String keyword, Pageable pageable);
 }

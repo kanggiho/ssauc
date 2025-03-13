@@ -38,6 +38,10 @@
 <div class="container-fluid" layout:fragment="content">
     <div class="row">
         <div class="col-12">
+
+
+
+
             <!-- Card로 감싸서 깔끔하게 디자인 -->
             <div class="card shadow-sm mb-4" style="margin:50px;">
                 <div class="card-header bg-dark text-white">
@@ -88,7 +92,7 @@
                             </tr>
                             <!-- 신고 목록이 없을 경우 -->
                             <tr th:if="${#lists.isEmpty(usersList?.content)}">
-                                <td colspan="6" class="text-center">등록된 상품이 없습니다.</td>
+                                <td colspan="6" class="text-center">검색 결과가 없습니다.</td>
                             </tr>
                             </tbody>
                         </table>
@@ -96,30 +100,68 @@
                 </div>
             </div>
             <!-- 페이지네이션 및 엑셀 내보내기 버튼 -->
-            <nav th:if="${usersList != null and usersList.totalPages > 1}">
+            <nav th:if="${usersList != null and usersList.totalPages >= 1}">
                 <div class="row align-items-center">
-                    <!-- 페이지네이션: 가운데 정렬 -->
                     <div class="col-auto mx-auto">
                         <ul class="pagination mb-0">
                             <li class="page-item" th:classappend="${usersList.first} ? 'disabled'">
-                                <a class="page-link" th:href="@{/admin/user(page=${usersList.number - 1}, sort=${currentSort})}" aria-label="Previous">&laquo;</a>
+                                <a class="page-link"
+                                   th:href="@{/admin/user(page=${usersList.number - 1}, sort=${currentSort}, keyword=${keyword})}"
+                                   aria-label="Previous">&laquo;</a>
                             </li>
+
                             <li class="page-item"
                                 th:each="page : ${#numbers.sequence(0, usersList.totalPages - 1)}"
                                 th:classappend="${page} == ${usersList.number} ? 'active'">
-                                <a class="page-link" th:href="@{/admin/user(page=${page}, sort=${currentSort})}">[[${page + 1}]]</a>
+                                <a class="page-link"
+                                   th:href="@{/admin/user(page=${page}, sort=${currentSort}, keyword=${keyword})}">
+                                    [[${page + 1}]]
+                                </a>
                             </li>
+
                             <li class="page-item" th:classappend="${usersList.last} ? 'disabled'">
-                                <a class="page-link" th:href="@{/admin/user(page=${usersList.number + 1}, sort=${currentSort})}" aria-label="Next">&raquo;</a>
+                                <a class="page-link"
+                                   th:href="@{/admin/user(page=${usersList.number + 1}, sort=${currentSort}, keyword=${keyword})}"
+                                   aria-label="Next">&raquo;</a>
                             </li>
                         </ul>
                     </div>
-                    <!-- 엑셀 내보내기 버튼: 페이지네이션 오른쪽, 살짝 간격 -->
+
+                    <!-- 엑셀 내보내기 버튼 -->
                     <div class="col-auto ms-2">
-                        <a class="btn btn-success" th:href="@{/admin/user/export}" role="button" style="margin-left: -200px">엑셀 내보내기</a>
+                        <a class="btn btn-success"
+                           th:href="@{/admin/user/export(keyword=${keyword})}"
+                           role="button"
+                           style="margin-left: -200px"
+                        >엑셀 내보내기</a>
                     </div>
                 </div>
             </nav>
+
+
+            <!-- 검색 폼 추가 -->
+            <div class="d-flex justify-content-center my-5">
+                <form th:action="@{/admin/user}" method="get" class="d-flex" style="width: 450px; margin-left: 200px;">
+                    <input
+                            type="text"
+                            class="form-control-sm me-2"
+                            name="keyword"
+                            placeholder="회원 이름 검색"
+                            th:value="${keyword}"
+                            aria-label="Search"
+                    />
+                    <button class="btn btn-outline-dark me-2" type="submit">검색</button>
+                    <!-- 초기화 버튼 (검색어가 있을 경우에만 표시) -->
+                    <button
+                            th:if="${keyword != null and keyword != ''}"
+                            type="button"
+                            class="btn btn-outline-dark btn-sm"
+                            onclick="window.location.href='/admin/user'">
+                        초기화
+                    </button>
+                </form>
+            </div>
+
 
 
         </div>
