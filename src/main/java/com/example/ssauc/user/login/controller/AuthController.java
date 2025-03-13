@@ -10,6 +10,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -75,8 +76,7 @@ public class AuthController {
 
             log.info("로그인 성공: {} -> jwt_access, jwt_refresh 쿠키 발급됨", email);
 
-            // (추가) 로그인 성공 시 Authentication 객체를 SecurityContextHolder에 직접 설정
-            // 이 작업은 stateless 환경에서는 반드시 필요한 것은 아니며, 이후 요청 시 JwtAuthenticationFilter에서 인증 정보가 다시 설정됩니다.
+            // (추가) SecurityContext에 인증 정보 설정
             List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(authToken);
@@ -84,7 +84,8 @@ public class AuthController {
 
             return "redirect:/";
         }
-        return "redirect:/login?error=true";
+        // 로그인 실패 시 로그인 페이지로 리다이렉트 (리다이렉트 시 URL에 error=true를 붙여 에러 메시지를 표시)
+        return "redirect:/login?error=true&email=" + java.net.URLEncoder.encode(email, java.nio.charset.StandardCharsets.UTF_8);
     }
 
 //    @GetMapping("/logout")

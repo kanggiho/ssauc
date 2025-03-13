@@ -134,3 +134,10 @@
     height: auto;
     border-radius: 5px;
 }
+
+/* 에러 메시지 스타일: 빨간색 글씨 */
+.login-error-msg {
+    color: red;
+    font-size: 12px;
+    margin-bottom: 10px;
+}

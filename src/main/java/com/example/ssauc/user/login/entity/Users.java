@@ -99,6 +99,9 @@ public class Users {
         if (this.cash == null) {
             this.cash = 0L;
         }
+        if (this.lastLogin == null) {
+            this.lastLogin = LocalDateTime.now();
+        }
     }
 
     // 마지막 로그인 시간 업데이트 메서드 (로그인 성공 시 서비스에서 호출)
