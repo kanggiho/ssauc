@@ -3,13 +3,12 @@ package com.example.ssauc.user.product.controller;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.login.util.JwtUtil;
+import com.example.ssauc.user.login.util.TokenExtractor;
 import com.example.ssauc.user.product.dto.ProductInsertDto;
 import com.example.ssauc.user.product.dto.ProductUpdateDto;
 import com.example.ssauc.user.product.entity.Product;
 import com.example.ssauc.user.product.service.ProductService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -40,42 +39,15 @@ public class ProductController {
 
     private final ProductService productService;
     private final AmazonS3 amazonS3;
-    private final JwtUtil jwtUtil;
+    private final TokenExtractor tokenExtractor;
 
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
-    /**
-     * HTTP 요청 헤더 또는 쿠키에서 JWT 토큰을 추출하여,
-     * 토큰에서 사용자 이메일(식별자)를 얻은 후 DB에서 최신 사용자 정보를 조회합니다.
-     */
-    private Users getUserFromToken(HttpServletRequest request) {
-        String token = null;
-        // 헤더의 Authorization에서 "Bearer " 접두사가 붙은 토큰 추출
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            token = bearerToken.substring(7);
-        } else if (request.getCookies() != null) {
-            // 쿠키에서 "jwt_access" 이름의 토큰 추출
-            for (Cookie cookie : request.getCookies()) {
-                if ("jwt_access".equals(cookie.getName())) {
-                    token = cookie.getValue();
-                    break;
-                }
-            }
-        }
-        if (token == null || token.isEmpty()) {
-            return null;
-        }
-        // 토큰에서 이메일(사용자 식별자) 추출 후 DB에서 사용자 정보 조회
-        String email = jwtUtil.getUsernameFromToken(token);
-        return productService.getCurrentUser(email);
-    }
-
     // GET: 상품 등록 페이지
     @GetMapping("/insert")
     public String insertPage(HttpServletRequest request, Model model) {
-        Users user = getUserFromToken(request);
+        Users user = tokenExtractor.getUserFromToken(request);
         if (user == null) {
             return "redirect:/login";
         }
@@ -88,7 +60,7 @@ public class ProductController {
     @PostMapping("/insert")
     @ResponseBody
     public ResponseEntity<String> insertProduct(@RequestBody ProductInsertDto productInsertDto, HttpServletRequest request) {
-        Users user = getUserFromToken(request);
+        Users user = tokenExtractor.getUserFromToken(request);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
@@ -152,12 +124,12 @@ public class ProductController {
     }
 
     @GetMapping("/update")
-    public String updatePage(@RequestParam("productId") Long productId, @AuthenticationPrincipal UserDetails userDetails, Model model) {
-        if (userDetails == null) {
+    public String updatePage(@RequestParam("productId") Long productId, HttpServletRequest request, Model model) {
+        Users user = tokenExtractor.getUserFromToken(request);
+        if (user == null) {
             return "redirect:/login";
         }
-        String userName = userDetails.getUsername();
-        Users latestUser = productService.getCurrentUser(userName);
+        Users latestUser = productService.getCurrentUser(user.getEmail());
 
         // 판매자 여부 체크 (product의 seller와 사용자 일치 여부)
         Product product = productService.getProductById(productId);
@@ -172,12 +144,12 @@ public class ProductController {
 
     @PostMapping("/update")
     @ResponseBody
-    public ResponseEntity<String> updateProduct(@RequestBody ProductUpdateDto dto, @AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null) {
+    public ResponseEntity<String> updateProduct(@RequestBody ProductUpdateDto dto, HttpServletRequest request) {
+        Users user = tokenExtractor.getUserFromToken(request);
+        if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
-        String userName = userDetails.getUsername();
-        Users latestUser = productService.getCurrentUser(userName);
+        Users latestUser = productService.getCurrentUser(user.getEmail());
         // 입찰 중인 상품은 수정할 수 없음
         if (productService.hasBids(dto.getProductId())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 입찰중이라 수정이 불가능합니다.");
@@ -188,12 +160,12 @@ public class ProductController {
 
     @PostMapping("/delete")
     @ResponseBody
-    public ResponseEntity<String> deleteProduct(@RequestBody Map<String, Long> payload, @AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null) {
+    public ResponseEntity<String> deleteProduct(@RequestBody Map<String, Long> payload, HttpServletRequest request) {
+        Users user = tokenExtractor.getUserFromToken(request);
+        if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
-        String userName = userDetails.getUsername();
-        Users latestUser = productService.getCurrentUser(userName);
+        Users latestUser = productService.getCurrentUser(user.getEmail());
 
         Long productId = payload.get("productId");
         if (productService.hasBids(productId)) {

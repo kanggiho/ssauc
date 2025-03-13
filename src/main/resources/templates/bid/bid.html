@@ -63,7 +63,7 @@
 
                     <div class="d-flex justify-content-between align-items-center">
                         <h2 class="fw-bold" th:text="${inform.getName()}" id="product_na">상품명</h2>
-                        <h5 style="color: red; margin-left: 300px; margin-top: 10px" th:if="${tempMaxBidUser == sessionName}" th:text="'현재 최고가 입찰중!'" class="fw-bold"></h5>
+                        <h5 style="color: red; margin-left: 300px; margin-top: 10px" th:if="${tempMaxBidUser == tokenName}" th:text="'현재 최고가 입찰중!'" class="fw-bold"></h5>
                         <div>
                             <!-- 관심품목: 채워진 하트 아이콘 -->
                             <button class="btn btn-outline-secondary btn-sm me-2" title="관심품목" id="interestBtn">
@@ -304,10 +304,10 @@
 
                     var bidBtn = document.getElementById("bidBtn");
 
-                    var sessionId = "[[${sessionId}]]";
+                    var tokenId = "[[${tokenId}]]";
                     var sellerId = "[[${sellerId}]]";
 
-                    if (sessionId === sellerId) {
+                    if (tokenId === sellerId) {
                         bidBtn.innerText = "수정하기";
                     }
 
@@ -315,13 +315,13 @@
 
                         var bidAmount = parseInt(document.getElementById("desiredBid").value) || 0;
 
-                        if (sessionId === "guest") {
+                        if (tokenId === "guest") {
                             if (confirm("로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?")) {
                                 // 확인 버튼을 누르면 로그인 페이지로 이동
                                 window.location.href = "/login";
                             }
                         } else {
-                            if (sessionId === sellerId) {
+                            if (tokenId === sellerId) {
                                 // 판매자인 경우, 입찰 건수가 있으면 수정 불가능, 없으면 수정 페이지로 이동
                                 if (bidCount > 0) {
                                     alert("이미 입찰중이라 수정이 불가능합니다.");
@@ -333,7 +333,7 @@
                                 if (ablePrice()) {
                                     axios.post('/bid/place', {
                                         productId: productId,
-                                        userId: sessionId,
+                                        userId: tokenId,
                                         bidAmount: bidAmount
                                     })
                                         .then(function (response) {
@@ -366,24 +366,24 @@
 
                     var autoBidBtn = document.getElementById("autoBidBtn");
 
-                    var sessionId = "[[${sessionId}]]";
+                    var tokenId = "[[${tokenId}]]";
                     var sellerId = "[[${sellerId}]]";
 
-                    if (sessionId === sellerId) {
+                    if (tokenId === sellerId) {
                         autoBidBtn.innerText = "삭제하기";
                     }
 
                     autoBidBtn.addEventListener("click", function () {
 
-                        if (sessionId === "guest") {
+                        if (tokenId === "guest") {
                             if (confirm("로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?")) {
                                 // 확인 버튼을 누르면 로그인 페이지로 이동
                                 window.location.href = "/login";
                             }
-                        } else if("[[${tempMaxBidUser}]]" === "[[${sessionName}]]"){
+                        } else if("[[${tempMaxBidUser}]]" === "[[${tokenName}]]"){
                             alert("현재 최고가 입찰 중 입니다.")
                         } else {
-                            if (sessionId === sellerId) {
+                            if (tokenId === sellerId) {
                                 // 판매자인 경우, 입찰 건수가 있으면 삭제 불가능, 없으면 삭제 요청 진행
                                 if (bidCount > 0) {
                                     alert("이미 입찰중이라 삭제가 불가능합니다.");
@@ -423,7 +423,7 @@
                             // axios를 이용해 자동입찰 요청 전송
                             axios.post('/bid/auto', {
                                 productId: productId,
-                                userId: sessionId,
+                                userId: tokenId,
                                 maxBidAmount: maxBidAmount
                             })
                                 .then(function (response) {
@@ -453,18 +453,18 @@
 
                     var tempBuyBtn = document.getElementById("tempBuyBtn");
 
-                    var sessionId = "[[${sessionId}]]";
+                    var tokenId = "[[${tokenId}]]";
                     var sellerId = "[[${sellerId}]]";
 
                     tempBuyBtn.addEventListener("click", function () {
 
-                        if (sessionId === "guest") {
+                        if (tokenId === "guest") {
                             if (confirm("로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?")) {
                                 // 확인 버튼을 누르면 로그인 페이지로 이동
                                 window.location.href = "/login";
                             }
                         } else {
-                            if (sessionId === sellerId) {
+                            if (tokenId === sellerId) {
                                 alert("본인 물건은 즉시구매 할 수 없습니다.");
                             } else {
                                 // 즉시구매
@@ -481,18 +481,18 @@
                 document.addEventListener("DOMContentLoaded", function () {
 
                     var reportBtn = document.getElementById("reportBtn");
-                    var sessionId = "[[${sessionId}]]";
+                    var tokenId = "[[${tokenId}]]";
                     var sellerId = "[[${sellerId}]]";
 
                     reportBtn.addEventListener("click", function () {
 
-                        if (sessionId === "guest") {
+                        if (tokenId === "guest") {
                             if (confirm("로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?")) {
                                 // 확인 버튼을 누르면 로그인 페이지로 이동
                                 window.location.href = "/login";
                             }
                         } else {
-                            if (sessionId === sellerId) {
+                            if (tokenId === sellerId) {
                                 alert("본인 물건은 신고 할 수 없습니다.");
                             } else {
                                 // 즉시구매
@@ -508,18 +508,18 @@
                 document.addEventListener("DOMContentLoaded", function () {
 
                     var chattingBtn = document.getElementById("chattingBtn");
-                    var sessionId = "[[${sessionId}]]";
+                    var tokenId = "[[${tokenId}]]";
                     var sellerId = "[[${sellerId}]]";
 
                     chattingBtn.addEventListener("click", function () {
 
-                        if (sessionId === "guest") {
+                        if (tokenId === "guest") {
                             if (confirm("로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?")) {
                                 // 확인 버튼을 누르면 로그인 페이지로 이동
                                 window.location.href = "/login";
                             }
                         } else {
-                            if (sessionId === sellerId) {
+                            if (tokenId === sellerId) {
                                 alert("본인과 채팅 할 수 없습니다.");
                             } else {
                                 // 즉시구매
@@ -539,7 +539,7 @@
 
                     document.getElementById("interestBtn").addEventListener("click",function () {
 
-                        var isLoggedIn = [[${session.user != null}]];
+                        var isLoggedIn = [[${tokenId != 'guest'}]];
 
                         if (!isLoggedIn || isLoggedIn === "false") {
                             // confirm 창의 기본 버튼은 브라우저에 따라 "확인"/"취소"로 표시됩니다.
