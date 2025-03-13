@@ -17,12 +17,13 @@
     <style>
         /* 채팅 이미지 스타일: 고정 크기 및 이미지 비율 유지 */
         .chat-img {
-            width: 200px;       /* 이미지의 너비를 200px로 고정 */
-            height: 200px;      /* 이미지의 높이를 200px로 고정 */
-            object-fit: cover;  /* 원본 이미지의 비율을 유지하며 영역을 꽉 채움 */
+            width: 200px; /* 이미지의 너비를 200px로 고정 */
+            height: 200px; /* 이미지의 높이를 200px로 고정 */
+            object-fit: cover; /* 원본 이미지의 비율을 유지하며 영역을 꽉 채움 */
             display: block;
             border-radius: 5px; /* 모서리를 둥글게 처리 */
         }
+
         /* 프로필 이미지 스타일: 40x40 픽셀의 원형 이미지 */
         .profile-img {
             width: 40px;
@@ -39,18 +40,15 @@
     <!-- div를 여기에두어야 js가 동작 -->
 
 
-
     <script>
-
         // 전역 변수 선언
         let stompClient = null; // STOMP 클라이언트 객체 초기화
         const chatRoomId = 1;   // 예시: 현재 채팅방 ID (동적으로 변경 가능)
         const senderId = 1;     //현제 userID(동적으로변경가능)
 
 
-
         // 페이지가 로드될 때 WebSocket 연결 실행
-        window.onload = function() {
+        window.onload = function () {
             connect();
         };
 
@@ -105,7 +103,7 @@
             stompClient.send("/app/chat/message", {}, JSON.stringify(msgDto));
 
 
-           //showLocalMessage(messageText);
+            //showLocalMessage(messageText);
 
 
             // 메시지 전송 후 입력창 초기화
@@ -139,15 +137,15 @@
             }
         }
 
-            // (오른쪽) 내 메시지 표시 함수
-            function showLocalMessage(text) {
-                const chatBody = document.getElementById('chatBody');
+        // (오른쪽) 내 메시지 표시 함수
+        function showLocalMessage(text) {
+            const chatBody = document.getElementById('chatBody');
 
-                // Bootstrap 형식으로 "오른쪽" 정렬
-                const newMsg = document.createElement('div');
-                newMsg.classList.add('d-flex', 'mb-3', 'justify-content-end');
+            // Bootstrap 형식으로 "오른쪽" 정렬
+            const newMsg = document.createElement('div');
+            newMsg.classList.add('d-flex', 'mb-3', 'justify-content-end');
 
-                newMsg.innerHTML = `
+            newMsg.innerHTML = `
                 <div>
                     <h6 class="mb-1 text-end">나</h6>
                     <div class="bg-primary text-white p-2 rounded" style="max-width: 70%;">
@@ -161,20 +159,20 @@
                 </div>
             `;
 
-                chatBody.appendChild(newMsg);
-                chatBody.scrollTop = chatBody.scrollHeight;
-            }
+            chatBody.appendChild(newMsg);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
 
-            // 현재 시간을 반환하는 함수
-            function getCurrentTime() {
-                const now = new Date();
-                let hours = now.getHours();
-                let minutes = now.getMinutes();
-                if (minutes < 10) {
-                    minutes = '0' + minutes; // 10분 미만일 경우 앞에 0 추가
-                }
-                return `${hours}:${minutes}`;
+        // 현재 시간을 반환하는 함수
+        function getCurrentTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            if (minutes < 10) {
+                minutes = '0' + minutes; // 10분 미만일 경우 앞에 0 추가
             }
+            return `${hours}:${minutes}`;
+        }
 
 
         // =======================================
@@ -209,14 +207,133 @@
                     alert("차단 중 오류가 발생했습니다.");
                 });
         }
-
-
     </script>
+
+
+    <!--     [추가] 신고 기능-->
+    <script>
+        function report() {
+            // 피신고자 ID를 동적으로 가져오거나, 우선 예시로 prompt 사용
+            const reportedUserId = prompt("신고할 사용자 ID를 입력하세요:");
+            if (!reportedUserId) {
+                alert("취소되었습니다.");
+                return;
+            }
+
+            // 팝업창 열기
+            const popup = window.open("", "reportPopup", "width=400,height=400");
+
+            // 팝업창에 HTML 삽입
+            popup.document.write(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <title>신고하기</title>
+        <style>
+                        body {
+                            font-family: sans-serif;
+                            background: #f8f9fa;
+                            margin: 20px;
+                            color: #333;
+                        }
+                        h2 {
+                            text-align: center;
+                            color: #d9534f;
+                            margin-bottom: 1rem;
+                        }
+                        .report-container {
+                            background: #fff;
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                            padding: 20px;
+                            max-width: 350px;
+                            margin: 0 auto;
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                        }
+                        label {
+                            font-weight: bold;
+                            display: block;
+                            margin-top: 1rem;
+                        }
+                        input[type="text"],
+                        select,
+                        textarea {
+                            width: 100%;
+                            padding: 8px;
+                            margin-top: 5px;
+                            border: 1px solid #ccc;
+                            border-radius: 4px;
+                            font-size: 14px;
+                        }
+                        textarea {
+                            resize: none;
+                        }
+                        .submit-btn {
+                            display: block;
+                            width: 100%;
+                            background: #d9534f;
+                            color: #fff;
+                            border: none;
+                            border-radius: 4px;
+                            padding: 10px;
+                            font-size: 16px;
+                            cursor: pointer;
+                            margin-top: 1rem;
+                        }
+                        .submit-btn:hover {
+                            background: #c9302c;
+                        }
+
+         </style>
+    </head>
+    <body>
+    <h2>신고하기</h2>
+    <form action="/submit-report" method="post">
+          <!-- (필요 시) 신고자 아이디를 hidden 필드로 넘긴다고 가정 -->
+             <input type="hidden" name="reporterId" value="1" />
+
+        <label for="reportedUserId">피신고자 아이디:</label><br>
+        <input
+                type="text"
+                id="reportedUserId"
+                name="reportedUserId"
+                value="${reportedUserId}"
+                readonly
+             /> <br><br>
+
+        <label for="reason">신고 사유:</label><br>
+        <select id="reason" name="reason">
+            <option value="욕설/비방">욕설/비방</option>
+            <option value="스팸/광고">스팸/광고</option>
+            <option value="부적절한 내용">부적절한 내용</option>
+            <option value="기타">기타</option>
+        </select>
+        <br><br>
+
+        <label for="details">신고 내용:</label><br>
+        <textarea
+                id="details"
+                name="details"
+                rows="10"
+                cols="45"
+                placeholder="신고 사유를 구체적으로 작성해주세요."
+        ></textarea>
+        <br><br>
+
+        <input type="submit" value="제출">
+    </form>
+    </body>
+    </html>
+    `);
+            popup.document.close();
+        }
+    </script>
+
 
     <!-- 채팅 UI 영역 -->
     <div class="container py-5">
         <div class="card shadow-sm">
-
 
 
             <!-- 채팅방 헤더 -->
@@ -235,83 +352,83 @@
             </div>
         </div>
 
-            <!-- 채팅 메시지 영역 (스크롤 가능) -->
-            <!-- id="chatBody"를 통해 JavaScript에서 메시지 영역을 제어 -->
-            <div class="card-body" id="chatBody" style="height: 500px; overflow-y: auto;">
-                <!-- 예시 메시지 (텍스트, 왼쪽: 상대방) -->
-                <div class="d-flex mb-3">
-                    <div class="flex-shrink-0 me-2">
-                        <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/heejava.png"
-                             alt="User" class="profile-img">
-                    </div>
-                    <div>
-                        <h6 class="mb-1">상대방</h6>
-                        <div class="bg-light p-2 rounded" style="max-width: 70%;">
-                            안녕하세요! 오늘 회의 준비 되셨나요?
-                        </div>
-                        <small class="text-muted">10:00 AM</small>
-                    </div>
+        <!-- 채팅 메시지 영역 (스크롤 가능) -->
+        <!-- id="chatBody"를 통해 JavaScript에서 메시지 영역을 제어 -->
+        <div class="card-body" id="chatBody" style="height: 500px; overflow-y: auto;">
+            <!-- 예시 메시지 (텍스트, 왼쪽: 상대방) -->
+            <div class="d-flex mb-3">
+                <div class="flex-shrink-0 me-2">
+                    <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/heejava.png"
+                         alt="User" class="profile-img">
                 </div>
-
-                <!-- 예시 메시지 (텍스트, 오른쪽: 본인) -->
-                <div class="d-flex mb-3 justify-content-end">
-                    <div>
-                        <h6 class="mb-1 text-end">나</h6>
-                        <div class="bg-primary text-white p-2 rounded" style="max-width: 70%;">
-                            네, 준비 완료했습니다.
-                        </div>
-                        <small class="text-muted d-block text-end">10:01 AM</small>
+                <div>
+                    <h6 class="mb-1">상대방</h6>
+                    <div class="bg-light p-2 rounded" style="max-width: 70%;">
+                        안녕하세요! 오늘 회의 준비 되셨나요?
                     </div>
-                    <div class="flex-shrink-0 ms-2">
-                        <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/penguin.png"
-                             alt="User" class="profile-img">
-                    </div>
-                </div>
-
-                <!-- 예시 이미지 메시지 (이미지 크기 고정) -->
-                <div class="d-flex mb-3 justify-content-end">
-                    <div>
-                        <h6 class="mb-1 text-end">나</h6>
-                        <div class="p-2 rounded" style="max-width: 70%;">
-                            <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/blueclock.png"
-                                 alt="Uploaded Image" class="chat-img">
-                        </div>
-                        <small class="text-muted d-block text-end">10:05 AM</small>
-                    </div>
-                    <div class="flex-shrink-0 ms-2">
-                        <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/penguin.png"
-                             alt="User" class="profile-img">
-                    </div>
-                </div>
-
-                <!-- 또 다른 예시 메시지 (텍스트, 왼쪽: 상대방) -->
-                <div class="d-flex mb-3">
-                    <div class="flex-shrink-0 me-2">
-                        <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/heejava.png"
-                             alt="User" class="profile-img">
-                    </div>
-                    <div>
-                        <h6 class="mb-1">상대방</h6>
-                        <div class="bg-light p-2 rounded" style="max-width: 70%;">
-                            그럼 회의 진행 할게요!!
-                        </div>
-                        <small class="text-muted">10:00 AM</small>
-                    </div>
+                    <small class="text-muted">10:00 AM</small>
                 </div>
             </div>
 
-            <!-- 메시지 입력 영역 -->
-            <!-- form 태그에 id="chatForm", input 태그에 id="chatInput"을 지정하여 JS에서 제어 -->
-            <div class="card-footer">
-                <form id="chatForm" onsubmit="event.preventDefault(); sendMessage();">
-                    <div class="input-group">
-                        <input type="text" id="chatInput" class="form-control" placeholder="메시지를 입력하세요" aria-label="메시지 입력">
-                        <button class="btn btn-dark" type="submit">전송</button>
+            <!-- 예시 메시지 (텍스트, 오른쪽: 본인) -->
+            <div class="d-flex mb-3 justify-content-end">
+                <div>
+                    <h6 class="mb-1 text-end">나</h6>
+                    <div class="bg-primary text-white p-2 rounded" style="max-width: 70%;">
+                        네, 준비 완료했습니다.
                     </div>
-                </form>
+                    <small class="text-muted d-block text-end">10:01 AM</small>
+                </div>
+                <div class="flex-shrink-0 ms-2">
+                    <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/penguin.png"
+                         alt="User" class="profile-img">
+                </div>
+            </div>
+
+            <!-- 예시 이미지 메시지 (이미지 크기 고정) -->
+            <div class="d-flex mb-3 justify-content-end">
+                <div>
+                    <h6 class="mb-1 text-end">나</h6>
+                    <div class="p-2 rounded" style="max-width: 70%;">
+                        <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/blueclock.png"
+                             alt="Uploaded Image" class="chat-img">
+                    </div>
+                    <small class="text-muted d-block text-end">10:05 AM</small>
+                </div>
+                <div class="flex-shrink-0 ms-2">
+                    <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/penguin.png"
+                         alt="User" class="profile-img">
+                </div>
+            </div>
+
+            <!-- 또 다른 예시 메시지 (텍스트, 왼쪽: 상대방) -->
+            <div class="d-flex mb-3">
+                <div class="flex-shrink-0 me-2">
+                    <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/heejava.png"
+                         alt="User" class="profile-img">
+                </div>
+                <div>
+                    <h6 class="mb-1">상대방</h6>
+                    <div class="bg-light p-2 rounded" style="max-width: 70%;">
+                        그럼 회의 진행 할게요!!
+                    </div>
+                    <small class="text-muted">10:00 AM</small>
+                </div>
             </div>
         </div>
+
+        <!-- 메시지 입력 영역 -->
+        <!-- form 태그에 id="chatForm", input 태그에 id="chatInput"을 지정하여 JS에서 제어 -->
+        <div class="card-footer">
+            <form id="chatForm" onsubmit="event.preventDefault(); sendMessage();">
+                <div class="input-group">
+                    <input type="text" id="chatInput" class="form-control" placeholder="메시지를 입력하세요" aria-label="메시지 입력">
+                    <button class="btn btn-dark" type="submit">전송</button>
+                </div>
+            </form>
+        </div>
     </div>
+</div>
 
 </div>
 </body>

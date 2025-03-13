@@ -65,7 +65,7 @@
                     </td>
                     <td>
                         <button class="history-btn" style="cursor: pointer;"
-                                th:onclick="|location.href='mypage/evaluate?orderId=' + ${review.orderId}|">
+                                th:onclick="|location.href='/mypage/evaluate?orderId=' + ${review.orderId} + '&productId=' + ${review.productId}|">
                             리뷰 작성
                         </button>
                     </td>

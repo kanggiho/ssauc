@@ -271,9 +271,10 @@ public class HistoryService {
     // 입찰중 리스트 (Bid 테이블에서 구매자가 입찰한 내역 조회)
     @Transactional(readOnly = true)
     public Page<BuyBidHistoryDto> getBiddingHistoryPage(Users buyer, Pageable pageable) {
-        LocalDateTime now = LocalDateTime.now(); // 현재 시간
-        // BidRepository에서 현재 시간보다 경매 마감 시간이 이후(endAt > now)인 데이터만 조회
-        Page<Bid> bidPage = bidRepository.findByUserAndProductEndAtAfter(buyer, now, pageable);
+        LocalDateTime now = LocalDateTime.now();
+
+        Page<Bid> bidPage = bidRepository.findLatestBidsByUser(buyer, now, pageable);
+
         return bidPage.map(bid -> {
             // 해당 입찰에 대해, 활성화된 AutoBid 엔티티를 조회 (없으면 null)
             AutoBid autoBid = autoBidRepository.findByUserAndProductAndActive(buyer, bid.getProduct(), true);

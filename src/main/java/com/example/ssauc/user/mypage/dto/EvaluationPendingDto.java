@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EvaluationPendingDto {
+public class EvaluationPendingDto { // 작성할 리뷰
     // 해당 주문번호
     private Long orderId;
     // 리뷰 대상: 주문에서 로그인한 사용자가 buyer이면 seller의 이름, seller이면 buyer의 이름

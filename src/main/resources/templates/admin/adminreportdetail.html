@@ -83,8 +83,18 @@
               <p class="form-control-plaintext" th:text="${report.getDetails()}">세부사항</p>
             </div>
           </div>
+
+
+          <div class="mb-3 row" th:if="${report.getStatus()}=='처리완료'">
+            <label class="col-sm-3 col-form-label fw-bold">처리 조치</label>
+            <div class="col-sm-9">
+              <p class="form-control-plaintext">처리완료</p>
+            </div>
+          </div>
+
+
           <!-- 처리 조치 선택 (드롭다운) -->
-          <div class="mb-3 row">
+          <div class="mb-3 row" th:if="${report.getStatus()}=='처리대기'">
             <label class="col-sm-3 col-form-label fw-bold">처리 조치</label>
             <div class="col-sm-9">
               <select id="actionSelect" class="form-select" required>
@@ -96,7 +106,7 @@
             </div>
           </div>
           <!-- 등록/취소 버튼 -->
-          <div class="d-flex justify-content-end">
+          <div class="d-flex justify-content-end" th:if="${report.getStatus()}=='처리대기'">
             <button id="submitButton" type="button" class="btn custom-btn me-3">등록</button>
             <button type="button" class="btn custom-btn2" onclick="location.href='/admin/report'">취소</button>
           </div>
@@ -141,11 +151,6 @@
       });
     });
   </script>
-
-
-
-
 </div>
-
 </body>
 </html>

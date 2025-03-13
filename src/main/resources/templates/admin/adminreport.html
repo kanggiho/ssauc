@@ -56,15 +56,17 @@
                 <th class="text-center">신고 사유</th>
                 <th class="text-center">신고자 아이디</th>
                 <th class="text-center">피신고자 아이디</th>
-                <th class="text-center">
-                  처리 상태
-                  <a th:href="@{/admin/report(page=${reportList.number}, sort='status,asc')}" class="sort-btn">⭡</a>
-                  <a th:href="@{/admin/report(page=${reportList.number}, sort='status,desc')}" class="sort-btn">⭣</a>
-                </th>
+
                 <th class="text-center">
                   신고 날짜
                   <a th:href="@{/admin/report(page=${reportList.number}, sort='reportDate,asc')}" class="sort-btn">⭡</a>
                   <a th:href="@{/admin/report(page=${reportList.number}, sort='reportDate,desc')}" class="sort-btn">⭣</a>
+                </th>
+
+                <th class="text-center">
+                  처리 상태
+                  <a th:href="@{/admin/report(page=${reportList.number}, sort='status,asc')}" class="sort-btn">⭡</a>
+                  <a th:href="@{/admin/report(page=${reportList.number}, sort='status,desc')}" class="sort-btn">⭣</a>
                 </th>
               </tr>
               </thead>
@@ -76,8 +78,11 @@
                 <td class="text-center">[[${report.reportReason}]]</td>
                 <td class="text-center">[[${report.reporter.userName}]]</td>
                 <td class="text-center">[[${report.reportedUser.userName}]]</td>
-                <td class="text-center">[[${report.status}]]</td>
                 <td class="text-center">[[${#temporals.format(report.reportDate, 'yyyy-MM-dd HH:mm')}]]</td>
+                <td class="text-center"
+                    th:style="(${report.status} == '처리대기') ? 'color:red !important;' : ((${report.status} == '처리완료') ? 'color:green !important;' : '')">
+                  [[${report.status}]]
+                </td>
               </tr>
               <!-- 신고 목록이 없을 경우 -->
               <tr th:if="${#lists.isEmpty(reportList?.content)}">
