@@ -141,12 +141,6 @@ public class Users {
     @OneToMany(mappedBy = "payer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payment> payments;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChatParticipant> chatParticipants;
-
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChatMessage> sentMessages;
-
     @OneToMany(mappedBy = "reporter", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Report> reportsByUser;
 
@@ -176,4 +170,18 @@ public class Users {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReputationHistory> reputationHistories;
+
+
+
+
+
+    // 채팅기능 구현
+
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<ChatParticipant> chatParticipants;
+//
+//    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<ChatMessage> sentMessages;
+
+
 }
