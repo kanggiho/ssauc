@@ -8,7 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface MypageService {
-    Users getCurrentUser(Long userId);
+    // JWT 기반 인증 환경에서 사용자 정보 (@AuthenticationPrincipal 사용)
+    Users getCurrentUser(String userName);
 
     // 로그인한 사용자가 수신한 리뷰 목록 조회 (reviewee가 본인)
     Page<EvaluationReviewDto> getReceivedReviews(Users user, Pageable pageable);
