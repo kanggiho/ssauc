@@ -79,4 +79,8 @@ public class JwtUtil {
         }
     }
 
+    /** JWT 토큰에서 사용자 이메일(또는 식별자))을 추출하는 메서드 */
+    public String getUsernameFromToken(String token) {
+        return validateAccessToken(token);
+    }
 }
