@@ -42,6 +42,7 @@ public class AdminController {
             return "/admin/admin";
         }
         // 검증 성공 시 session에 admin 정보를 저장하고, home 페이지로 리다이렉트
+        session.setMaxInactiveInterval(30*60);
         session.setAttribute("admin", admin);
         return "redirect:/admin/home";
     }
