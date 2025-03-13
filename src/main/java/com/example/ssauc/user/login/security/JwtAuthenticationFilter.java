@@ -1,5 +1,7 @@
 package com.example.ssauc.user.login.security;
 
+import com.example.ssauc.user.login.entity.Users;
+import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.login.util.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
@@ -15,14 +17,18 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Optional;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final UsersRepository userRepository;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil,
+                                   UsersRepository userRepository) {
         this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -31,16 +37,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-        String token = extractAccessToken(request);
+        String token = extractToken(request);
         if (token != null) {
             try {
+                // JWT 검증 후 이메일 추출
                 String email = jwtUtil.validateAccessToken(token);
                 if (email != null) {
-                    // 인증 성공 → SecurityContext에 등록
-                    User user = new User(email, "", new ArrayList<>());
-                    UsernamePasswordAuthenticationToken auth =
-                            new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-                    SecurityContextHolder.getContext().setAuthentication(auth);
+                    // DB에서 해당 사용자의 전체 정보를 조회
+                    Optional<Users> userOpt = userRepository.findByEmail(email);
+                    if (userOpt.isPresent()) {
+                        Users userEntity = userOpt.get();
+                        // Authentication의 principal로 Users 엔티티를 설정
+                        UsernamePasswordAuthenticationToken auth =
+                                new UsernamePasswordAuthenticationToken(
+                                        userEntity,
+                                        null,
+                                        Collections.singletonList(() -> "ROLE_USER")
+                                );
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                    }
                 }
             } catch (ExpiredJwtException | SignatureException e) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "ACCESS TOKEN INVALID");
@@ -53,8 +68,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    // Authorization 헤더 또는 쿠키에서 Access Token 추출
-    private String extractAccessToken(HttpServletRequest request) {
+    // Authorization 헤더 또는 쿠키 "jwt_access"에서 토큰을 추출
+    private String extractToken(HttpServletRequest request) {
         String auth = request.getHeader("Authorization");
         if (StringUtils.hasText(auth) && auth.startsWith("Bearer ")) {
             return auth.substring(7);

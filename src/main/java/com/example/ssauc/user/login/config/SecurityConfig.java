@@ -2,6 +2,7 @@ package com.example.ssauc.user.login.config;
 
 import com.example.ssauc.user.login.handler.CustomLogoutSuccessHandler;
 import com.example.ssauc.user.login.handler.CustomOAuth2FailureHandler;
+import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.login.security.JwtAuthenticationFilter;
 import com.example.ssauc.user.login.handler.OAuth2LoginSuccessHandler;
 import com.example.ssauc.user.login.service.CustomOAuth2UserService;
@@ -27,10 +28,11 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
     private final @Lazy CustomOAuth2UserService customOAuth2UserService;
+    private final UsersRepository usersRepository;
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtUtil);
+        return new JwtAuthenticationFilter(jwtUtil, usersRepository);
     }
 
     @Bean

@@ -52,7 +52,8 @@
                     <!-- 검색폼 -->
                     <form class="d-flex me-3">
                         <div class="input-group">
-                            <input class="form-control" type="search" placeholder="검색어를 입력해주세요" aria-label="검색" size="70">
+                            <input class="form-control" type="search" placeholder="검색어를 입력해주세요" aria-label="검색"
+                                   size="70">
                             <span class="input-group-text">
                             <i class="bi bi-search"></i>
                             </span>
@@ -61,25 +62,30 @@
 
                     <!-- 유저메뉴 (JWT 로그인 상태인지 #authentication으로 체크) -->
                     <div class="user-menu d-flex align-items-center">
-                        <!-- [JWT/Thymeleaf] 로그인 여부 판별 -->
+                        <!-- 비로그인 상태 -->
                         <th:block th:if="${#authentication == null or #authentication.name == 'anonymousUser'}">
-                            <!-- 비로그인 상태 -->
                             <a href="/login" class="me-3 text-dark text-decoration-none">로그인</a>
                             <a href="/signup" class="me-3 text-dark text-decoration-none">회원가입</a>
                         </th:block>
 
-
+                        <!-- 로그인 상태 (JWT) -->
                         <th:block th:unless="${#authentication == null or #authentication.name == 'anonymousUser'}">
-                            <!-- 로그인 상태 -->
+                            <a th:href="@{/mypage}">
+                                <img th:src="${#authentication?.principal?.profileImage != null ? #authentication.principal.profileImage : '/img/default-profile.png'}" ...
+                                     style="height: 30px; width: 30px; margin-right: 5px; border-radius: 50%; object-fit: cover;"
+                                     alt="Profile Image">
+                            </a>
                             <span class="me-3 text-dark fw-bold"
-                                  th:text="'환영합니다, ' + ${#authentication.name} + ' 님!'">
-        환영합니다, 사용자 님!
+                                  th:text="${#authentication.principal.userName} + ' 님'">
+        사용자 님
     </span>
                             <a href="/logout" class="text-danger me-3 text-decoration-none">로그아웃</a>
                         </th:block>
+
                         <!-- 알림 버튼 -->
                         <div class="dropdown">
-                            <button class="btn notification-icon" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <button class="btn notification-icon" type="button" id="notificationDropdown"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-bell"></i>
                                 <span class="notification-badge" id="notificationBadge"></span>
                             </button>
@@ -90,12 +96,14 @@
                             </ul>
                         </div>
                         <!-- 인증되지 않은 경우 -->
-                        <a th:if="${#authentication == null or #authentication.name == 'anonymousUser'}" th:href="@{/login}" class="me-3 text-dark">
+                        <a th:if="${#authentication == null or #authentication.name == 'anonymousUser'}"
+                           th:href="@{/login}" class="me-3 text-dark">
                             <i class="bi bi-heart"></i> 좋아요
                         </a>
 
                         <!-- 인증된 경우 -->
-                        <a th:if="${#authentication != null and #authentication.name != 'anonymousUser'}" th:href="@{/list/likelist}" class="me-3 text-dark">
+                        <a th:if="${#authentication != null and #authentication.name != 'anonymousUser'}"
+                           th:href="@{/list/likelist}" class="me-3 text-dark">
                             <i class="bi bi-heart"></i> 좋아요
                         </a>
 
@@ -107,7 +115,6 @@
                 </div>
             </div>
         </nav>
-
 
 
         <!-- GNB 네비게이션 -->
@@ -196,7 +203,8 @@
                 <p>주소 : 서울 강남구 삼성로 534 SAC아트홀 6층</p>
                 <p>Tel : 02-6463-6827 | Email : ssauc@campusseven.com</p>
                 <p style="color: #747474">사업자 등록번호 : 101-23-45678 | 통신판매업 신고번호 : 제01-2345호</p>
-                <p style="color: #747474">(주)SSAUC은 통신판매중개자로서 (주)SSAUC은 매도인의 경우를 제외하고 사이트 상에 등록된 모든 상품과 그 내용에 대해 책임을 지지 않습니다.</p>
+                <p style="color: #747474">(주)SSAUC은 통신판매중개자로서 (주)SSAUC은 매도인의 경우를 제외하고 사이트 상에 등록된 모든 상품과 그 내용에 대해 책임을 지지
+                    않습니다.</p>
                 <p style="color: #747474" class="small">Copyrightⓒ 2025, SSAUC, Inc All rights reserved.</p>
             </div>
             <div class="col-md-4">
@@ -207,7 +215,9 @@
                 <p class="small">(정확한 상담을 위해 통화 내용이 저장됩니다.)</p>
                 <ul class="list-unstyled">
                     <br>
-                    <li><a href="/contact/faq">자주 묻는 질문 &nbsp; &nbsp; </a>  &nbsp; &nbsp;| <a href="/contact/qna">  &nbsp; &nbsp; 1:1 문의 &nbsp; &nbsp; </a> |  &nbsp; &nbsp;<a href="/contact/chatbot"> &nbsp; &nbsp; 챗봇 상담 &nbsp; &nbsp; &nbsp;</a></li>
+                    <li><a href="/contact/faq">자주 묻는 질문 &nbsp; &nbsp; </a> &nbsp; &nbsp;| <a href="/contact/qna"> &nbsp;
+                        &nbsp; 1:1 문의 &nbsp; &nbsp; </a> | &nbsp; &nbsp;<a href="/contact/chatbot"> &nbsp; &nbsp; 챗봇 상담
+                        &nbsp; &nbsp; &nbsp;</a></li>
                 </ul>
             </div>
         </div>
@@ -234,9 +244,9 @@
 
     // 예제 알림 데이터
     const notifications = [
-        { user: "강기호", message: "님이 입찰하였습니다.", time: "2025.02.20 10:52", img: "/img/index/time.jpg" },
-        { user: "강기호", message: "님이 입찰하였습니다.", time: "2025.02.20 10:52", img: "/img/index/time.jpg" },
-        { user: "강기호", message: "님이 입찰하였습니다.", time: "2025.02.20 10:52", img: "/img/index/time.jpg" }
+        {user: "강기호", message: "님이 입찰하였습니다.", time: "2025.02.20 10:52", img: "/img/index/time.jpg"},
+        {user: "강기호", message: "님이 입찰하였습니다.", time: "2025.02.20 10:52", img: "/img/index/time.jpg"},
+        {user: "강기호", message: "님이 입찰하였습니다.", time: "2025.02.20 10:52", img: "/img/index/time.jpg"}
     ];
 
     const notificationList = document.getElementById("notificationList");
