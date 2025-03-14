@@ -38,6 +38,38 @@
             word-wrap: break-word;
             border: 1px solid #ccc;
         }
+
+        .btn-my-product {
+            background-color: #d4edda; /* 연초록색 */
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .btn-other-product {
+            background-color: #d1ecf1; /* 연파랑색 */
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+
+        .selected-room {
+            font-weight: bold !important;
+            font-size: 1.1rem !important; /* 필요에 따라 크기를 조절 */
+            background-color: #FFFFFF !important;
+            color: #000 !important;
+        }
+
+
+        #productInfoArea {
+            background-color: #f8f9fa;  /* 연한 회색 배경 */
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        #productImage {
+            border: 2px solid #ddd;
+        }
+
+
+
     </style>
 </head>
 
@@ -73,8 +105,22 @@
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     <strong>채팅방</strong>
-                    <span id="selectedRoomInfo" class="ms-2">(선택된 채팅방 없음)</span>
+                    <span id="selectedRoomInfo" class="ms-2">선택된 채팅방 없음</span>
                 </div>
+
+                <!-- 상품 정보 표시 영역 추가 -->
+                <div class="card-body border bg-light mb-3" id="productInfoArea">
+                    <div class="d-flex align-items-center">
+                        <img id="productImage" src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/item.png" alt="상품 이미지" class="me-3" style="width: 80px; height: 80px; border-radius: 8px;">
+                        <div>
+                            <p class="fw-bold mb-1" id="productName">상품명</p>
+                            <p class="text-muted mb-1" id="productPrice">즉시 구매가: -</p>
+                            <p class="text-muted" id="productStatus">판매 상태: -</p>
+                        </div>
+                    </div>
+                </div>
+
+
                 <div class="card-body" id="chatArea" style="height: 400px; overflow-y: auto;">
                     <!-- 메시지 목록 표시 -->
                 </div>
@@ -155,8 +201,27 @@
                 // 버튼 형태로 클릭 시 selectChatRoom() 호출
                 const btn = document.createElement('button');
                 btn.className = 'list-group-item list-group-item-action';
-                btn.innerText = `Room #${room.chatRoomId} (상품명 : ${room.productName})`;
-                btn.onclick = () => selectChatRoom(room.chatRoomId);
+                btn.innerText = `${room.otherUserName} (상품: ${room.productName})`;
+
+                // 현재 userId와 room의 sellerId를 비교하여 색상 결정
+                if (String(room.sellerId) === String(userId)) {
+                    // 내가 판매자이면, 내 물건 → 연초록색
+                    btn.classList.add('btn-my-product');
+                } else {
+                    // 내가 판매자가 아니면 → 연파랑색
+                    btn.classList.add('btn-other-product');
+                }
+
+
+                console.log("room.chatRoomId:", room.chatRoomId, " currentRoomId:", currentRoomId);
+
+                // 선택된 채팅방이면 추가 스타일 적용
+                if (currentRoomId && String(room.chatRoomId) === String(currentRoomId)) {
+                    btn.classList.add('selected-room');
+                }
+
+
+                btn.onclick = () => selectChatRoom(room);
                 div.appendChild(btn);
             });
 
@@ -179,7 +244,7 @@
         /*************************************************************
          * 7. 채팅방 선택 시: 구독/이전 메시지 로드
          *************************************************************/
-        async function selectChatRoom(roomId) {
+        async function selectChatRoom(room) {
             if (!stompClient) {
                 alert("STOMP가 아직 연결되지 않았습니다.");
                 return;
@@ -190,22 +255,43 @@
                 currentSubscription.unsubscribe();
             }
 
-            currentRoomId = roomId;
-            document.getElementById('selectedRoomInfo').innerText = `(Room #${roomId})`;
+            currentRoomId = room.chatRoomId;
+            console.log("selectChatRoom - currentRoomId:", currentRoomId);
+
+            // 상품 정보 표시
+            document.getElementById('productImage').src = room.productImage || 'https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/item.png';
+            document.getElementById('productName').innerText = room.productName || '상품명 없음';
+            document.getElementById('productPrice').innerText = `즉시 구매가: ${room.productPrice || '-'}`;
+            document.getElementById('productStatus').innerText = `판매 상태: ${room.productStatus || '-'}`;
+
+
+
+
+            document.getElementById('selectedRoomInfo').innerText = `${room.otherUserName}`;
 
             // 채팅 입력창 활성화
             document.getElementById('msgInput').disabled = false;
             document.getElementById('sendBtn').disabled = false;
 
+            // 상품 정보 표시
+            displayProductInfo(room);
+
+            // 마지막 보낸 사람 초기화
+            lastSenderId = null;
+
+
             // 1) 이전 메시지 불러오기
-            await loadOldMessages(roomId);
+            await loadOldMessages(room.chatRoomId);
 
             // 2) 새 구독 설정
-            currentSubscription = stompClient.subscribe(`/sub/chat/room/${roomId}`, function (msg) {
+            currentSubscription = stompClient.subscribe(`/sub/chat/room/${room.chatRoomId}`, function (msg) {
                 const body = JSON.parse(msg.body);
                 // ⭐ 메시지에 senderId, message 가 포함됨
                 addMessage(body.senderId, body.message);
             });
+
+
+            renderChatRoomList();
         }
 
         /*************************************************************
@@ -279,6 +365,17 @@
             // 5) 스크롤 맨 아래로
             chatArea.scrollTop = chatArea.scrollHeight;
         }
+
+        /*************************************************************
+         * 11. 상품 정보 표시 함수
+         *************************************************************/
+        function displayProductInfo(room) {
+            document.getElementById('productImage').src = room.productImage || 'https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/item.png';
+            document.getElementById('productName').innerText = room.productName || '상품명 없음';
+            document.getElementById('productPrice').innerText = `즉시 구매가: ${room.productPrice || '-'}`;
+            document.getElementById('productStatus').innerText = `판매 상태: ${room.productStatus || '-'}`;
+        }
+
     </script>
 </div>
 </html>

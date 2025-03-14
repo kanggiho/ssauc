@@ -79,7 +79,30 @@ public class ChatService {
         List<ChatRoom> rooms = chatRoomRepository.findByBuyerUserIdOrProductSellerUserId(userId, userId);
         // DTO 변환
         return rooms.stream()
-                .map(ChatRoomDto::fromEntity)
+                .map(room -> {
+                    Long buyerId = room.getBuyer().getUserId();
+                    Long sellerId = room.getProduct().getSeller().getUserId();
+                    String buyerName = room.getBuyer().getUserName();  // DB에서 가져온 닉네임
+                    String sellerName = room.getProduct().getSeller().getUserName();
+
+                    ChatRoomDto dto = new ChatRoomDto();
+                    dto.setChatRoomId(room.getChatRoomId());
+                    dto.setProductName(room.getProduct().getName());
+                    dto.setBuyerId(buyerId);
+                    dto.setSellerId(sellerId);
+                    dto.setProductImage(room.getProduct().getImageUrl());
+                    dto.setProductPrice(room.getProduct().getPrice());
+                    dto.setProductStatus(room.getProduct().getStatus());
+
+                    // userId가 buyer라면 => 상대방은 seller
+                    // userId가 seller라면 => 상대방은 buyer
+                    if (userId.equals(buyerId)) {
+                        dto.setOtherUserName(sellerName);
+                    } else {
+                        dto.setOtherUserName(buyerName);
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 

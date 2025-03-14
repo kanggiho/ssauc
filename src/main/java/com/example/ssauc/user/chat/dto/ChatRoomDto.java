@@ -16,12 +16,22 @@ public class ChatRoomDto {
     private Long buyerId;
     private Long sellerId;
 
-    public static ChatRoomDto fromEntity(ChatRoom chatRoom) {
-        ChatRoomDto dto = new ChatRoomDto();
-        dto.setChatRoomId(chatRoom.getChatRoomId());
-        dto.setProductName(chatRoom.getProduct().getName());
-        dto.setBuyerId(chatRoom.getBuyer().getUserId());
-        dto.setSellerId(chatRoom.getProduct().getSeller().getUserId());
-        return dto;
-    }
+
+    private String productImage;    // ➡️ 상품 이미지 추가
+    private Long productPrice;    // ➡️ 상품 가격 추가
+    private String productStatus;   // ➡️ 상품 상태 추가
+
+
+    private String otherUserName;
+
+
+
+//    public static ChatRoomDto fromEntity(ChatRoom chatRoom) {
+//        ChatRoomDto dto = new ChatRoomDto();
+//        dto.setChatRoomId(chatRoom.getChatRoomId());
+//        dto.setProductName(chatRoom.getProduct().getName());
+//        dto.setBuyerId(chatRoom.getBuyer().getUserId());
+//        dto.setSellerId(chatRoom.getProduct().getSeller().getUserId());
+//        return dto;
+//    }
 }
