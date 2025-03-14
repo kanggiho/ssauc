@@ -3,8 +3,6 @@ package com.example.ssauc.user.login.entity;
 import com.example.ssauc.user.bid.entity.AutoBid;
 import com.example.ssauc.user.bid.entity.Bid;
 import com.example.ssauc.user.chat.entity.Ban;
-import com.example.ssauc.user.chat.entity.ChatMessage;
-import com.example.ssauc.user.chat.entity.ChatParticipant;
 import com.example.ssauc.user.chat.entity.Report;
 import com.example.ssauc.user.contact.entity.Board;
 import com.example.ssauc.user.main.entity.Notification;

@@ -2,452 +2,156 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="layout.html">
-<!--
-  - xmlns:th="http://www.thymeleaf.org": Thymeleaf 템플릿 엔진에서 사용하는 네임스페이스를 선언합니다.
-  - xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout": Thymeleaf Layout Dialect 사용을 위한 네임스페이스 선언입니다.
-  - layout:decorate="layout.html": 현재 템플릿이 layout.html을 기본 레이아웃으로 사용함을 지정합니다.
--->
 <head>
-    <!-- SockJS & STOMP 라이브러리 로딩 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-
-
-    <!-- 필요한 CSS, JS, CDN 등 추가 -->
-    <style>
-        /* 채팅 이미지 스타일: 고정 크기 및 이미지 비율 유지 */
-        .chat-img {
-            width: 200px; /* 이미지의 너비를 200px로 고정 */
-            height: 200px; /* 이미지의 높이를 200px로 고정 */
-            object-fit: cover; /* 원본 이미지의 비율을 유지하며 영역을 꽉 채움 */
-            display: block;
-            border-radius: 5px; /* 모서리를 둥글게 처리 */
-        }
-
-        /* 프로필 이미지 스타일: 40x40 픽셀의 원형 이미지 */
-        .profile-img {
-            width: 40px;
-            height: 40px;
-            object-fit: cover;
-            border-radius: 50%; /* 원형으로 만들기 위해 50%의 둥글기 적용 */
-        }
-    </style>
+    <!-- 필요한 css,js,cdn 등등 추가하기 (layout.html에서 이미 Bootstrap 5를 로드했다고 가정) -->
 </head>
 
-<body>
 <div class="container" layout:fragment="content">
-    <!-- 위의 div는 레이아웃 템플릿에서 "content" 영역에 삽입됩니다. -->
-    <!-- div를 여기에두어야 js가 동작 -->
+    <!-- 필요한 태그 추가하기 -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h2 class="mb-4">상품 채팅방</h2>
+        </div>
+    </div>
 
+    <!-- 상품 정보 표시 (예시) -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <!-- 예: Controller에서 model.addAttribute("productName", ...), model.addAttribute("productId", ...) -->
+                    <h5 class="card-title" th:text="'상품명: ' + ${productName}">상품명: 예시상품</h5>
+                    <p class="card-text" th:text="'상품 ID: ' + ${productId}">상품 ID: --</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- 로그인되지 않은 경우 (익명 사용자) -->
-    <th:block th:if="${#authentication == null or #authentication.name == 'anonymousUser'}">
-        <script th:inline="javascript">
-            // 미로그인 상태에서는 senderId = 0(또는 null 등)으로 처리
-            const senderId = 0;
-        </script>
-    </th:block>
+    <!-- 채팅 영역 -->
+    <div class="row">
+        <div class="col-12 col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <strong>실시간 채팅</strong>
+                </div>
+                <div class="card-body" id="chatArea" style="height: 400px; overflow-y: auto;">
+                    <!-- 실시간 메시지 표시 영역 -->
+                </div>
+                <div class="card-footer">
+                    <div class="input-group">
+                        <input type="text" id="msgInput" class="form-control" placeholder="메시지를 입력하세요">
+                        <button class="btn btn-primary" onclick="sendMessage()">전송</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- 로그인된 경우 (JWT 인증된 사용자) -->
-    <th:block th:unless="${#authentication == null or #authentication.name == 'anonymousUser'}">
-    <script th:inline="javascript">
-        // 전역 변수 선언
-        let stompClient = null; // STOMP 클라이언트 객체 초기화
-        const chatRoomId = 1;   // 예시: 현재 채팅방 ID (동적으로 변경 가능)
+    <!-- SockJS & STOMP 라이브러리 (필요 시 layout.html 대신 여기서 로드 가능) -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 
-        // JWT 인증 정보를 통해 사용자 ID를 얻어온다고 가정
-        // 예) #authentication.name 이 곧 사용자 식별자라면:
-         const senderId =  '[[${#authentication.principal.userId}]]';
+    <script>
+        // 1. URL 파라미터에서 productId 추출 (예: chat/chat?productId=15)
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('productId');
 
+        // 2. JWT에서 buyerId 추출 (예시로 하드코딩)
+        //    실제로는 SecurityContext나 쿠키 등을 통해 JWT에서 userId를 가져오세요.
+        const buyerId = [[${buyerId}]];
 
+        // 3. 채팅방 ID (서버에서 생성 후 받아옴)
+        let chatRoomId = null;
 
-
-
-        // 페이지가 로드될 때 WebSocket 연결 실행
-        window.onload = function () {
-            connect();
-        };
-
-        // 1. WebSocket/STOMP 연결 함수
-        function connect() {
-            // SockJS를 사용하여 '/ws-stomp' 엔드포인트에 연결
-            let socket = new SockJS('/ws-stomp');
-            // STOMP 프로토콜을 사용하도록 래핑
-            stompClient = Stomp.over(socket);
-
-            // STOMP 연결 실행. {}: 연결 헤더(빈 객체 사용), 연결 성공 시 콜백 함수 실행
-            stompClient.connect({}, function (frame) {
-                console.log("Connected: " + frame);
-
-                // 2. 채팅방 구독: 서버에서 해당 채팅방으로 전송되는 메시지를 수신
-                stompClient.subscribe("/topic/chatroom/" + chatRoomId, function (message) {
-                    // 서버로부터 받은 메시지(JSON 형식)를 파싱
-                    const msg = JSON.parse(message.body);
-
-                    // (1) 내 메시지인지 확인 (msg.senderId === senderId)
-                    if (msg.senderId === senderId) {
-                        // 내 메시지면 오른쪽에 표시
-                        showLocalMessage(msg.messageText);
-                    } else {
-                        // 상대방 메시지면 왼쪽에 표시
-                        showMessage(msg.senderId, msg.messageText);
-                    }
+        // 채팅방 생성 (이미 존재하면 재활용하는 로직이 필요할 수 있음)
+        async function createChatRoom() {
+            try {
+                const response = await fetch(`/api/chat/rooms?productId=${productId}&buyerId=${buyerId}`, {
+                    method: 'POST'
                 });
+                if (response.ok) {
+                    const data = await response.json();
+                    chatRoomId = data.chatRoomId;
+                    console.log("채팅방 생성 완료 (ID):", chatRoomId);
+                    connectStomp(); // STOMP 연결
+                } else {
+                    console.error("채팅방 생성 실패");
+                }
+            } catch (error) {
+                console.error("Error creating chat room:", error);
+            }
+        }
+
+        // 4. STOMP 연결
+        let stompClient = null;
+        function connectStomp() {
+            const socket = new SockJS('/ws-stomp');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function (frame) {
+                console.log("STOMP Connected:", frame);
+
+                // 채팅방 구독
+                stompClient.subscribe(`/sub/chat/room/${chatRoomId}`, function (message) {
+                    const body = JSON.parse(message.body);
+                    addMessage(body.senderId + " : " + body.message);
+                });
+
+                // 이전 메시지 불러오기
+                loadOldMessages();
             });
         }
 
-        // 2. 메시지 전송 함수
+        // 5. 이전 메시지 불러오기
+        async function loadOldMessages() {
+            try {
+                const res = await fetch(`/api/chat/rooms/${chatRoomId}/messages`);
+                if (res.ok) {
+                    const messages = await res.json();
+                    messages.forEach(msg => {
+                        addMessage(msg.senderId + " : " + msg.message);
+                    });
+                } else {
+                    console.error("메시지 불러오기 실패");
+                }
+            } catch (err) {
+                console.error("Error loading old messages:", err);
+            }
+        }
+
+        // 6. 메시지 전송
         function sendMessage() {
-            // 메시지 입력창 요소를 가져옴
-            const input = document.getElementById('chatInput');
-            // 입력된 값의 앞뒤 공백 제거 후 저장
-            const messageText = input.value.trim();
-            // alert로 전송할 메시지 확인 (디버깅 용)
 
-            if (!messageText) return;
+            const input = document.getElementById('msgInput');
+            const text = input.value.trim();
+            if (!text) return;
 
-            // 메시지 DTO 생성: 서버에서 기대하는 메시지 데이터 구조에 맞춤
-            let msgDto = {
+            const dto = {
                 chatRoomId: chatRoomId,
-                senderId: senderId,
-                messageText: messageText
+                senderId: buyerId,
+                message: text
             };
-
-
-            // 클라이언트에서 서버로 메시지를 전송.
-            // "/app/chat/message": 서버의 메시지 핸들러 매핑 경로
-            stompClient.send("/app/chat/message", {}, JSON.stringify(msgDto));
-
-
-            showLocalMessage(messageText);
-
-
-            // 메시지 전송 후 입력창 초기화
-            input.value = "";
+            stompClient.send('/pub/chat/message', {}, JSON.stringify(dto));
+            input.value = '';
         }
 
-        // (왼쪽) 상대방 메시지 표시 함수
-        function showMessage(sender, text) {
-            const chatBody = document.getElementById('chatBody');
-
-            // Bootstrap 형식으로 "왼쪽" 정렬
-            const msgDiv = document.createElement('div');
-            msgDiv.classList.add('d-flex', 'mb-3');
-
-            msgDiv.innerHTML = `
-                <div class="flex-shrink-0 me-2">
-                    <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/heejava.png"
-                         alt="User" class="profile-img">
-                </div>
-                <div>
-                    <h6 class="mb-1">User ${sender}</h6>
-                    <div class="bg-light p-2 rounded" style="max-width: 70%;">
-                        ${text}
-                    </div>
-                    <small class="text-muted">${getCurrentTime()}</small>
-                </div>
-            `;
-
-            // 채팅 메시지 영역에 추가 후 스크롤을 최신 메시지로 이동
-            chatBody.appendChild(newMsg);
-            chatBody.scrollTop = chatBody.scrollHeight;
+        // 7. 채팅 영역에 메시지 추가
+        function addMessage(content) {
+            const chatArea = document.getElementById('chatArea');
+            const p = document.createElement('p');
+            p.innerText = content;
+            chatArea.appendChild(p);
+            chatArea.scrollTop = chatArea.scrollHeight;
         }
 
-        // (오른쪽) 내 메시지 표시 함수
-        function showLocalMessage(text) {
-            const chatBody = document.getElementById('chatBody');
-
-            // Bootstrap 형식으로 "오른쪽" 정렬
-            const newMsg = document.createElement('div');
-            newMsg.classList.add('d-flex', 'mb-3', 'justify-content-end');
-
-            newMsg.innerHTML = `
-                <div>
-                    <h6 class="mb-1 text-end">나</h6>
-                    <div class="bg-primary text-white p-2 rounded" style="max-width: 70%;">
-                        ${text}
-                    </div>
-                    <small class="text-muted d-block text-end">${getCurrentTime()}</small>
-                </div>
-                <div class="flex-shrink-0 ms-2">
-                    <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/penguin.png"
-                         alt="User" class="profile-img">
-                </div>
-            `;
-
-            chatBody.appendChild(newMsg);
-            chatBody.scrollTop = chatBody.scrollHeight;
-        }
-
-        // 현재 시간을 반환하는 함수
-        function getCurrentTime() {
-            const now = new Date();
-            let hours = now.getHours();
-            let minutes = now.getMinutes();
-            if (minutes < 10) {
-                minutes = '0' + minutes; // 10분 미만일 경우 앞에 0 추가
+        // 8. 페이지 로드 시 체크
+        document.addEventListener("DOMContentLoaded", function() {
+            if (!productId) {
+                alert("잘못된 접근입니다. productId가 없습니다.");
+            } else {
+                // 채팅방 생성 후 소켓 연결
+                createChatRoom();
             }
-            return `${hours}:${minutes}`;
-        }
-
-
-        // =======================================
-        // [추가] 차단 기능
-        // =======================================
-        function ban() {
-            // 예시: 차단할 상대방 userId (동적으로 결정 가능)
-            // 실제로는 현재 채팅중인 상대방 ID를 가져오거나, 모달/입력창에서 받는 로직
-            const targetUserId = prompt("차단할 사용자 ID를 입력하세요:");
-
-            if (!targetUserId) {
-                alert("취소되었습니다.");
-                return;
-            }
-
-            // /ban/block?targetUserId=xxx 라는 API를 호출 (POST 방식)
-            fetch(`/ban/block?targetUserId=${targetUserId}`, {
-                method: "POST"
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("차단 요청 실패");
-                    }
-                    return response.text();
-                })
-                .then(result => {
-                    alert(result);
-                    // 예: "사용자 7 차단 완료 (banId=3)" 등
-                })
-                .catch(error => {
-                    console.error(error);
-                    alert("차단 중 오류가 발생했습니다.");
-                });
-        }
+        });
     </script>
-    </th:block>
-
-
-
-    <!--     [추가] 신고 기능-->
-    <script>
-        function report() {
-            // 피신고자 ID를 동적으로 가져오거나, 우선 예시로 prompt 사용
-            const reportedUserId = prompt("신고할 사용자 ID를 입력하세요:");
-            if (!reportedUserId) {
-                alert("취소되었습니다.");
-                return;
-            }
-
-            // 팝업창 열기
-            const popup = window.open("", "reportPopup", "width=400,height=400");
-
-            // 팝업창에 HTML 삽입
-            popup.document.write(`
-    <!DOCTYPE html>
-    <html lang="ko">
-    <head>
-        <meta charset="UTF-8">
-        <title>신고하기</title>
-        <style>
-                        body {
-                            font-family: sans-serif;
-                            background: #f8f9fa;
-                            margin: 20px;
-                            color: #333;
-                        }
-                        h2 {
-                            text-align: center;
-                            color: #d9534f;
-                            margin-bottom: 1rem;
-                        }
-                        .report-container {
-                            background: #fff;
-                            border: 1px solid #ddd;
-                            border-radius: 8px;
-                            padding: 20px;
-                            max-width: 350px;
-                            margin: 0 auto;
-                            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                        }
-                        label {
-                            font-weight: bold;
-                            display: block;
-                            margin-top: 1rem;
-                        }
-                        input[type="text"],
-                        select,
-                        textarea {
-                            width: 100%;
-                            padding: 8px;
-                            margin-top: 5px;
-                            border: 1px solid #ccc;
-                            border-radius: 4px;
-                            font-size: 14px;
-                        }
-                        textarea {
-                            resize: none;
-                        }
-                        .submit-btn {
-                            display: block;
-                            width: 100%;
-                            background: #d9534f;
-                            color: #fff;
-                            border: none;
-                            border-radius: 4px;
-                            padding: 10px;
-                            font-size: 16px;
-                            cursor: pointer;
-                            margin-top: 1rem;
-                        }
-                        .submit-btn:hover {
-                            background: #c9302c;
-                        }
-
-         </style>
-    </head>
-    <body>
-    <h2>신고하기</h2>
-    <form action="/submit-report" method="post">
-          <!-- (필요 시) 신고자 아이디를 hidden 필드로 넘긴다고 가정 -->
-             <input type="hidden" name="reporterId" value="1" />
-
-        <label for="reportedUserId">피신고자 아이디:</label><br>
-        <input
-                type="text"
-                id="reportedUserId"
-                name="reportedUserId"
-                value="${reportedUserId}"
-                readonly
-             /> <br><br>
-
-        <label for="reason">신고 사유:</label><br>
-        <select id="reason" name="reason">
-            <option value="욕설/비방">욕설/비방</option>
-            <option value="스팸/광고">스팸/광고</option>
-            <option value="부적절한 내용">부적절한 내용</option>
-            <option value="기타">기타</option>
-        </select>
-        <br><br>
-
-        <label for="details">신고 내용:</label><br>
-        <textarea
-                id="details"
-                name="details"
-                rows="10"
-                cols="45"
-                placeholder="신고 사유를 구체적으로 작성해주세요."
-        ></textarea>
-        <br><br>
-
-        <input type="submit" value="제출">
-    </form>
-    </body>
-    </html>
-    `);
-            popup.document.close();
-        }
-    </script>
-
-
-    <!-- 채팅 UI 영역 -->
-    <div class="container py-5">
-        <div class="card shadow-sm">
-
-
-            <!-- 채팅방 헤더 -->
-            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">채팅방</h5>
-            </div>
-
-            <!-- 버튼 그룹 -->
-            <div>
-                <button class="btn btn-outline-danger btn-sm me-2" onclick="ban()">
-                    차단
-                </button>
-                <button class="btn btn-outline-warning btn-sm" onclick="report()">
-                    신고
-                </button>
-            </div>
-        </div>
-
-        <!-- 채팅 메시지 영역 (스크롤 가능) -->
-        <!-- id="chatBody"를 통해 JavaScript에서 메시지 영역을 제어 -->
-        <div class="card-body" id="chatBody" style="height: 500px; overflow-y: auto;">
-            <!-- 예시 메시지 (텍스트, 왼쪽: 상대방) -->
-            <div class="d-flex mb-3">
-                <div class="flex-shrink-0 me-2">
-                    <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/heejava.png"
-                         alt="User" class="profile-img">
-                </div>
-                <div>
-                    <h6 class="mb-1">상대방</h6>
-                    <div class="bg-light p-2 rounded" style="max-width: 70%;">
-                        안녕하세요! 오늘 회의 준비 되셨나요?
-                    </div>
-                    <small class="text-muted">10:00 AM</small>
-                </div>
-            </div>
-
-            <!-- 예시 메시지 (텍스트, 오른쪽: 본인) -->
-            <div class="d-flex mb-3 justify-content-end">
-                <div>
-                    <h6 class="mb-1 text-end">나</h6>
-                    <div class="bg-primary text-white p-2 rounded" style="max-width: 70%;">
-                        네, 준비 완료했습니다.
-                    </div>
-                    <small class="text-muted d-block text-end">10:01 AM</small>
-                </div>
-                <div class="flex-shrink-0 ms-2">
-                    <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/penguin.png"
-                         alt="User" class="profile-img">
-                </div>
-            </div>
-
-            <!-- 예시 이미지 메시지 (이미지 크기 고정) -->
-            <div class="d-flex mb-3 justify-content-end">
-                <div>
-                    <h6 class="mb-1 text-end">나</h6>
-                    <div class="p-2 rounded" style="max-width: 70%;">
-                        <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/blueclock.png"
-                             alt="Uploaded Image" class="chat-img">
-                    </div>
-                    <small class="text-muted d-block text-end">10:05 AM</small>
-                </div>
-                <div class="flex-shrink-0 ms-2">
-                    <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/penguin.png"
-                         alt="User" class="profile-img">
-                </div>
-            </div>
-
-            <!-- 또 다른 예시 메시지 (텍스트, 왼쪽: 상대방) -->
-            <div class="d-flex mb-3">
-                <div class="flex-shrink-0 me-2">
-                    <img src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/heejava.png"
-                         alt="User" class="profile-img">
-                </div>
-                <div>
-                    <h6 class="mb-1">상대방</h6>
-                    <div class="bg-light p-2 rounded" style="max-width: 70%;">
-                        그럼 회의 진행 할게요!!
-                    </div>
-                    <small class="text-muted">10:00 AM</small>
-                </div>
-            </div>
-        </div>
-
-        <!-- 메시지 입력 영역 -->
-        <!-- form 태그에 id="chatForm", input 태그에 id="chatInput"을 지정하여 JS에서 제어 -->
-        <div class="card-footer">
-            <form id="chatForm" onsubmit="event.preventDefault(); sendMessage();">
-                <div class="input-group">
-                    <input type="text" id="chatInput" class="form-control" placeholder="메시지를 입력하세요" aria-label="메시지 입력">
-                    <button class="btn btn-dark" type="submit">전송</button>
-                </div>
-            </form>
-        </div>
-    </div>
 </div>
-
-</div>
-</body>
 </html>

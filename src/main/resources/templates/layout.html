@@ -98,19 +98,28 @@
                         <!-- 인증되지 않은 경우 -->
                         <a th:if="${#authentication == null or #authentication.name == 'anonymousUser'}"
                            th:href="@{/login}" class="me-3 text-dark">
-                            <i class="bi bi-heart"></i> 좋아요
+                            <i class="bi bi-heart"></i>
                         </a>
 
                         <!-- 인증된 경우 -->
                         <a th:if="${#authentication != null and #authentication.name != 'anonymousUser'}"
                            th:href="@{/list/likelist}" class="me-3 text-dark">
-                            <i class="bi bi-heart"></i> 좋아요
+                            <i class="bi bi-heart"></i>
                         </a>
 
 
-                        <a th:href="@{/chat/chat}" class="me-3 text-dark">
+                        <!-- 인증되지 않은 경우 -->
+                        <a th:if="${#authentication == null or #authentication.name == 'anonymousUser'}"
+                           th:href="@{/login}" class="me-3 text-dark">
                             <i class="bi bi-chat-dots"></i>
                         </a>
+
+                        <!-- 인증된 경우 -->
+                        <a th:if="${#authentication != null and #authentication.name != 'anonymousUser'}"
+                           th:href="@{/chat/mychat(userId=${#authentication.principal.userId})}" class="me-3 text-dark">
+                            <i class="bi bi-chat-dots"></i>
+                        </a>
+
                     </div>
                 </div>
             </div>
