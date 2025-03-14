@@ -53,7 +53,7 @@ public class Users {
     @Column(length = 500, columnDefinition = "varchar(500) default 'https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/default-profile.png'")
     private String profileImage;
 
-    @Column(length = 255)
+    @Column(length = 300)
     private String location; // 지역 정보
 
     // status: 기본값 active
