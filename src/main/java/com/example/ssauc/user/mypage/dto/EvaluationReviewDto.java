@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EvaluationReviewDto { // 작성된 리뷰
+public class EvaluationReviewDto { // 작성된 리뷰 리스트
     // 리뷰 상세 페이지 이동용 식별자
     private Long reviewId;
     // 해당 리뷰가 연결된 주문번호

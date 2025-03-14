@@ -88,38 +88,4 @@ public class AuthController {
         return "redirect:/login?error=true&email=" + java.net.URLEncoder.encode(email, java.nio.charset.StandardCharsets.UTF_8);
     }
 
-//    @GetMapping("/logout")
-//    public String doLogout(HttpServletRequest request, HttpServletResponse response) {
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//        if (auth != null) {
-//            String email = auth.getName(); // principal이 email이라고 가정
-//            // (1) Refresh Token 삭제
-//            refreshTokenService.deleteRefreshToken(email);
-//            log.info("Refresh Token 삭제: {}", email);
-//        }
-//
-//        // (2) Refresh Token 쿠키 삭제
-//        Cookie refreshCookie = new Cookie("jwt_refresh", null);
-//        refreshCookie.setMaxAge(0);
-//        refreshCookie.setPath("/");
-//        response.addCookie(refreshCookie);
-//
-//        // (3) Access Token 쿠키 삭제
-//        Cookie accessCookie = new Cookie("jwt_access", null);
-//        accessCookie.setMaxAge(0);
-//        accessCookie.setPath("/");
-//        response.addCookie(accessCookie);
-//
-//        // (4) 세션 무효화
-//        if (request.getSession(false) != null) {
-//            request.getSession(false).invalidate();
-//            log.info("세션 무효화 완료.");
-//        }
-//
-//        // (5) SecurityContext 초기화
-//        SecurityContextHolder.clearContext();
-//        log.info("Security context 초기화 완료.");
-//
-//        return "redirect:/login?logout=true";
-//    }
 }
