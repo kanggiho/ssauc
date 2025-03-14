@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 public class ChatMessage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "message_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long messageId;
 
     // 어떤 채팅방의 메시지인지
@@ -31,16 +31,11 @@ public class ChatMessage {
     private Users sender;
 
     // 메시지 내용
-    @Column(name = "message_text", columnDefinition = "TEXT", nullable = false)
-    private String messageText;
+    @Column(name = "message", columnDefinition = "TEXT", nullable = false)
+    private String message;
 
     // 메시지 전송 시각
     @Column(name = "sent_at")
-    private LocalDateTime sentAt;
-
-    @PrePersist
-    public void prePersist() {
-        this.sentAt = LocalDateTime.now();
-    }
+    private LocalDateTime sentAt = LocalDateTime.now();
 
 }

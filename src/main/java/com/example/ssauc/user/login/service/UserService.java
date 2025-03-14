@@ -50,13 +50,15 @@ public class UserService {
         if (!dto.getPassword().equals(dto.getConfirmPassword())) {
             return "비밀번호 불일치";
         }
-
+        // 주소 정보 결합: 우편번호, 기본주소, 상세주소
+        String fullLocation = dto.getZipcode() + " " + dto.getAddress() + " " + dto.getAddressDetail();
         // DB 저장
         Users user = Users.builder()
                 .userName(dto.getUserName())
                 .email(dto.getEmail())
                 .phone(dto.getPhone())
                 .password(passwordEncoder.encode(dto.getPassword()))
+                .location(fullLocation)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();

@@ -1,9 +1,7 @@
 package com.example.ssauc.repositoryTests;
 
 
-import com.example.ssauc.user.chat.entity.ChatParticipant;
 import com.example.ssauc.user.chat.entity.ChatRoom;
-import com.example.ssauc.user.chat.repository.ChatParticipantRepository;
 import com.example.ssauc.user.chat.repository.ChatRoomRepository;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.repository.UsersRepository;

@@ -13,8 +13,14 @@
 <div class="evaluation-container" layout:fragment="content">
     <!-- 상대방 이름과 상품명은 컨트롤러에서 모델로 전달 -->
     <h2 class="evaluation-title" th:text="${otherUserName} + '님과의 거래는 어땠나요?'">어땠나요?</h2>
-    <p class="product-name" th:text="'상품명: ' + ${productName}">상품명</p>
-
+    <p class="product-name">
+        상품명:
+        <span class="productBid"
+              th:data-href="|${evaluationDto.transactionType=='구매' ? '/history/bought?id=' : '/history/sold?id='}${evaluationDto.productId}|"
+              th:text="${productName}"
+              onclick="location.href=this.dataset.href">
+        </span>
+    </p>
     <!-- 타임리프 폼 바인딩을 활용한 폼 -->
     <form id="evaluationForm" th:object="${evaluationDto}">
         <!-- 주문/상품 식별자와 거래 유형은 숨겨진 필드로 전달 -->
