@@ -291,7 +291,7 @@ signupForm.addEventListener("submit", async function (e) {
     if (!email) {
         displayError(emailError, '이메일을 입력해주세요.');
         hasError = true;
-    } else if (!/^[A-Za-z0-9+_.-]+@(.+)$/.test(email)) {
+    } else if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email)) {
         displayError(emailError, '유효한 이메일 주소를 입력하세요.');
         hasError = true;
     } else {
@@ -463,63 +463,3 @@ function showSuccessModal(message) {
     }
 }
 
-/*
- // ※ 하단에 중복 등록된 회원가입 완료 시 모달 띄우기 submit 이벤트 리스너는 제거(또는 주석 처리)하여
- //    중복 실행되지 않도록 합니다.
-signupForm.addEventListener("submit", async function (e) {
-    e.preventDefault();
-
-    const email = emailInput.value.trim();
-    const userName = nickInput.value.trim();
-    const password = passwordInput.value.trim();
-    const confirmPassword = confirmPasswordInput.value.trim();
-    let phone = phoneInput.value.trim();
-    const smsCode = smsCodeInput.value.trim();
-
-    let hasError = false;
-
-    if (!email || !userName || !password || !confirmPassword || !phone || !smsCode) {
-        console.error("❌ 필수 입력값 누락");
-        return;
-    }
-
-    const userData = {
-        email,
-        userName,
-        password,
-        confirmPassword,
-        phone,
-        smsCode,
-        firebaseToken
-    };
-
-    console.log("📩 회원가입 요청:", userData);
-
-    try {
-        const result = await callApi('/register', 'POST', userData);
-        showSuccessModal("회원가입이 완료되었습니다.");
-    } catch (error) {
-        displayError(emailError, error.message);
-    }
-
-    function showCustomAlert(message, callback = null) {
-        const alertModal = document.getElementById("customAlertModal");
-        const alertMessage = document.getElementById("customAlertMessage");
-        const alertConfirmBtn = document.getElementById("customAlertConfirmBtn");
-
-        if (alertModal && alertMessage && alertConfirmBtn) {
-            console.log("✅ 커스텀 Alert 표시: ", message);
-            alertMessage.textContent = message;
-            alertModal.style.display = "flex";
-
-            alertConfirmBtn.onclick = () => {
-                alertModal.style.display = "none";
-                if (callback) callback();
-            };
-        } else {
-            console.warn("⚠️ 커스텀 Alert 관련 요소를 찾을 수 없습니다.");
-            alert(message);
-        }
-    }
-});
-*/
