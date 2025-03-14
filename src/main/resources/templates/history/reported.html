@@ -25,7 +25,10 @@
           <div th:if="${reportDetail.type == 'product'}">
             <p>
               <strong>신고 대상:</strong>
-              <span th:text="${reportDetail.productName}">상품 이름</span>
+              <span class="productBid"
+                    th:text="${reportDetail.productName}"
+                    th:onclick="|location.href='/bid/bid?productId=' + ${reportDetail.productId}|">
+              </span>
             </p>
           </div>
           <div th:if="${reportDetail.type == 'user'}">

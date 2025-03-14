@@ -6,6 +6,8 @@ import com.example.ssauc.user.cash.entity.Charge;
 import com.example.ssauc.user.cash.entity.Withdraw;
 import com.example.ssauc.user.cash.service.CashService;
 import com.example.ssauc.user.login.entity.Users;
+import com.example.ssauc.user.login.util.TokenExtractor;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -16,8 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,18 +30,20 @@ public class CashController {
 
     private final CashService cashService;
 
+    private final TokenExtractor tokenExtractor;
+
     @GetMapping("/cash")
     public String cashPage(@RequestParam(value = "filter", required = false, defaultValue = "payment") String filter,
                            @RequestParam(value = "startDate", required = false) String startDateStr,
                            @RequestParam(value = "endDate", required = false) String endDateStr,
                            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-                           @AuthenticationPrincipal UserDetails userDetails,
+                           HttpServletRequest request,
                            Model model) {
-        if (userDetails == null) {
+        Users user = tokenExtractor.getUserFromToken(request);
+        if (user == null) {
             return "redirect:/login";
         }
-        String userName = userDetails.getUsername();
-        Users latestUser = cashService.getCurrentUser(userName);
+        Users latestUser = cashService.getCurrentUser(user.getEmail());
         model.addAttribute("user", latestUser);
 
         if (latestUser == null) {
@@ -156,13 +159,13 @@ public class CashController {
     @PostMapping("/api/complete")
     @ResponseBody
     public ResponseEntity<?> completePayment(@RequestBody ChargeRequestDto request,
-                                             @AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null) {
+                                             HttpServletRequest request2) {
+        Users user = tokenExtractor.getUserFromToken(request2);
+        if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
         try {
-            String userName = userDetails.getUsername();
-            Users latestUser = cashService.getCurrentUser(userName);
+            Users latestUser = cashService.getCurrentUser(user.getEmail());
             // 결제 검증 및 완료 처리 (사용자 충전 기록 업데이트)
             Charge charge = cashService.verifyAndCompletePayment(request.getPaymentId(), request.getAmount(), latestUser);
             return ResponseEntity.ok(new ChargeResponseDto("PAID", charge.getChargeId()));
@@ -190,13 +193,13 @@ public class CashController {
     @PostMapping("/api/withdraw")
     @ResponseBody
     public ResponseEntity<?> requestWithdraw(@RequestBody WithdrawRequestDto request,
-                                             @AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null) {
+                                             HttpServletRequest request2) {
+        Users user = tokenExtractor.getUserFromToken(request2);
+        if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
         try {
-            String userName = userDetails.getUsername();
-            Users latestUser = cashService.getCurrentUser(userName);
+            Users latestUser = cashService.getCurrentUser(user.getEmail());
             cashService.requestWithdraw(latestUser, request.getAmount(), request.getBank(), request.getAccount());
             return ResponseEntity.ok("환급 요청이 접수되었습니다.");
         } catch (Exception e) {

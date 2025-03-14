@@ -18,6 +18,11 @@
     margin-bottom: 20px;
 }
 
+.productBid {
+    cursor: pointer;
+    color: #66a6ff;
+}
+
 .evaluation-content {
     display: flex;
     justify-content: space-between;

@@ -1,7 +1,7 @@
 package com.example.ssauc.user.product.service;
 
+import com.example.ssauc.common.service.CommonUserService;
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.product.dto.ProductInsertDto;
 import com.example.ssauc.user.product.dto.ProductUpdateDto;
 import com.example.ssauc.user.product.entity.Category;
@@ -20,15 +20,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductService {
 
-    private final UsersRepository usersRepository;
+    private final CommonUserService commonUserService;
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
 
     // JWT 현재 이메일을 기반으로 사용자 정보를 조회
     public Users getCurrentUser(String email) {
-        return usersRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
+        return commonUserService.getCurrentUser(email);
     }
 
     // 새로운 상품을 등록
