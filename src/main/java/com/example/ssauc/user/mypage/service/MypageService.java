@@ -1,9 +1,7 @@
 package com.example.ssauc.user.mypage.service;
 
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.mypage.dto.EvaluationDto;
-import com.example.ssauc.user.mypage.dto.EvaluationPendingDto;
-import com.example.ssauc.user.mypage.dto.EvaluationReviewDto;
+import com.example.ssauc.user.mypage.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -25,4 +23,7 @@ public interface MypageService {
 
     // 신규 추가: 리뷰 작성 페이지에 필요한 주문/상품 정보를 EvaluationDto에 담아서 전달
     EvaluationDto getEvaluationData(Long orderId, Users currentUser);
+
+    // 리뷰 상세 정보
+    EvaluatedDto getReviewById(Long reviewId, Long currentUserId);
 }
