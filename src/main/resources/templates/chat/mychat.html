@@ -4,6 +4,41 @@
       layout:decorate="layout.html">
 <head>
     <!-- 필요한 css,js,cdn 등등 추가하기 (layout.html에서 Bootstrap 5와 공통 JS 로드 가정) -->
+    <style>
+        /* 메시지 공통 스타일 */
+        .message-row {
+            display: flex;
+            margin: 4px 0;
+        }
+
+        /* 내가 보낸 메시지 (오른쪽) */
+        .my-message {
+            justify-content: flex-end;  /* 오른쪽 정렬 */
+        }
+        .my-message span {
+            background-color: #ffffff;  /* 흰색 */
+            color: #000000;
+            padding: 8px 12px;
+            border-radius: 12px;
+            max-width: 60%;
+            word-wrap: break-word;  /* 너무 긴 단어 줄바꿈 */
+            border: 1px solid #ccc;
+        }
+
+        /* 상대방 메시지 (왼쪽) */
+        .other-message {
+            justify-content: flex-start; /* 왼쪽 정렬 */
+        }
+        .other-message span {
+            background-color: #fff8cd;  /* 연노랑 */
+            color: #000000;
+            padding: 8px 12px;
+            border-radius: 12px;
+            max-width: 60%;
+            word-wrap: break-word;
+            border: 1px solid #ccc;
+        }
+    </style>
 </head>
 
 <div class="container" layout:fragment="content">
@@ -29,11 +64,6 @@
                 </div>
                 <div class="card-body" id="roomListArea" style="max-height: 500px; overflow-y:auto;">
                     <!-- 채팅 목록이 동적 생성될 영역 -->
-                    <!-- 예: <div class="list-group">
-                            <button class="list-group-item list-group-item-action" onclick="selectChatRoom(123)">Room 123</button>
-                            ...
-                         </div>
-                    -->
                 </div>
             </div>
         </div>
@@ -58,7 +88,7 @@
         </div>
     </div>
 
-    <!-- SockJS & STOMP 라이브러리 (필요 시 layout.html 대신 여기서 로드 가능) -->
+    <!-- SockJS & STOMP 라이브러리 -->
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 
@@ -96,7 +126,7 @@
             try {
                 const response = await fetch(`/api/chat/user/${userId}/rooms`);
                 if (response.ok) {
-                    chatRoomList = await response.json(); // [{chatRoomId, productId, ...}, {...}]
+                    chatRoomList = await response.json(); // [{chatRoomId, productName, ...}, ...]
                     renderChatRoomList();
                 } else {
                     console.error("채팅방 목록 불러오기 실패");
@@ -125,7 +155,7 @@
                 // 버튼 형태로 클릭 시 selectChatRoom() 호출
                 const btn = document.createElement('button');
                 btn.className = 'list-group-item list-group-item-action';
-                btn.innerText = `Room #${room.chatRoomId} (product:${room.productId})`;
+                btn.innerText = `Room #${room.chatRoomId} (상품명 : ${room.productName})`;
                 btn.onclick = () => selectChatRoom(room.chatRoomId);
                 div.appendChild(btn);
             });
@@ -173,7 +203,8 @@
             // 2) 새 구독 설정
             currentSubscription = stompClient.subscribe(`/sub/chat/room/${roomId}`, function (msg) {
                 const body = JSON.parse(msg.body);
-                addMessage(`${body.senderId} : ${body.message}`);
+                // ⭐ 메시지에 senderId, message 가 포함됨
+                addMessage(body.senderId, body.message);
             });
         }
 
@@ -189,7 +220,8 @@
                     const chatArea = document.getElementById('chatArea');
                     chatArea.innerHTML = '';
                     messages.forEach(msg => {
-                        addMessage(`${msg.senderId} : ${msg.message}`);
+                        // ⭐ 이전 메시지도 senderId와 message를 각각 넘겨줌
+                        addMessage(msg.senderId, msg.message);
                     });
                 } else {
                     console.error("이전 메시지 불러오기 실패");
@@ -218,13 +250,33 @@
         }
 
         /*************************************************************
-         * 10. 유틸: 채팅영역에 메시지 추가
+         * 10. 메시지 화면에 "말풍선" 형태로 추가
          *************************************************************/
-        function addMessage(msgText) {
+        function addMessage(senderId, message) {
             const chatArea = document.getElementById('chatArea');
-            const p = document.createElement('p');
-            p.innerText = msgText;
-            chatArea.appendChild(p);
+
+            // 1) message-row div 생성
+            const wrapper = document.createElement('div');
+            wrapper.classList.add('message-row');
+
+            // 2) 내가 보낸 메시지인지 판별
+            if (String(senderId) === String(userId)) {
+                // 내 메시지
+                wrapper.classList.add('my-message');
+            } else {
+                // 상대 메시지
+                wrapper.classList.add('other-message');
+            }
+
+            // 3) 실제 말풍선을 담을 span
+            const bubble = document.createElement('span');
+            bubble.innerText = message;
+
+            // 4) 구조 조립
+            wrapper.appendChild(bubble);
+            chatArea.appendChild(wrapper);
+
+            // 5) 스크롤 맨 아래로
             chatArea.scrollTop = chatArea.scrollHeight;
         }
     </script>
