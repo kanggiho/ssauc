@@ -1,5 +1,6 @@
 package com.example.ssauc.user.history.service;
 
+import com.example.ssauc.common.service.CommonUserService;
 import com.example.ssauc.user.bid.entity.AutoBid;
 import com.example.ssauc.user.bid.entity.Bid;
 import com.example.ssauc.user.bid.entity.ProductReport;
@@ -12,7 +13,6 @@ import com.example.ssauc.user.chat.repository.ReportRepository;
 import com.example.ssauc.user.history.dto.*;
 import com.example.ssauc.user.chat.repository.BanRepository;
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.order.entity.Orders;
 import com.example.ssauc.user.order.repository.OrdersRepository;
 import com.example.ssauc.user.product.entity.Product;
@@ -30,7 +30,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class HistoryService {
 
-    private final UsersRepository usersRepository;
+    private final CommonUserService commonUserService;
     private final ProductRepository productRepository;
     private final OrdersRepository ordersRepository;
     private final BanRepository banRepository;
@@ -40,9 +40,8 @@ public class HistoryService {
     private final ProductReportRepository productReportRepository;
 
     // 세션에서 전달된 userId를 이용하여 DB에서 최신 사용자 정보를 조회합니다.
-    public Users getCurrentUser(String userName) {
-        return usersRepository.findByUserName(userName)
-                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
+    public Users getCurrentUser(String email) {
+        return commonUserService.getCurrentUser(email);
     }
 
     // ===================== 차단 관리 =====================

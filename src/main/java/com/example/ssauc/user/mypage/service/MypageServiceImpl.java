@@ -1,7 +1,7 @@
 package com.example.ssauc.user.mypage.service;
 
+import com.example.ssauc.common.service.CommonUserService;
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.mypage.dto.EvaluationDto;
 import com.example.ssauc.user.mypage.dto.EvaluationPendingDto;
 import com.example.ssauc.user.mypage.dto.EvaluationReviewDto;
@@ -20,15 +20,14 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class MypageServiceImpl implements MypageService {
 
-    private final UsersRepository usersRepository;
+    private final CommonUserService commonUserService;
     private final ReviewRepository reviewRepository;
     private final OrdersRepository ordersRepository;
 
     // JWT 기반 DB에서 최신 사용자 정보를 조회
     @Override
-    public Users getCurrentUser(String userName) {
-        return usersRepository.findByUserName(userName)
-                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
+    public Users getCurrentUser(String email) {
+        return commonUserService.getCurrentUser(email);
     }
 
     // ===================== 리뷰 관리 =====================

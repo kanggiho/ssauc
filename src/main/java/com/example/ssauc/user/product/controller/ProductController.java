@@ -38,7 +38,9 @@ import java.util.Map;
 public class ProductController {
 
     private final ProductService productService;
+
     private final AmazonS3 amazonS3;
+
     private final TokenExtractor tokenExtractor;
 
     @Value("${aws.s3.bucket}")

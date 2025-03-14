@@ -1,5 +1,6 @@
 package com.example.ssauc.user.cash.service;
 
+import com.example.ssauc.common.service.CommonUserService;
 import com.example.ssauc.exception.PortoneVerificationException;
 import com.example.ssauc.user.cash.dto.CalculateDto;
 import com.example.ssauc.user.cash.dto.ChargeDto;
@@ -35,12 +36,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CashServiceImpl implements CashService {
 
+    private final CommonUserService commonUserService;
     private final ChargeRepository chargeRepository;
-
     private final WithdrawRepository withdrawRepository;
-
     private final OrdersRepository ordersRepository;
-
     private final UsersRepository usersRepository;
 
     @Value("${portone.secret.api}")
@@ -52,11 +51,9 @@ public class CashServiceImpl implements CashService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // 세션에서 전달된 userId를 이용하여 DB에서 최신 사용자 정보를 조회합니다.
     @Override
-    public Users getCurrentUser(String userName) {
-        return usersRepository.findByUserName(userName)
-                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
+    public Users getCurrentUser(String email) {
+        return commonUserService.getCurrentUser(email);
     }
 
     // ===================== 결제 내역 =====================
