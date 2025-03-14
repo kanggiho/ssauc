@@ -2,9 +2,7 @@ package com.example.ssauc.user.mypage.service;
 
 import com.example.ssauc.common.service.CommonUserService;
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.mypage.dto.EvaluationDto;
-import com.example.ssauc.user.mypage.dto.EvaluationPendingDto;
-import com.example.ssauc.user.mypage.dto.EvaluationReviewDto;
+import com.example.ssauc.user.mypage.dto.*;
 import com.example.ssauc.user.order.entity.Orders;
 import com.example.ssauc.user.order.repository.OrdersRepository;
 import com.example.ssauc.user.pay.entity.Review;
@@ -35,17 +33,17 @@ public class MypageServiceImpl implements MypageService {
     @Override
     public Page<EvaluationReviewDto> getReceivedReviews(Users user, Pageable pageable) {
         return reviewRepository.findByReviewee_UserId(user.getUserId(), pageable)
-                .map(this::convertToDto);
+                .map(review -> convertToDto(review, user.getUserId()));
     }
     // 작성한 리뷰 목록 조회
     @Override
     public Page<EvaluationReviewDto> getWrittenReviews(Users user, Pageable pageable) {
         return reviewRepository.findByReviewer_UserId(user.getUserId(), pageable)
-                .map(this::convertToDto);
+                .map(review -> convertToDto(review, user.getUserId()));
     }
 
     // DTO 변환 메서드 (코드 중복 제거)
-    private EvaluationReviewDto convertToDto(Review review) {
+    private EvaluationReviewDto convertToDto(Review review, Long currentUserId) {
         return EvaluationReviewDto.builder()
                 .reviewId(review.getReviewId())
                 .orderId(review.getOrder().getOrderId())
@@ -55,14 +53,14 @@ public class MypageServiceImpl implements MypageService {
                 .productName(review.getOrder().getProduct().getName())
                 .productImageUrl(review.getOrder().getProduct().getImageUrl().split(",")[0])
                 .createdAt(review.getCreatedAt())
-                .transactionType(getTransactionType(review))
+                .transactionType(getTransactionType(review, currentUserId))
                 .build();
     }
 
     // 거래 타입 (판매 / 구매) 구분
-    private String getTransactionType(Review review) {
+    private String getTransactionType(Review review, Long currentUserId) {
         Users buyer = review.getOrder().getBuyer();
-        return buyer.getUserId().equals(review.getReviewer().getUserId()) ? "구매" : "판매";
+        return buyer.getUserId().equals(currentUserId) ? "구매" : "판매";
     }
 
     // 아직 리뷰를 작성하지 않은 주문 목록 조회
@@ -172,6 +170,30 @@ public class MypageServiceImpl implements MypageService {
         evaluationDto.setProductName(order.getProduct().getName());
         evaluationDto.setOtherUserName(otherUserName);
         return evaluationDto;
+    }
+
+    // 리뷰 상세 정보 조회
+    @Override
+    public EvaluatedDto getReviewById(Long reviewId, Long currentUserId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("해당 리뷰를 찾을 수 없습니다."));
+
+        return EvaluatedDto.builder()
+                .reviewId(review.getReviewId())
+                .orderId(review.getOrder().getOrderId())
+                .reviewerName(review.getReviewer().getUserName())
+                .revieweeName(review.getReviewee().getUserName())
+                .profileImageUrl(review.getReviewee().getProfileImage())
+                .productId(review.getOrder().getProduct().getProductId())
+                .productName(review.getOrder().getProduct().getName())
+                .productImageUrl(review.getOrder().getProduct().getImageUrl().split(",")[0])
+                .createdAt(review.getCreatedAt())
+                .transactionType(getTransactionType(review, currentUserId))
+                .option1(review.getOption1())
+                .option2(review.getOption2())
+                .option3(review.getOption3())
+                .comment(review.getComment())
+                .build();
     }
 
 }

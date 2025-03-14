@@ -2,6 +2,7 @@ package com.example.ssauc.user.mypage.controller;
 
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.util.TokenExtractor;
+import com.example.ssauc.user.mypage.dto.EvaluatedDto;
 import com.example.ssauc.user.mypage.dto.EvaluationDto;
 import com.example.ssauc.user.mypage.dto.EvaluationPendingDto;
 import com.example.ssauc.user.mypage.dto.EvaluationReviewDto;
@@ -111,15 +112,20 @@ public class MypageController {
         }
     }
 
-    // 리뷰 상세 페이지
+    // 리뷰 상세 페이지 - reviewId를 통해 리뷰 상세 정보를 조회
     @GetMapping("/evaluated")
-    public String evaluatedPage(HttpServletRequest request, Model model) {
+    public String evaluatedPage(@RequestParam("reviewId") Long reviewId,
+                                HttpServletRequest request, Model model) {
         Users user = tokenExtractor.getUserFromToken(request);
         if (user == null) {
             return "redirect:/login";
         }
         Users latestUser = mypageService.getCurrentUser(user.getEmail());
         model.addAttribute("user", latestUser);
+
+        EvaluatedDto reviewDto = mypageService.getReviewById(reviewId, latestUser.getUserId());
+        model.addAttribute("review", reviewDto);
+
         return "/mypage/evaluated";
     }
 
