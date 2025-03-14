@@ -43,6 +43,13 @@
                         <!-- 왼쪽: 상품 정보 -->
                         <div class="col-md-7">
                             <p><strong>상품 이름:</strong> <span th:text="${soldDetail.productName}">상품 A</span></p>
+                            <p>
+                                <strong>상품 이름:</strong>
+                                <span class="productBid"
+                                      th:text="${soldDetail.productName}"
+                                      th:onclick="|location.href='/bid/bid?productId=' + ${soldDetail.productId}|">
+                                </span>
+                            </p>
                             <p><strong>경매 시작가:</strong> <span th:text="${soldDetail.startPrice}">10000</span></p>
                             <p><strong>등록 시간:</strong> <span
                                     th:text="${#temporals.format(soldDetail.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2025-02-05 14:30:00</span>

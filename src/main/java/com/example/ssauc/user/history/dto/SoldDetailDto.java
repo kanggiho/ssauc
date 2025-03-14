@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 public class SoldDetailDto {
     // Product 테이블 관련 필드
+    private Long productId;
     private String productName;
     private Long startPrice;
     private LocalDateTime createdAt;

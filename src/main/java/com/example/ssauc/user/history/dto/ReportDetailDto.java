@@ -17,6 +17,7 @@ public class ReportDetailDto {
     // "product" 또는 "user" 값으로 신고 유형 구분
     private String type;
     // 상품 신고인 경우
+    private Long productId;
     private String productName;
     // 유저 신고인 경우
     private String reportedUserName;

@@ -10,6 +10,7 @@ import lombok.*;
 @Builder
 public class BoughtDetailDto {
     // Product 테이블 정보
+    private Long productId;
     private String productName;
     private Long startPrice;
     private LocalDateTime createdAt;

@@ -118,6 +118,7 @@ public class HistoryService {
                 ProductReport pr = productReportOpt.get();
                 return ReportDetailDto.builder()
                         .type("product")
+                        .productId(pr.getProduct().getProductId())
                         .productName(pr.getProduct().getName())
                         .reportReason(pr.getReportReason())
                         .details(pr.getDetails())
@@ -235,6 +236,7 @@ public class HistoryService {
                 .orElseThrow(() -> new RuntimeException("해당 상품의 주문 정보가 없습니다."));
 
         return SoldDetailDto.builder()
+                .productId(product.getProductId())
                 .productName(product.getName())
                 .startPrice(product.getStartPrice())
                 .createdAt(product.getCreatedAt())
@@ -335,6 +337,7 @@ public class HistoryService {
                 .orElseThrow(() -> new RuntimeException("해당 상품의 주문 정보가 없습니다."));
         return BoughtDetailDto.builder()
                 .orderId(order.getOrderId())
+                .productId(product.getProductId())
                 .productName(product.getName())
                 .startPrice(product.getStartPrice())
                 .createdAt(product.getCreatedAt())
