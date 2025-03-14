@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout.html">
+<head>
+    <!-- 필요한 css,js,cdn 등등 추가하기 (layout.html에서 Bootstrap 5와 공통 JS 로드 가정) -->
+    <style>
+        /* 메시지 공통 스타일 */
+        .message-row {
+            display: flex;
+            margin: 4px 0;
+        }
+
+        /* 내가 보낸 메시지 (오른쪽) */
+        .my-message {
+            justify-content: flex-end;
+        }
+
+        /* 상대방 메시지 (왼쪽) */
+        .other-message {
+            justify-content: flex-start;
+        }
+
+        /* 말풍선 공통 스타일 */
+        .chat-bubble {
+            position: relative; /* 내부 타임스탬프 위치를 위한 relative */
+            display: inline-block;
+            max-width: 60%;
+            word-wrap: break-word;
+            padding: 8px 12px 8px 12px;  /* 기존보다 아래쪽 padding을 늘림 */
+            border-radius: 12px;
+            border: 1px solid #ccc;
+        }
+
+        /* 내가 보낸 메시지 말풍선 배경 */
+        .my-message .chat-bubble {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        /* 상대방 메시지 말풍선 배경 */
+        .other-message .chat-bubble {
+            background-color: #fff8cd;
+            color: #000000;
+        }
+
+        /* 타임스탬프 공통 스타일 */
+        .timestamp {
+            position: absolute;
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        /* 내가 보낸 메시지: 타임스탬프를 말풍선 왼쪽 하단에 */
+        .my-message .timestamp {
+            bottom: 5px;
+            left: -120px;
+        }
+
+        /* 상대방 메시지: 타임스탬프를 말풍선 오른쪽 하단에 */
+        .other-message .timestamp {
+            bottom: 5px;
+            right: -120px;
+        }
+
+        /* 채팅방 목록 스타일 */
+        .btn-my-product {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .btn-other-product {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+
+        /* 선택된 채팅방 강조 */
+        .selected-room {
+            font-weight: bold !important;
+            font-size: 1.1rem !important;
+            background-color: #FFFFFF !important;
+            color: #000 !important;
+        }
+
+        /* 상품 정보 영역 */
+        #productInfoArea {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        #productImage {
+            border: 2px solid #ddd;
+        }
+
+
+
+    </style>
+</head>
+
+<div class="container" layout:fragment="content">
+    <!-- 필요한 태그 추가하기 -->
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <h2 class="mb-4">내 채팅 목록</h2>
+        </div>
+    </div>
+
+    <!--
+        좌우 2개 카드:
+        - 왼쪽 (채팅 목록)
+        - 오른쪽 (채팅방 대화)
+    -->
+    <div class="row">
+        <!-- 채팅방 목록 (왼쪽) -->
+        <div class="col-12 col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <strong>채팅방 목록</strong>
+                </div>
+                <div class="card-body" id="roomListArea" style="max-height: 500px; overflow-y:auto;">
+                    <!-- 채팅 목록이 동적 생성될 영역 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 채팅방 대화 (오른쪽) -->
+        <div class="col-12 col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <strong>채팅방</strong>
+                    <span id="selectedRoomInfo" class="ms-2">선택된 채팅방 없음</span>
+                </div>
+
+                <!-- 상품 정보 표시 영역 추가 -->
+                <div class="card-body border bg-light mb-3" id="productInfoArea">
+                    <div class="d-flex align-items-center">
+                        <img id="productImage" src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/item.png" alt="상품 이미지" class="me-3" style="width: 80px; height: 80px; border-radius: 8px;">
+                        <div>
+                            <p class="fw-bold mb-1" id="productName">상품명</p>
+                            <p class="text-muted mb-1" id="productPrice">즉시 구매가: -</p>
+                            <p class="text-muted" id="productStatus">판매 상태: -</p>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="card-body" id="chatArea" style="height: 400px; overflow-y: auto;">
+                    <!-- 메시지 목록 표시 -->
+                </div>
+                <div class="card-footer">
+                    <div class="input-group">
+                        <input type="text" id="msgInput" class="form-control" placeholder="메시지를 입력하세요" disabled>
+                        <button class="btn btn-primary" onclick="sendMessage()" disabled id="sendBtn">전송</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SockJS & STOMP 라이브러리 -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+    <script>
+        /*************************************************************
+         * 1. URL 파라미터에서 userId 및 productId 추출
+         *************************************************************/
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userId');  // 필수: chat/mychat?userId=xx
+        const productIdFromURL = urlParams.get('productId');  // 선택: chat/mychat?userId=xx&productId=yy
+
+        /*************************************************************
+         * 2. 전역 변수
+         *************************************************************/
+        let stompClient = null;          // STOMP 클라이언트
+        let currentRoomId = null;        // 현재 선택된 채팅방 ID
+        let currentSubscription = null;  // 현재 구독 객체 (방 전환 시 unsubscribe용)
+        let chatRoomList = [];           // 사용자 채팅방 목록 (REST로 받아올 예정)
+
+        /*************************************************************
+         * 3. 페이지 초기화
+         *************************************************************/
+        document.addEventListener("DOMContentLoaded", async function() {
+            if (!userId) {
+                alert("userId가 없습니다. 잘못된 접근입니다.");
+                return;
+            }
+            await fetchUserChatRooms(userId);   // 유저의 기존 채팅방 목록 불러오기
+            connectStomp();                    // STOMP 연결
+
+            // productId가 URL에 포함되어 있다면 채팅방 생성 후 자동 선택
+            if (productIdFromURL) {
+                await createOrSelectChatRoom(userId, productIdFromURL);
+            }
+
+            const msgInput = document.getElementById('msgInput');
+            msgInput.addEventListener("keyup", function(event) {
+                // Enter 키 코드가 13이면
+                if (event.key === "Enter" || event.keyCode === 13) {
+                    // Enter 키 눌렀을 때 전송 버튼 클릭
+                    event.preventDefault();
+                    sendMessage();
+                }
+            });
+        });
+
+        /*************************************************************
+         * 4. 채팅방 목록 불러오기 (REST API)
+         *************************************************************/
+        async function fetchUserChatRooms(userId) {
+            try {
+                const response = await fetch(`/api/chat/user/${userId}/rooms`);
+                if (response.ok) {
+                    chatRoomList = await response.json(); // [{chatRoomId, productName, otherUserName, sellerId, productImage, productPrice, productStatus, ...}, ...]
+                    renderChatRoomList();
+                } else {
+                    console.error("채팅방 목록 불러오기 실패");
+                }
+            } catch (err) {
+                console.error("Error fetching chat rooms:", err);
+            }
+        }
+
+        /*************************************************************
+         * 5. 채팅방 생성 후 자동 선택 (REST API 호출)
+         *************************************************************/
+        async function createOrSelectChatRoom(userId, productId) {
+            try {
+                const response = await fetch(`/api/chat/rooms?productId=${productId}&buyerId=${userId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (!response.ok) {
+                    console.error("채팅방 생성 실패");
+                    return;
+                }
+                const newRoom = await response.json(); // 생성된 채팅방 정보
+
+                // 채팅방 목록 재요청
+                await fetchUserChatRooms(userId);
+
+                // 자동 선택: 새로 불러온 목록에서 생성된 방 찾기
+                const selectedRoom = chatRoomList.find(room => String(room.chatRoomId) === String(newRoom.chatRoomId));
+                if (selectedRoom) {
+                    selectChatRoom(selectedRoom);
+                }
+            } catch (error) {
+                console.error("Error creating chat room:", error);
+            }
+        }
+
+
+        /*************************************************************
+         * 6. 채팅방 목록을 왼쪽 패널에 렌더링
+         *************************************************************/
+        function renderChatRoomList() {
+            const roomListArea = document.getElementById('roomListArea');
+            roomListArea.innerHTML = ''; // 초기화
+
+            if (chatRoomList.length === 0) {
+                roomListArea.innerHTML = '<p>등록된 채팅방이 없습니다.</p>';
+                return;
+            }
+
+            const div = document.createElement('div');
+            div.className = 'list-group';
+
+            chatRoomList.forEach(room => {
+                const btn = document.createElement('button');
+                btn.className = 'list-group-item list-group-item-action';
+                btn.innerText = `${room.otherUserName} (상품: ${room.productName})`;
+
+                // 색상 결정 (내 물건: sellerId === userId → 연초록색, 타인 물건: 연파랑색)
+                if (String(room.sellerId) === String(userId)) {
+                    btn.classList.add('btn-my-product');
+                } else {
+                    btn.classList.add('btn-other-product');
+                }
+
+                // 선택된 채팅방 강조 (글씨 Bold 및 크기 증가)
+                if (currentRoomId && String(room.chatRoomId) === String(currentRoomId)) {
+                    btn.classList.add('selected-room');
+                }
+
+                btn.onclick = () => selectChatRoom(room);
+                div.appendChild(btn);
+            });
+
+            roomListArea.appendChild(div);
+        }
+
+        /*************************************************************
+         * 7. STOMP 연결
+         *************************************************************/
+        function connectStomp() {
+            const socket = new SockJS('/ws-stomp');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function(frame) {
+                console.log("STOMP 연결 성공:", frame);
+            }, function(error) {
+                console.error("STOMP 연결 실패:", error);
+            });
+        }
+
+        /*************************************************************
+         * 8. 채팅방 선택 시: 구독/이전 메시지 로드 + 상품 정보 표시
+         *************************************************************/
+        async function selectChatRoom(room) {
+            if (!stompClient) {
+                alert("STOMP가 아직 연결되지 않았습니다.");
+                return;
+            }
+
+            // 기존 방 구독 해제
+            if (currentSubscription) {
+                currentSubscription.unsubscribe();
+            }
+
+            currentRoomId = room.chatRoomId;
+            console.log("selectChatRoom - currentRoomId:", currentRoomId);
+            document.getElementById('selectedRoomInfo').innerText = `${room.otherUserName}`;
+
+            // 채팅 입력창 활성화
+            document.getElementById('msgInput').disabled = false;
+            document.getElementById('sendBtn').disabled = false;
+
+            // 상품 정보 영역 표시 (상품 정보가 있을 경우)
+            displayProductInfo(room);
+
+            // 마지막 보낸 사람 초기화
+            lastSenderId = null;
+
+            // 이전 메시지 불러오기
+            await loadOldMessages(room.chatRoomId);
+
+            // STOMP 구독
+            currentSubscription = stompClient.subscribe(`/sub/chat/room/${room.chatRoomId}`, function (msg) {
+                const body = JSON.parse(msg.body);
+                addMessage(body.senderId, body.message, body.sentAt);
+            });
+
+            renderChatRoomList();
+        }
+
+        /*************************************************************
+         * 9. 채팅방 이전 메시지 로드
+         *************************************************************/
+        async function loadOldMessages(roomId) {
+            try {
+                const res = await fetch(`/api/chat/rooms/${roomId}/messages`);
+                if (res.ok) {
+                    const messages = await res.json();
+                    const chatArea = document.getElementById('chatArea');
+                    chatArea.innerHTML = '';
+                    messages.forEach(msg => {
+                        addMessage(msg.senderId, msg.message, msg.sentAt);
+                    });
+                } else {
+                    console.error("이전 메시지 불러오기 실패");
+                }
+            } catch (err) {
+                console.error("Error loading old messages:", err);
+            }
+        }
+
+        /*************************************************************
+         * 10. 메시지 전송
+         *************************************************************/
+        function sendMessage() {
+            const input = document.getElementById('msgInput');
+            const text = input.value.trim();
+            if (!text || !currentRoomId) return;
+
+            const dto = {
+                chatRoomId: currentRoomId,
+                senderId: userId,
+                message: text
+            };
+            stompClient.send('/pub/chat/message', {}, JSON.stringify(dto));
+            input.value = '';
+        }
+
+        /*************************************************************
+         * 11. 메시지 화면에 "말풍선" 형태로 추가
+         *************************************************************/
+        function addMessage(senderId, message, sentAt) {
+            const chatArea = document.getElementById('chatArea');
+
+            // (1) 메시지 한 줄 감싸는 div
+            const wrapper = document.createElement('div');
+            wrapper.classList.add('message-row');
+
+            // (2) 말풍선 역할을 하는 div (기존엔 span이었으나, 절대위치 사용 편의를 위해 div도 OK)
+            const bubble = document.createElement('div');
+            bubble.classList.add('chat-bubble');
+            bubble.textContent = message;  // 말풍선에 메시지 삽입
+
+            // (3) 시간 표시용 small 태그
+            const timeElem = document.createElement('small');
+            timeElem.classList.add('timestamp');
+
+            if (sentAt) {
+                const date = new Date(sentAt);
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1; // 월은 0부터 시작하므로 1 추가
+                const day = date.getDate();
+                let hours = date.getHours();
+                const minutes = date.getMinutes();
+                const period = hours < 12 ? "오전" : "오후";
+                hours = hours % 12 || 12; // 12시간제로 변환, 0이면 12로
+                const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
+                timeElem.textContent = `${year}. ${month}. ${day} ${period} ${hours}:${formattedMinutes}`;
+            } else {
+                timeElem.textContent = '';
+            }
+
+            bubble.appendChild(timeElem);
+
+            // 보낸 사람에 따라 말풍선 전체 정렬
+            if (String(senderId) === String(userId)) {
+                wrapper.classList.add('my-message');        // 오른쪽 정렬용
+            } else {
+                wrapper.classList.add('other-message');     // 왼쪽 정렬용
+            }
+
+            // 최종 조합
+            wrapper.appendChild(bubble);
+            chatArea.appendChild(wrapper);
+
+            // 자동 스크롤
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+
+
+        /*************************************************************
+         * 12. 상품 정보 표시 함수
+         *************************************************************/
+        function displayProductInfo(room) {
+            document.getElementById('productImage').src = room.productImage || 'https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/item.png';
+            document.getElementById('productName').innerText = room.productName || '상품명 없음';
+            document.getElementById('productPrice').innerText = `즉시 구매가: ${room.productPrice || '-'}`;
+            document.getElementById('productStatus').innerText = `판매 상태: ${room.productStatus || '-'}`;
+        }
+    </script>
+
+</div>
+</html>

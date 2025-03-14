@@ -11,19 +11,18 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // /topic, /queue 로 시작하는 메시지를 브로커가 처리
-        registry.enableSimpleBroker("/topic", "/queue");
-        // 클라이언트에서 메시지를 보낼 때 prefix
-        registry.setApplicationDestinationPrefixes("/app");
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        // 클라이언트가 WebSocket 핸드셰이크 하는 엔드포인트
+        registry.addEndpoint("/ws-stomp")
+                .setAllowedOrigins("http://localhost:3000", "http://localhost:7777")  // 실제 운영 시에는 특정 도메인만 허용 권장
+                .withSockJS();           // SockJS fallback
     }
 
     @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // 클라이언트의 웹소켓 연결 주소: ws://localhost:8080/ws-stomp
-        registry.addEndpoint("/ws-stomp")
-                .setAllowedOriginPatterns("*") // 모든 Origin 허용 + allowCredentials
-                .withSockJS();  // SockJS fallback
-
+    public void configureMessageBroker(MessageBrokerRegistry config) {
+        // 클라이언트에서 메시지 보낼 때의 prefix
+        config.setApplicationDestinationPrefixes("/pub");
+        // 클라이언트에서 메시지 구독할 때의 prefix
+        config.enableSimpleBroker("/sub");
     }
 }

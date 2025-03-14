@@ -63,11 +63,13 @@
 
                     <div class="d-flex justify-content-between align-items-center">
                         <h2 class="fw-bold" th:text="${inform.getName()}" id="product_na">상품명</h2>
-                        <h5 style="color: red; margin-left: 300px; margin-top: 10px" th:if="${tempMaxBidUser == tokenName}" th:text="'현재 최고가 입찰중!'" class="fw-bold"></h5>
+                        <h5 style="color: red; margin-left: 300px; margin-top: 10px"
+                            th:if="${tempMaxBidUser == tokenName}" th:text="'현재 최고가 입찰중!'" class="fw-bold"></h5>
                         <div>
                             <!-- 관심품목: 채워진 하트 아이콘 -->
                             <button class="btn btn-outline-secondary btn-sm me-2" title="관심품목" id="interestBtn">
-                                <i id="interestIcon" th:class="${isLikeProduct} ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
+                                <i id="interestIcon"
+                                   th:class="${isLikeProduct} ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
                             </button>
                             <!-- 신고하기: 경고 삼각형 아이콘 (사이렌 대체) -->
                             <button class="btn btn-outline-danger btn-sm" title="신고하기" id="reportBtn">
@@ -121,8 +123,8 @@
                             <label style="margin-left: 20px" id="ableBid"></label>
                         </div>
                         <p class="mt-2"><strong>예상 구매가 : </strong><span id="estimatedPrice">0원</span>(구매 수수료 포함)</p>
-                        <p class="mt-2"><strong>최고 입찰자 : </strong><span id="maxBidUser" th:text="${tempMaxBidUser}"></span></p>
-
+                        <p class="mt-2"><strong>최고 입찰자 : </strong><span id="maxBidUser"
+                                                                        th:text="${tempMaxBidUser}"></span></p>
 
 
                     </div>
@@ -380,7 +382,7 @@
                                 // 확인 버튼을 누르면 로그인 페이지로 이동
                                 window.location.href = "/login";
                             }
-                        } else if("[[${tempMaxBidUser}]]" === "[[${tokenName}]]"){
+                        } else if ("[[${tempMaxBidUser}]]" === "[[${tokenName}]]") {
                             alert("현재 최고가 입찰 중 입니다.")
                         } else {
                             if (tokenId === sellerId) {
@@ -389,7 +391,7 @@
                                     alert("이미 입찰중이라 삭제가 불가능합니다.");
                                 } else {
                                     if (confirm("정말로 상품을 삭제하시겠습니까?")) {
-                                        axios.post('/product/delete', { productId: productId })
+                                        axios.post('/product/delete', {productId: productId})
                                             .then(function (response) {
                                                 alert(response.data);
                                                 window.location.href = "/";
@@ -438,7 +440,7 @@
                                     alert("자동 입찰 처리 중 오류가 발생했습니다.");
                                     console.error(error);
                                 });
-                        }else{
+                        } else {
                             alert("올바른 값을 입력해주세요.");
                         }
 
@@ -509,7 +511,8 @@
 
                     var chattingBtn = document.getElementById("chattingBtn");
                     var tokenId = "[[${tokenId}]]";
-                    var sellerId = "[[${sellerId}]]";
+                    var sellerId = [[${sellerId}]];
+                    var productId = [[${productId}]];
 
                     chattingBtn.addEventListener("click", function () {
 
@@ -522,8 +525,8 @@
                             if (tokenId === sellerId) {
                                 alert("본인과 채팅 할 수 없습니다.");
                             } else {
-                                // 즉시구매
-                                window.location.href = "/chat/chat";
+                                // 채팅방
+                                window.location.href = "/chat/mychat?userId=" + tokenId + "&productId=" + productId;
                             }
                         }
 
@@ -537,9 +540,11 @@
             function like() {
                 document.addEventListener("DOMContentLoaded", function () {
 
-                    document.getElementById("interestBtn").addEventListener("click",function () {
+                    document.getElementById("interestBtn").addEventListener("click", function () {
 
-                        var isLoggedIn = [[${tokenId != 'guest'}]];
+                        var isLoggedIn = [[${tokenId != 'guest'
+                    }]]
+                        ;
 
                         if (!isLoggedIn || isLoggedIn === "false") {
                             // confirm 창의 기본 버튼은 브라우저에 따라 "확인"/"취소"로 표시됩니다.
@@ -552,13 +557,12 @@
                         }
 
 
-
                         const icon = document.getElementById("interestIcon");
 
 
                         fetch("/api/like", {
                             method: "POST",
-                            headers: { "Content-Type": "application/json" },
+                            headers: {"Content-Type": "application/json"},
                             body: JSON.stringify({
                                 productId: [[${productId}]]
                             })
@@ -580,9 +584,6 @@
                 });
 
             }
-
-
-
 
 
         </script>
