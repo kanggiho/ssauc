@@ -23,6 +23,7 @@ public class ChatRoomDto {
 
 
     private String otherUserName;
+    private Long otherUserId;
 
 
 

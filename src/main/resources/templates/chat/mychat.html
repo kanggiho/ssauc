@@ -134,17 +134,29 @@
                     <span id="selectedRoomInfo" class="ms-2">선택된 채팅방 없음</span>
                 </div>
 
-                <!-- 상품 정보 표시 영역 추가 -->
-                <div class="card-body border bg-light mb-3" id="productInfoArea">
+                <!-- 상품 정보 표시 영역 수정 -->
+                <div class="card-body border bg-light mb-3 d-flex justify-content-between align-items-center" id="productInfoArea">
                     <div class="d-flex align-items-center">
-                        <img id="productImage" src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/item.png" alt="상품 이미지" class="me-3" style="width: 80px; height: 80px; border-radius: 8px;">
+                        <img id="productImage" src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/item.png"
+                             alt="상품 이미지" class="me-3" style="width: 80px; height: 80px; border-radius: 8px;">
                         <div>
                             <p class="fw-bold mb-1" id="productName">상품명</p>
                             <p class="text-muted mb-1" id="productPrice">즉시 구매가: -</p>
                             <p class="text-muted" id="productStatus">판매 상태: -</p>
                         </div>
                     </div>
+
+                    <!-- 신고 및 차단 버튼 추가 -->
+                    <div>
+                        <button class="btn btn-danger btn-sm me-2" onclick="reportUser()">
+                            🚨 신고
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="blockUser()">
+                            ⛔ 차단
+                        </button>
+                    </div>
                 </div>
+
 
 
                 <div class="card-body" id="chatArea" style="height: 400px; overflow-y: auto;">
@@ -445,6 +457,39 @@
             document.getElementById('productPrice').innerText = `즉시 구매가: ${room.productPrice ? room.productPrice.toLocaleString()+'P' : '-'}`;
             document.getElementById('productStatus').innerText = `판매 상태: ${room.productStatus || '-'}`;
         }
+
+
+        /*************************************************************
+         * 13. 신고 버튼 클릭 시 GET 요청 로직
+         *************************************************************/
+        function reportUser() {
+            if (!currentRoomId) {
+                alert("신고할 채팅방이 선택되지 않았습니다.");
+                return;
+            }
+
+            const selectedRoom = chatRoomList.find(room => String(room.chatRoomId) === String(currentRoomId));
+            if (!selectedRoom) {
+                alert("신고할 채팅방 정보를 찾을 수 없습니다.");
+                return;
+            }
+
+            const reportedUserId = selectedRoom.otherUserId; // 신고 대상 유저 ID
+
+            // GET 요청 후 페이지 이동
+            window.location.href = `/chat/report?roomId=${currentRoomId}&reported=${reportedUserId}`;
+        }
+
+
+        /*************************************************************
+         * 14. 차단 버튼 클릭 시 (일단 알림만 표시)
+         *************************************************************/
+        function blockUser() {
+            alert("차단 기능은 추후 추가 예정입니다.");
+        }
+
+
+
     </script>
 
 </div>

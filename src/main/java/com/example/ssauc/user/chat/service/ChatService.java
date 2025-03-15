@@ -98,8 +98,10 @@ public class ChatService {
                     // userId가 seller라면 => 상대방은 buyer
                     if (userId.equals(buyerId)) {
                         dto.setOtherUserName(sellerName);
+                        dto.setOtherUserId(sellerId);
                     } else {
                         dto.setOtherUserName(buyerName);
+                        dto.setOtherUserId(buyerId);
                     }
                     return dto;
                 })
