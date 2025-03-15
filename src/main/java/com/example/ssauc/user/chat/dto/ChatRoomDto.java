@@ -25,6 +25,8 @@ public class ChatRoomDto {
     private String otherUserName;
     private Long otherUserId;
 
+    private boolean banned;
+
 
 
 //    public static ChatRoomDto fromEntity(ChatRoom chatRoom) {

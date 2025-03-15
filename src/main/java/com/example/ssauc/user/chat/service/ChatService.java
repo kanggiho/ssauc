@@ -3,6 +3,7 @@ package com.example.ssauc.user.chat.service;
 import com.example.ssauc.user.chat.dto.ChatRoomDto;
 import com.example.ssauc.user.chat.entity.ChatMessage;
 import com.example.ssauc.user.chat.entity.ChatRoom;
+import com.example.ssauc.user.chat.repository.BanRepository;
 import com.example.ssauc.user.chat.repository.ChatMessageRepository;
 import com.example.ssauc.user.chat.repository.ChatRoomRepository;
 import com.example.ssauc.user.login.entity.Users;
@@ -27,9 +28,11 @@ public class ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final UsersRepository userRepository;
     private final ProductRepository productRepository;
+    private final BanRepository banRepository;
 
     /**
      * 채팅방 생성
+     *
      * @param productId 상품 ID
      * @param buyerId   구매자 ID (JWT에서 파싱)
      */
@@ -82,7 +85,7 @@ public class ChatService {
                 .map(room -> {
                     Long buyerId = room.getBuyer().getUserId();
                     Long sellerId = room.getProduct().getSeller().getUserId();
-                    String buyerName = room.getBuyer().getUserName();  // DB에서 가져온 닉네임
+                    String buyerName = room.getBuyer().getUserName();
                     String sellerName = room.getProduct().getSeller().getUserName();
 
                     ChatRoomDto dto = new ChatRoomDto();
@@ -94,8 +97,7 @@ public class ChatService {
                     dto.setProductPrice(room.getProduct().getPrice());
                     dto.setProductStatus(room.getProduct().getStatus());
 
-                    // userId가 buyer라면 => 상대방은 seller
-                    // userId가 seller라면 => 상대방은 buyer
+                    // 현재 로그인 사용자가 buyer라면, 상대방은 seller; 그렇지 않으면 buyer
                     if (userId.equals(buyerId)) {
                         dto.setOtherUserName(sellerName);
                         dto.setOtherUserId(sellerId);
@@ -103,10 +105,20 @@ public class ChatService {
                         dto.setOtherUserName(buyerName);
                         dto.setOtherUserId(buyerId);
                     }
+
+                    // 양방향 차단 여부 확인: buyer가 seller를 차단했거나, seller가 buyer를 차단했으면 true
+                    boolean banned = banRepository.existsByUserAndBlockedUserAndStatus(
+                            room.getBuyer(), room.getProduct().getSeller(), 1)
+                            || banRepository.existsByUserAndBlockedUserAndStatus(
+                            room.getProduct().getSeller(), room.getBuyer(), 1);
+                    dto.setBanned(banned);
+
                     return dto;
                 })
                 .collect(Collectors.toList());
     }
+
+
 
 
     /**

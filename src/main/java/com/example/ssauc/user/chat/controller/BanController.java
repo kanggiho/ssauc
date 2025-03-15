@@ -28,4 +28,18 @@ public class BanController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("차단에 실패했습니다.");
         }
     }
+
+    @PostMapping("/unban")
+    public ResponseEntity<String> unbanUser(@RequestBody BanRequestDto banRequestDto) {
+        try {
+            banService.unbanUser(banRequestDto.getUserId(), banRequestDto.getBlockedUserId());
+            return ResponseEntity.ok("차단 해제에 성공했습니다.");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("차단 해제에 실패했습니다.");
+        }
+    }
+
 }

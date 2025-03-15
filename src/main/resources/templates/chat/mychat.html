@@ -27,7 +27,7 @@
             display: inline-block;
             max-width: 60%;
             word-wrap: break-word;
-            padding: 8px 12px 8px 12px;  /* 기존보다 아래쪽 padding을 늘림 */
+            padding: 8px 12px 8px 12px; /* 기존보다 아래쪽 padding을 늘림 */
             border-radius: 12px;
             border: 1px solid #ccc;
         }
@@ -69,6 +69,7 @@
             border-color: #c3e6cb;
             color: #155724;
         }
+
         .btn-other-product {
             background-color: #d1ecf1;
             border-color: #bee5eb;
@@ -83,6 +84,13 @@
             color: #000 !important;
         }
 
+        /* 채팅방 목록에서 차단된 방에 적용할 스타일 (연한 빨강) */
+        .banned-room {
+            background-color: #f8d7da; /* Bootstrap의 danger 배경 색상 계열 */
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
         /* 상품 정보 영역 */
         #productInfoArea {
             background-color: #f8f9fa;
@@ -90,10 +98,10 @@
             padding: 12px;
             margin-bottom: 12px;
         }
+
         #productImage {
             border: 2px solid #ddd;
         }
-
 
 
     </style>
@@ -135,7 +143,8 @@
                 </div>
 
                 <!-- 상품 정보 표시 영역 수정 -->
-                <div class="card-body border bg-light mb-3 d-flex justify-content-between align-items-center" id="productInfoArea">
+                <div class="card-body border bg-light mb-3 d-flex justify-content-between align-items-center"
+                     id="productInfoArea">
                     <div class="d-flex align-items-center">
                         <img id="productImage" src="https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/item.png"
                              alt="상품 이미지" class="me-3" style="width: 80px; height: 80px; border-radius: 8px;">
@@ -146,17 +155,13 @@
                         </div>
                     </div>
 
-                    <!-- 신고 및 차단 버튼 추가 -->
-                    <div>
-                        <button class="btn btn-danger btn-sm me-2" onclick="reportUser()">
-                            🚨 신고
-                        </button>
-                        <button class="btn btn-secondary btn-sm" onclick="blockUser()">
-                            ⛔ 차단
-                        </button>
+                    <!-- 신고 및 차단/해제 버튼 영역, 초기에는 기본 버튼만 보여줌 -->
+                    <div id="actionButtons">
+                        <button class="btn btn-danger btn-sm me-2" onclick="reportUser()">🚨 신고</button>
+                        <button id="banBtn" class="btn btn-secondary btn-sm" onclick="blockUser()">⛔ 차단</button>
                     </div>
-                </div>
 
+                </div>
 
 
                 <div class="card-body" id="chatArea" style="height: 400px; overflow-y: auto;">
@@ -195,7 +200,7 @@
         /*************************************************************
          * 3. 페이지 초기화
          *************************************************************/
-        document.addEventListener("DOMContentLoaded", async function() {
+        document.addEventListener("DOMContentLoaded", async function () {
             if (!userId) {
                 alert("userId가 없습니다. 잘못된 접근입니다.");
                 return;
@@ -209,7 +214,7 @@
             }
 
             const msgInput = document.getElementById('msgInput');
-            msgInput.addEventListener("keyup", function(event) {
+            msgInput.addEventListener("keyup", function (event) {
                 // Enter 키 코드가 13이면
                 if (event.key === "Enter" || event.keyCode === 13) {
                     // Enter 키 눌렀을 때 전송 버튼 클릭
@@ -243,7 +248,7 @@
             try {
                 const response = await fetch(`/api/chat/rooms?productId=${productId}&buyerId=${userId}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: {'Content-Type': 'application/json'}
                 });
                 if (!response.ok) {
                     console.error("채팅방 생성 실패");
@@ -292,6 +297,11 @@
                     btn.classList.add('btn-other-product');
                 }
 
+                // 만약 차단된 상태라면 banned-room 클래스 추가 (연한 빨강)
+                if (room.banned) {
+                    btn.classList.add('banned-room');
+                }
+
                 // 선택된 채팅방 강조 (글씨 Bold 및 크기 증가)
                 if (currentRoomId && String(room.chatRoomId) === String(currentRoomId)) {
                     btn.classList.add('selected-room');
@@ -310,9 +320,9 @@
         function connectStomp() {
             const socket = new SockJS('/ws-stomp');
             stompClient = Stomp.over(socket);
-            stompClient.connect({}, function(frame) {
+            stompClient.connect({}, function (frame) {
                 console.log("STOMP 연결 성공:", frame);
-            }, function(error) {
+            }, function (error) {
                 console.error("STOMP 연결 실패:", error);
             });
         }
@@ -355,6 +365,18 @@
             });
 
             renderChatRoomList();
+            updateActionButtons(room);
+        }
+
+        function updateActionButtons(room) {
+            const actionButtonsDiv = document.getElementById('actionButtons');
+            actionButtonsDiv.innerHTML = `
+        <button class="btn btn-danger btn-sm me-2" onclick="reportUser()">🚨 신고</button>
+        <button id="banBtn" class="btn btn-secondary btn-sm">
+            ${room.banned ? '차단 해제' : '⛔ 차단'}
+        </button>
+    `;
+            document.getElementById('banBtn').onclick = room.banned ? unbanUser : blockUser;
         }
 
         /*************************************************************
@@ -382,6 +404,14 @@
          * 10. 메시지 전송
          *************************************************************/
         function sendMessage() {
+
+            // 차단된 상태면 메시지 전송 금지
+            const selectedRoom = chatRoomList.find(room => String(room.chatRoomId) === String(currentRoomId));
+            if (selectedRoom && selectedRoom.banned) {
+                alert("차단 상태이므로 채팅이 불가능합니다.");
+                return;
+            }
+
             const input = document.getElementById('msgInput');
             const text = input.value.trim();
             if (!text || !currentRoomId) return;
@@ -447,15 +477,15 @@
         }
 
 
-
         /*************************************************************
          * 12. 상품 정보 표시 함수
          *************************************************************/
         function displayProductInfo(room) {
             document.getElementById('productImage').src = room.productImage || 'https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/item.png';
             document.getElementById('productName').innerText = room.productName || '상품명 없음';
-            document.getElementById('productPrice').innerText = `즉시 구매가: ${room.productPrice ? room.productPrice.toLocaleString()+'P' : '-'}`;
+            document.getElementById('productPrice').innerText = `즉시 구매가: ${room.productPrice ? room.productPrice.toLocaleString() + 'P' : '-'}`;
             document.getElementById('productStatus').innerText = `판매 상태: ${room.productStatus || '-'}`;
+
         }
 
 
@@ -522,6 +552,49 @@
                     }
                 });
         }
+
+        /*************************************************************
+         * 15. 차단해제 버튼 클릭 시
+         *************************************************************/
+
+        function unbanUser() {
+            if (!currentRoomId) {
+                alert("차단 해제할 채팅방이 선택되지 않았습니다.");
+                return;
+            }
+
+            const selectedRoom = chatRoomList.find(room => String(room.chatRoomId) === String(currentRoomId));
+            if (!selectedRoom || !selectedRoom.otherUserId) {
+                alert("차단 해제할 사용자 정보를 찾을 수 없습니다.");
+                return;
+            }
+
+            if (!confirm("정말 차단 해제하시겠습니까?")) {
+                return;
+            }
+
+            // 차단 해제 API 호출 (예시 엔드포인트: '/api/chat/unban')
+            axios.post('/api/chat/unban', {
+                userId: userId,
+                blockedUserId: selectedRoom.otherUserId
+            })
+                .then(response => {
+                    alert("차단 해제 성공!");
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error("차단 해제 요청 실패:", error);
+                    if (error.response && error.response.data) {
+                        alert(error.response.data);
+                    } else {
+                        alert("차단 해제에 실패했습니다. 다시 시도해주세요.");
+                    }
+                });
+        }
+
+
+
+
 
     </script>
 

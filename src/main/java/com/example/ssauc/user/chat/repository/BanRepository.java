@@ -22,5 +22,5 @@ public interface BanRepository extends JpaRepository<Ban, Long> {
 
     boolean existsByUserAndBlockedUserAndStatus(Users user, Users blockedUser, int status);
 
-
+    Optional<Ban> findByUserAndBlockedUserAndStatus(Users user, Users blockedUser, int status);
 }
