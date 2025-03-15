@@ -54,13 +54,13 @@
         /* 내가 보낸 메시지: 타임스탬프를 말풍선 왼쪽 하단에 */
         .my-message .timestamp {
             bottom: 5px;
-            left: -120px;
+            left: -123px;
         }
 
         /* 상대방 메시지: 타임스탬프를 말풍선 오른쪽 하단에 */
         .other-message .timestamp {
             bottom: 5px;
-            right: -120px;
+            right: -123px;
         }
 
         /* 채팅방 목록 스타일 */
@@ -151,7 +151,7 @@
                     <!-- 메시지 목록 표시 -->
                 </div>
                 <div class="card-footer">
-                    <div class="input-group">
+                    <div class="input-group" style="padding-right: 0px">
                         <input type="text" id="msgInput" class="form-control" placeholder="메시지를 입력하세요" disabled>
                         <button class="btn btn-primary" onclick="sendMessage()" disabled id="sendBtn">전송</button>
                     </div>
@@ -442,7 +442,7 @@
         function displayProductInfo(room) {
             document.getElementById('productImage').src = room.productImage || 'https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/item.png';
             document.getElementById('productName').innerText = room.productName || '상품명 없음';
-            document.getElementById('productPrice').innerText = `즉시 구매가: ${room.productPrice || '-'}`;
+            document.getElementById('productPrice').innerText = `즉시 구매가: ${room.productPrice ? room.productPrice.toLocaleString()+'P' : '-'}`;
             document.getElementById('productStatus').innerText = `판매 상태: ${room.productStatus || '-'}`;
         }
     </script>
