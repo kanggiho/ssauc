@@ -149,7 +149,7 @@ public class AdminUserController {
         }
     }
 
-    @Scheduled(cron = "0 * * * * *")  // 🔥 매일 0시 0분
+    @Scheduled(cron = "0 0 0 * * *")  // 🔥 매일 0시 0분
     public void blockUsersWithHighWarningCount() {
         log.info("🔔 [스케줄러 실행] 경고 횟수가 3 이상인 유저 상태 BLOCKED로 변경 시작");
 

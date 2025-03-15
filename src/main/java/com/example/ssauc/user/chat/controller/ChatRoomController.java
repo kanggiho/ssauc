@@ -1,9 +1,11 @@
 package com.example.ssauc.user.chat.controller;
 
+import com.example.ssauc.user.chat.dto.BanRequestDto;
 import com.example.ssauc.user.chat.dto.ChatMessageResponse;
 import com.example.ssauc.user.chat.dto.ChatRoomDto;
 import com.example.ssauc.user.chat.entity.ChatMessage;
 import com.example.ssauc.user.chat.entity.ChatRoom;
+import com.example.ssauc.user.chat.service.BanService;
 import com.example.ssauc.user.chat.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 public class ChatRoomController {
 
     private final ChatService chatService;
+
 
     /**
      * 채팅방 생성
@@ -72,4 +75,8 @@ public class ChatRoomController {
         // userId가 참여 중인 모든 채팅방(상품의 seller= userId, 또는 buyer= userId)을 조회
         return chatService.findChatRoomsByUserId(userId);
     }
+
+
+
+
 }
