@@ -35,6 +35,11 @@ public class Ban {
     @Column(name = "blocked_at")
     private LocalDateTime blockedAt;
 
+    //상태 (1이면 차단중, 0이면 차단해제중)
+    @Column(name = "status")
+    private int status;
+
+
     // user, blockedUser, blockedAt 을 받는 생성자
     public Ban(Users user, Users blockedUser, LocalDateTime blockedAt) {
         this.user = user;

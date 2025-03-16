@@ -19,4 +19,8 @@ public interface BanRepository extends JpaRepository<Ban, Long> {
     // 특정 유저가 특정 유저를 차단했는지 조회
     Optional<Ban> findByUserAndBlockedUser(Users user, Users blockedUser);
 
+
+    boolean existsByUserAndBlockedUserAndStatus(Users user, Users blockedUser, int status);
+
+    Optional<Ban> findByUserAndBlockedUserAndStatus(Users user, Users blockedUser, int status);
 }

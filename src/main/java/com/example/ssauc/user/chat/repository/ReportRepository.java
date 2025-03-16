@@ -10,7 +10,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReportRepository extends JpaRepository<Report, Long> {
     Page<Report> findByReporter(Users reporter, Pageable pageable);
-
-
-
 }

@@ -12,11 +12,9 @@ import lombok.Setter;
 @Setter
 public class ReportRequestDto {
 
-    private long reporterId;
-    private long reportedUserId;
-    private String reason;       // 신고 사유
-    private String details;      // 신고 내용
-
-
+    private Long reporterUserId;
+    private Long reportedUserId;
+    private String reportReason;
+    private String details;
 
 }
