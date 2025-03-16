@@ -291,10 +291,19 @@ public class BidService {
         Product product = pdpRepository.findById(productId).orElseThrow();
         long seconds = Duration.between(now, product.getEndAt()).getSeconds();
         if(seconds<=300){
-            product.setEndAt(product.getEndAt().plusSeconds(600));
+            extendProductEndAt(productId,600);
         }
-        productRepository.save(product);
 
+    }
+
+    public void extendProductEndAt(Long productId, long addTime) {
+        Product product = pdpRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+
+        LocalDateTime newEndAt = product.getEndAt().plusSeconds(addTime);
+
+        // JPQL을 통해 업데이트
+        pdpRepository.updateEndAt(productId, newEndAt);
     }
 
 

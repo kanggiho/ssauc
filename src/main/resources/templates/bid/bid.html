@@ -318,6 +318,7 @@
 
                         var bidAmount = parseInt(document.getElementById("desiredBid").value) || 0;
 
+
                         if (tokenId === "guest") {
                             if (confirm("로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?")) {
                                 // 확인 버튼을 누르면 로그인 페이지로 이동
@@ -331,7 +332,10 @@
                                 } else {
                                     window.location.href = "/product/update?productId=" + productId;
                                 }
+                            } else if ("[[${tempMaxBidUser}]]" === "[[${tokenName}]]") {
+                                alert("현재 최고가 입찰 중 입니다.")
                             } else {
+
                                 // axios를 사용하여 입찰 요청 전송
                                 if (ablePrice()) {
                                     axios.post('/bid/place', {
