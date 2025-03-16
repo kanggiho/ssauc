@@ -12,6 +12,7 @@ import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.main.repository.ProductLikeRepository;
 import com.example.ssauc.user.product.entity.Product;
+import com.example.ssauc.user.product.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -44,8 +45,8 @@ public class BidService {
 
     @Autowired
     private ProductLikeRepository productLikeRepository;
-
-
+    @Autowired
+    private ProductRepository productRepository;
 
 
     public ProductInformDto getBidInform(Long productId) {
@@ -125,6 +126,7 @@ public class BidService {
                 .bidTime(LocalDateTime.now())
                 .build();
         bidRepository.save(bid);
+        setAdditionalTime(bidRequestDto.getProductId());
 
         return true;
     }
@@ -231,6 +233,7 @@ public class BidService {
                     .bidTime(LocalDateTime.now())
                     .build();
             bidRepository.save(newBid);
+            setAdditionalTime(productId);
         }
     }
 
@@ -279,6 +282,18 @@ public class BidService {
 
     public boolean isProductLike(Long productId, Long userId){
         return productLikeRepository.countByProductIdAndUserId(productId, userId) > 0;
+
+    }
+
+    // 종료 5분전 입찰 시 10분 추가
+    public void setAdditionalTime(Long productId) {
+        LocalDateTime now = LocalDateTime.now();
+        Product product = pdpRepository.findById(productId).orElseThrow();
+        long seconds = Duration.between(now, product.getEndAt()).getSeconds();
+        if(seconds<=300){
+            product.setEndAt(product.getEndAt().plusSeconds(600));
+        }
+        productRepository.save(product);
 
     }
 

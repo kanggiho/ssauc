@@ -42,9 +42,14 @@ public class PaymentService {
             Users buyer = usersRepository.findById(dto.getBuyerId()).orElse(null);
             Users seller = usersRepository.findById(dto.getSellerId()).orElse(null);
 
+
+            long fee = dto.getTotalPayment()/21;
+            long realMoney = fee*20;
+
+
             // 금액 업데이트
             usersRepository.minusCash((long) dto.getTotalPayment(),dto.getBuyerId());
-            usersRepository.addCash((long) dto.getTotalPayment(),dto.getSellerId());
+            usersRepository.addCash(realMoney,dto.getSellerId());
 
             // orders 테이블 저장
             Orders orders = Orders.builder()
