@@ -16,8 +16,10 @@ public class EvaluationReviewDto { // 작성된 리뷰 리스트
     // 리뷰 대상:
     // - written: 리뷰 작성 시 대상은 review.getReviewee()의 이름
     // - received: 리뷰 수신 시 대상은 review.getReviewer()의 이름
-    private String reviewTarget;
-    private String profileImageUrl;
+    private String reviewer;
+    private String reviewee;
+    private String profileImageUrl1;
+    private String profileImageUrl2;
     // 주문한 상품의 이름 (orders → product)
     private Long productId;
     private String productName;

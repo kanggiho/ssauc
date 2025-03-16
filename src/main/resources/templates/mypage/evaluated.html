@@ -43,20 +43,22 @@
                 </div>
                 <div class="rating-item">
                     <span class="rating-label"
-                          th:text="${review.transactionType == '구매' ? '상품 상태:' : '가격 협상 과정:'}">
+                          th:text="${#strings.equals(reviewType, 'written') ? (review.transactionType == '구매' ? '상품 상태:' : '가격 협상 과정:') : (review.transactionType == '구매' ? '가격 협상 과정:' : '상품 상태:')}">
                     </span>
                     <span class="rating-value"
                           th:classappend="${review.option2} ? ' positive' : ' negative'"
-                          th:text="${review.transactionType == '구매' ? (review.option2 ? '✨ 마음에 들어요' : '💔 설명과 달라요') : (review.option2 ? '😍 깔끔한 거래' : '🥶 무리한 요청')}">
+                          th:text="${#strings.equals(reviewType, 'written') ? (review.transactionType == '구매' ? (review.option2 ? '✨ 마음에 들어요' : '💔 설명과 달라요') : (review.option2 ? '😍 깔끔한 거래' : '🥶 무리한 요청'))
+                                      : (review.transactionType == '구매' ? (review.option2 ? '😍 깔끔한 거래' : '🥶 무리한 요청') : (review.option2 ? '✨ 마음에 들어요' : '💔 설명과 달라요'))}">
                     </span>
                 </div>
                 <div class="rating-item">
                     <span class="rating-label"
-                          th:text="${review.transactionType == '구매' ? '가격:' : '상품 수령 후 피드백:'}">
+                          th:text="${#strings.equals(reviewType, 'written') ? (review.transactionType == '구매' ? '가격:' : '상품 수령 후 피드백:') : (review.transactionType == '구매' ? '상품 수령 후 피드백:' : '가격:')}">
                     </span>
                     <span class="rating-value"
                           th:classappend="${review.option3} ? ' positive' : ' negative'"
-                          th:text="${review.transactionType == '구매' ? (review.option3 ? '🤩 합리적이에요' : '🤑 비쌌어요') : (review.option3 ? '💬 빠른 피드백' : '🚫 연락 두절')}">
+                          th:text="${#strings.equals(reviewType, 'written') ? (review.transactionType == '구매' ? (review.option3 ? '🤩 합리적이에요' : '🤑 비쌌어요') : (review.option3 ? '💬 빠른 피드백' : '🚫 연락 두절'))
+                                      : (review.transactionType == '구매' ? (review.option3 ? '💬 빠른 피드백' : '🚫 연락 두절') : (review.option3 ? '🤩 합리적이에요' : '🤑 비쌌어요'))}">
                     </span>
                 </div>
             </div>
