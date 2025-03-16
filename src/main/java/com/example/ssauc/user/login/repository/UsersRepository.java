@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface UsersRepository extends JpaRepository<Users, Long> {
@@ -35,6 +37,6 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
   boolean existsByUserName(String userName);
   boolean existsByPhone(String phone);
 
-
+  List<Users> findByLastLoginBefore(LocalDateTime date);
 
 }

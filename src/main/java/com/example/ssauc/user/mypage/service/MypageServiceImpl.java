@@ -3,11 +3,13 @@ package com.example.ssauc.user.mypage.service;
 import com.example.ssauc.common.service.CommonUserService;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.mypage.dto.*;
+import com.example.ssauc.user.mypage.event.ReviewSubmittedEvent;
 import com.example.ssauc.user.order.entity.Orders;
 import com.example.ssauc.user.order.repository.OrdersRepository;
 import com.example.ssauc.user.pay.entity.Review;
 import com.example.ssauc.user.pay.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ public class MypageServiceImpl implements MypageService {
     private final CommonUserService commonUserService;
     private final ReviewRepository reviewRepository;
     private final OrdersRepository ordersRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     // JWT 기반 DB에서 최신 사용자 정보를 조회
     @Override
@@ -47,8 +50,10 @@ public class MypageServiceImpl implements MypageService {
         return EvaluationReviewDto.builder()
                 .reviewId(review.getReviewId())
                 .orderId(review.getOrder().getOrderId())
-                .reviewTarget(review.getReviewee().getUserName())
-                .profileImageUrl(review.getReviewee().getProfileImage())
+                .reviewer(review.getReviewer().getUserName())
+                .reviewee(review.getReviewee().getUserName())
+                .profileImageUrl1(review.getReviewer().getProfileImage())
+                .profileImageUrl2(review.getReviewee().getProfileImage())
                 .productId(review.getOrder().getProduct().getProductId())
                 .productName(review.getOrder().getProduct().getName())
                 .productImageUrl(review.getOrder().getProduct().getImageUrl().split(",")[0])
@@ -113,9 +118,8 @@ public class MypageServiceImpl implements MypageService {
         Boolean option2 = "positive".equalsIgnoreCase(evaluationDto.getQ2());
         Boolean option3 = "positive".equalsIgnoreCase(evaluationDto.getQ3());
 
-        // baseScore 재계산: 기본 0.5점에 각 옵션에 대해 positive는 +0.5, negative는 -0.5
-        double baseScore = 0.5
-                + (option1 ? 0.5 : -0.5)
+        // 기본 0.0점에 각 옵션에 대해 positive는 +0.5, negative는 -0.5
+        double baseScore = (option1 ? 0.5 : -0.5)
                 + (option2 ? 0.5 : -0.5)
                 + (option3 ? 0.5 : -0.5);
 
@@ -138,6 +142,13 @@ public class MypageServiceImpl implements MypageService {
                 .build();
 
         reviewRepository.save(review);
+
+        // 리뷰 제출 이벤트 발행
+        eventPublisher.publishEvent(
+                new ReviewSubmittedEvent(this, currentUser.getUserId(), reviewee.getUserId(), baseScore, review.getCreatedAt())
+        );
+
+
     }
 
     // 리뷰 페이지에 필요한 정보 조회
@@ -197,3 +208,6 @@ public class MypageServiceImpl implements MypageService {
     }
 
 }
+
+
+

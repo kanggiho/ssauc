@@ -75,6 +75,11 @@ public class UserService {
             log.info("사용자 조회 성공: {}", normalizedEmail);
             if (passwordEncoder.matches(password, user.getPassword())) {
                 log.info("비밀번호 일치함: {}", normalizedEmail);
+
+                // lastLogin 업데이트
+                user.updateLastLogin();
+                userRepository.save(user);
+
                 String accessToken = jwtUtil.generateAccessToken(normalizedEmail);
                 String refreshToken = jwtUtil.generateRefreshToken(normalizedEmail);
                 log.info("생성된 Access Token: {}", accessToken);

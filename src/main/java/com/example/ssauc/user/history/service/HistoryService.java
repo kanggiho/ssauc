@@ -13,11 +13,14 @@ import com.example.ssauc.user.chat.repository.ReportRepository;
 import com.example.ssauc.user.history.dto.*;
 import com.example.ssauc.user.chat.repository.BanRepository;
 import com.example.ssauc.user.login.entity.Users;
+import com.example.ssauc.user.mypage.event.OrderCompletedEvent;
+import com.example.ssauc.user.mypage.event.OrderShippedEvent;
 import com.example.ssauc.user.order.entity.Orders;
 import com.example.ssauc.user.order.repository.OrdersRepository;
 import com.example.ssauc.user.product.entity.Product;
 import com.example.ssauc.user.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,6 +41,7 @@ public class HistoryService {
     private final AutoBidRepository autoBidRepository;
     private final ReportRepository reportRepository;
     private final ProductReportRepository productReportRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     // 세션에서 전달된 userId를 이용하여 DB에서 최신 사용자 정보를 조회합니다.
     public Users getCurrentUser(String email) {
@@ -263,6 +267,17 @@ public class HistoryService {
             Orders orders = optionalOrder.get();
             orders.setDeliveryStatus(trackingNumber);
             ordersRepository.save(orders);
+
+            // 운송장 등록 시각
+            LocalDateTime now = LocalDateTime.now();
+
+            // 24시간 내 운송장 등록 이벤트 발행
+            // 주문일과 비교하여 24시간 이내이면 이벤트 발행
+            if(java.time.Duration.between(orders.getOrderDate(), now).toHours() < 24) {
+                eventPublisher.publishEvent(
+                        new OrderShippedEvent(this, orders.getSeller().getUserId(), orders.getOrderDate(), now)
+                );
+            }
             return true;
         }
         return false;
@@ -367,5 +382,8 @@ public class HistoryService {
         order.setOrderStatus("완료");
         order.setCompletedDate(LocalDateTime.now());
         ordersRepository.save(order);
+
+        // 주문 완료 이벤트 발행 (reputation)
+        eventPublisher.publishEvent(new OrderCompletedEvent(this, order.getBuyer().getUserId(), order.getSeller().getUserId(), order.getCompletedDate()));
     }
 }

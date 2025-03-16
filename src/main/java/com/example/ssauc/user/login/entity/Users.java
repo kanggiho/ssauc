@@ -92,7 +92,7 @@ public class Users {
             this.status = "active";
         }
         if (this.reputation == null) {
-            this.reputation = 50.0;
+            this.reputation = 30.0;
         }
         if (this.cash == null) {
             this.cash = 0L;

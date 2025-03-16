@@ -126,6 +126,15 @@ public class MypageController {
         EvaluatedDto reviewDto = mypageService.getReviewById(reviewId, latestUser.getUserId());
         model.addAttribute("review", reviewDto);
 
+        // reviewType 결정: 현재 사용자가 리뷰 작성자이면 "written", 아니면 "received"
+        String reviewType = "";
+        if(latestUser.getUserName().equals(reviewDto.getReviewerName())) {
+            reviewType = "written";
+        } else {
+            reviewType = "received";
+        }
+        model.addAttribute("reviewType", reviewType);
+
         return "/mypage/evaluated";
     }
 
