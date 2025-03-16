@@ -9,6 +9,8 @@ import com.example.ssauc.user.main.entity.RecentlyViewed;
 import com.example.ssauc.user.order.entity.Orders;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,15 +34,16 @@ public class Product {
     private Users seller;
 
     // 카테고리 정보
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @Column(nullable = false, length = 200)
     private String name;
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
+    @Lob
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;        // 상품 설명
 
     @Column(nullable = false)
     private Long price;
@@ -49,15 +52,24 @@ public class Product {
 
     private Long startPrice;
 
-    @Column(length = 1000)
-    private String imageUrl;
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;           // 이미지 주소
 
     @Column(length = 50)
     private String status;
 
+    @CreationTimestamp
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    // 수정 시간: 엔티티가 업데이트될 때 자동으로 시간 갱신
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;   // 수정 시간
     private LocalDateTime endAt;
-    private int viewCount;
+
+    @Column(name = "view_count")
+    private Long viewCount;            // 조회수
 
     private int dealType;
 
@@ -66,7 +78,10 @@ public class Product {
     private int minIncrement;
     private int likeCount;
 
-    
+    public Integer getDealType() { return this.dealType; }
+    public Integer getBidCount() { return this.bidCount; }
+    public Integer getLikeCount() { return this.likeCount; }
+
 
 
     // 연관 관계 설정
