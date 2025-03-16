@@ -29,4 +29,7 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
     Page<Bid> findLatestBidsByUser(@Param("buyer") Users buyer,
                                    @Param("now") LocalDateTime now,
                                    Pageable pageable);
+
+
+
 }
