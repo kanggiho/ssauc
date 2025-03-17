@@ -104,7 +104,7 @@
                   <a th:href="@{/admin/withdraw(page=${withdrawList.number}, sort='withdrawAt,asc')}" class="sort-btn">⭡</a>
                   <a th:href="@{/admin/withdraw(page=${withdrawList.number}, sort='withdrawAt,desc')}" class="sort-btn">⭣</a>
                 </th>
-                <th class="text-center">처리 완료</th>
+                <th class="text-center">처리완료</th>
               </tr>
               </thead>
               <tbody>
@@ -123,9 +123,9 @@
                   <button type="button" class="btn btn-success btn-sm"
                           th:if="${withdraw.withdrawAt == null}"
                           th:onclick="|processWithdraw(${withdraw.withdrawId})|">
-                    처리 완료
+                    처리완료
                   </button>
-                  <span th:if="${withdraw.withdrawAt != null}">처리 완료</span>
+                  <span th:if="${withdraw.withdrawAt != null}">처리완료</span>
                 </td>
               </tr>
               <tr th:if="${#lists.isEmpty(withdrawList?.content)}">

@@ -12,8 +12,10 @@
         /* 캐러셀 전체 영역 및 각 슬라이드의 고정 높이 설정 */
         .carousel-inner,
         .carousel-item {
-            height: 400px;
-            width: 400px;
+            height: 300px;
+            width: 300px;
+            position: relative;
+            margin: 0 auto;
         }
         /* 캐러셀 슬라이드 이미지 스타일 */
         .carousel-item img {
@@ -22,8 +24,36 @@
             object-fit: cover;
             display: block;
         }
+
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+            position: absolute;
+        }
+
+        .carousel-control-prev {
+            left: 0;
+        }
+
+        .carousel-control-next {
+            right: 0;
+        }
+
         .tracking-number {
             margin-top: 16px;
+        }
+
+        .card-body {
+            padding-bottom: 0 !important;
         }
     </style>
 </head>
@@ -39,10 +69,9 @@
             <div class="card mb-4">
                 <div class="card-header fw-bold">판매 상품 정보</div>
                 <div class="card-body">
-                    <div class="row">
+                    <div class="row align-items-center">
                         <!-- 왼쪽: 상품 정보 -->
                         <div class="col-md-7">
-                            <p><strong>상품 이름:</strong> <span th:text="${soldDetail.productName}">상품 A</span></p>
                             <p>
                                 <strong>상품 이름:</strong>
                                 <span class="productBid"
@@ -104,9 +133,9 @@
                     </p>
                     <!-- 운송장 등록 영역 -->
                     <div class="tracking mt-3">
-                        <span class="fw-bold">운송장 등록 현황:</span>
+                        <span class="fw-bold">운송장 정보 등록:</span>
                         <button class="btn btn-primary btn-sm" onclick="registerTracking()"
-                                th:text="${soldDetail.deliveryStatus != null} ? '운송장 수정' : '운송장 등록'">
+                                th:text="'운송장 등록'">
                             운송장 등록
                         </button>
                         <p class="tracking-number">
