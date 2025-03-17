@@ -447,6 +447,10 @@ public class CashServiceImpl implements CashService {
         // 월 3회까지 무료, 초과부터 1,000원 수수료 적용
         long commission = withdrawCount < 3 ? 0 : 1000;
 
+        if (amount <= commission) {
+            throw new IllegalArgumentException("환급 요청 금액이 수수료보다 작거나 같습니다. 환급 요청 금액을 수정해주세요.");
+        }
+
         Withdraw withdraw = Withdraw.builder()
                 .user(user)
                 .amount(amount)

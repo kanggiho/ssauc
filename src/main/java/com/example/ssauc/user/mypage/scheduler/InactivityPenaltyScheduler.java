@@ -21,7 +21,7 @@ public class InactivityPenaltyScheduler {
     private final ReputationHistoryRepository reputationHistoryRepository;
 
     // 매월 1일 00:00에 실행하도록 스케줄러 설정
-    @Scheduled(cron = "0 0 0 1 * ?")
+    @Scheduled(cron = "0 0 9 1 * ?")
     public void applyInactivityPenalty() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime threeMonthsAgo = now.minusMonths(3);

@@ -16,7 +16,7 @@ public class MonthlyTradeResetScheduler {
     private final UserActivityRepository userActivityRepository;
 
     // 매월 1일 00:00에 모든 유저의 monthly_trade_count를 초기화
-    @Scheduled(cron = "0 0 0 1 * ?")
+    @Scheduled(cron = "0 0 8 1 * ?")
     public void resetMonthlyTradeCounts() {
         List<UserActivity> activities = userActivityRepository.findAll();
         for (UserActivity activity : activities) {

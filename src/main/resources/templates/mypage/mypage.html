@@ -30,7 +30,7 @@
                 <li><a th:href="@{/mypage/evaluation}">나의 리뷰 관리</a></li>
                 <li><a th:href="@{/history/ban}">차단 내역 조회</a></li>
                 <li><a th:href="@{/history/report}">신고 내역 조회</a></li>
-                <li><a th:href="@{/chat/chat}">채팅</a></li>
+                <li><a th:href="@{/chat/mychat(userId=${user.userId})}">채팅</a></li>
             </ul>
             <!-- 거래 관련 메뉴 -->
             <h3>나의 거래 정보</h3>

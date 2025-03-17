@@ -606,6 +606,16 @@
             return;
         }
 
+        let currentCount = parseInt(document.getElementById("currentWithdrawCount").textContent) || 0;
+        let commission = currentCount >= 3 ? 1000 : 0;
+
+        // 환급 요청 금액이 수수료보다 작거나 같으면 예외 처리
+        if (amount <= commission) {
+            document.getElementById("withdrawErrorMsg").innerText = "환급 요청 금액이 수수료보다 작거나 같습니다. 환급 요청 금액을 수정해주세요.";
+            document.getElementById("withdrawErrorMsg").style.visibility = "visible";
+            return;
+        }
+
         const bank = document.getElementById("withdrawBank").value;
         const account = document.getElementById("withdrawAccount").value;
         if(amount <= 0 || bank === "" || account.trim() === "") {
