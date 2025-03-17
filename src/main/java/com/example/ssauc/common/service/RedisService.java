@@ -1,6 +1,6 @@
 package com.example.ssauc.common.service;
 
-//import com.example.ssauc.entity.SearchKeyword;
+import com.example.ssauc.user.search.entity.SearchKeyword;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -42,20 +42,20 @@ public class RedisService {
         redisTemplate.opsForZSet().incrementScore(key, member, score);
     }
 
-//    /**
-//     * Redis의 Sorted Set("popularSearch")에서 상위 10개의 검색어를 조회합니다.
-//     * 반환된 각 검색어를 SearchKeyword 객체로 변환합니다.
-//     */
-//    public List<SearchKeyword> getPopularSearchKeywords() {
-//        Set<Object> members = redisTemplate.opsForZSet().reverseRange("popularSearch", 0, 9);
-//
-//        if (members == null) {
-//            return new ArrayList<>();
-//        }
-//
-//        return members.stream()
-//                .map(Object::toString) // Object -> String 변환
-//                .map(member -> new SearchKeyword(member, 0, LocalDateTime.now()))
-//                .collect(Collectors.toList());
-//    }
+    /**
+     * Redis의 Sorted Set("popularSearch")에서 상위 10개의 검색어를 조회합니다.
+     * 반환된 각 검색어를 SearchKeyword 객체로 변환합니다.
+     */
+    public List<SearchKeyword> getPopularSearchKeywords() {
+        Set<Object> members = redisTemplate.opsForZSet().reverseRange("popularSearch", 0, 9);
+
+        if (members == null) {
+            return new ArrayList<>();
+        }
+
+        return members.stream()
+                .map(Object::toString) // Object -> String 변환
+                .map(member -> new SearchKeyword(member, 0, LocalDateTime.now()))
+                .collect(Collectors.toList());
+    }
 }
