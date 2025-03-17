@@ -29,7 +29,7 @@ public class SearchpageController {
         return "search/search"; // templates/search.html
     }
 
-    @GetMapping("/plp")
+        @GetMapping("/plp")
     public String showProductListing(@RequestParam String keyword,
                                      Model model,
                                      HttpServletRequest request) {

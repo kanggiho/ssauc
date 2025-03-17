@@ -120,14 +120,10 @@ document.addEventListener("DOMContentLoaded", function () {
                       <img src="${product.imageUrl || '/img/noimage.png'}" class="card-img-top" alt="상품 이미지">
                       <div class="card-body">
                           <p class="product-title">${product.name}</p>
-                          <p class="product-price">${(product.price || 0).toLocaleString()}원</p>
-                          <p class="product-info">경매 시작가: ${(product.startPrice || 0).toLocaleString()}원</p>
-                          <p class="product-info">현재 입찰가: ${(product.tempPrice || 0).toLocaleString()}원</p>
-                          <p class="product-info">입찰 수: ${product.bidCount}회 | ❤️ ${product.likeCount}</p>
-                          <p class="product-info">조회수: ${product.viewCount}</p>
-                          <p class="product-info">카테고리: ${product.categoryName}</p>
-                          <p class="product-status">상태: ${product.status}</p>
-                      </div>
+                          <p class="product-price">${(product.price || 0).toLocaleString()}원</p>                      
+                          <p class="product-info">입찰 수: ${product.bidCount}회 | ⏳ ${product.status}</p>
+                          <p class="product-info">조회 수: ${product.viewCount}회 | ❤️ ${product.likeCount}</p>
+                                </div>
                   </a>
               </div>
           </div>
