@@ -80,8 +80,6 @@
         .selected-room {
             font-weight: bold !important;
             font-size: 1.1rem !important;
-            background-color: #FFFFFF !important;
-            color: #000 !important;
         }
 
         /* 채팅방 목록에서 차단된 방에 적용할 스타일 (연한 빨강) */
@@ -373,7 +371,7 @@
             actionButtonsDiv.innerHTML = `
         <button class="btn btn-danger btn-sm me-2" onclick="reportUser()">🚨 신고</button>
         <button id="banBtn" class="btn btn-secondary btn-sm">
-            ${room.banned ? '차단 해제' : '⛔ 차단'}
+            ${room.banned ? '🗝️ 차단 해제' : '⛔ 차단'}
         </button>
     `;
             document.getElementById('banBtn').onclick = room.banned ? unbanUser : blockUser;

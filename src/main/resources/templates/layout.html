@@ -51,14 +51,12 @@
                 <!-- 우측: 검색창, 좋아요, 장바구니 아이콘 -->
                 <div class="d-flex align-items-center">
                     <!-- 검색폼 -->
-                    <form class="d-flex me-3">
-                        <div class="input-group">
-                            <input class="form-control" type="search" placeholder="검색어를 입력해주세요" aria-label="검색"
-                                   size="70">
-                            <span class="input-group-text">
-                            <i class="bi bi-search"></i>
-                            </span>
-                        </div>
+                    <form action="/search" method="GET" class="d-flex me-3 w-100">
+                        <button type="submit" class="btn btn-light border w-100 d-flex align-items-center px-3">
+                            <input type="search" name="keyword" placeholder="검색어를 입력해주세요"
+                                   aria-label="검색" class="border-0 w-100" style="outline: none;">
+                            <i class="bi bi-search ms-2"></i>
+                        </button>
                     </form>
 
                     <!-- 유저메뉴 (JWT 로그인 상태인지 #authentication으로 체크) -->
