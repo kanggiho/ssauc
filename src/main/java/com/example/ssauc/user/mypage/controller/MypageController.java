@@ -1,14 +1,15 @@
 package com.example.ssauc.user.mypage.controller;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.util.TokenExtractor;
-import com.example.ssauc.user.mypage.dto.EvaluatedDto;
-import com.example.ssauc.user.mypage.dto.EvaluationDto;
-import com.example.ssauc.user.mypage.dto.EvaluationPendingDto;
-import com.example.ssauc.user.mypage.dto.EvaluationReviewDto;
+import com.example.ssauc.user.mypage.dto.*;
 import com.example.ssauc.user.mypage.service.MypageService;
+import com.example.ssauc.user.mypage.service.UserProfileService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -27,6 +33,11 @@ public class MypageController {
     private final MypageService mypageService;
 
     private final TokenExtractor tokenExtractor;
+    private final UserProfileService userProfileService;
+    private final AmazonS3 amazonS3;
+
+    @Value("${aws.s3.bucket}")
+    private String bucketName;
 
     @GetMapping  // GET 요청을 받아서 mypage.html을 반환
     public String mypage(HttpServletRequest request, Model model) {
@@ -37,6 +48,72 @@ public class MypageController {
         Users latestUser = mypageService.getCurrentUser(user.getEmail());
         model.addAttribute("user", latestUser);
         return "/mypage/mypage";
+    }
+
+    // 프로필 수정 페이지 (개별 주소 필드 분리)
+    @GetMapping("/profile-update")
+    public String showProfileUpdate(HttpServletRequest request, Model model) {
+        Users user = tokenExtractor.getUserFromToken(request);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        Users currentUser = userProfileService.getCurrentUser(user.getEmail());
+        model.addAttribute("user", currentUser);
+        // location 필드를 공백 기준으로 분리 (예: "우편번호 기본주소 상세주소")
+        String[] addressParts = currentUser.getLocation() != null ? currentUser.getLocation().split(" ", 3) : new String[0];
+        model.addAttribute("zipcode", addressParts.length > 0 ? addressParts[0] : "");
+        model.addAttribute("address", addressParts.length > 1 ? addressParts[1] : "");
+        model.addAttribute("addressDetail", addressParts.length > 2 ? addressParts[2] : "");
+        return "mypage/profile-update";
+    }
+
+    // 2) 프로필 이미지 업로드 (S3)
+    @PostMapping("/uploadImage")
+    @ResponseBody
+    public ResponseEntity<?> uploadProfileImage(@RequestParam("file") MultipartFile file) {
+        // 파일 크기 제한 (3MB)
+        if(file.getSize() > 3 * 1024 * 1024) {
+            return ResponseEntity.badRequest().body("파일 크기는 3MB를 초과할 수 없습니다.");
+        }
+        // 이미지 여부 간단 체크
+        if(!file.getContentType().startsWith("image/")) {
+            return ResponseEntity.badRequest().body("이미지 파일만 업로드 가능합니다.");
+        }
+
+        try {
+            // 고유 파일명 (timestamp_파일명)
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(file.getSize());
+            metadata.setContentType(file.getContentType());
+
+            amazonS3.putObject(bucketName, fileName, file.getInputStream(), metadata);
+
+            String fileUrl = amazonS3.getUrl(bucketName, fileName).toString();
+            Map<String, String> result = new HashMap<>();
+            result.put("url", fileUrl);
+            return ResponseEntity.ok(result);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("업로드 실패: " + e.getMessage());
+        }
+    }
+
+    // 프로필 업데이트 처리 (AJAX JSON POST)
+    @PostMapping("/profile-update")
+    @ResponseBody
+    public ResponseEntity<?> updateProfile(@RequestBody UserUpdateDto dto, HttpServletRequest request) {
+        Users user = tokenExtractor.getUserFromToken(request);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+        try {
+            Users currentUser = userProfileService.getCurrentUser(user.getEmail());
+            userProfileService.updateUserProfile(currentUser, dto);
+            return ResponseEntity.ok("프로필이 성공적으로 수정되었습니다.");
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
     // 리뷰 현황 (작성 가능, 받은, 보낸)
