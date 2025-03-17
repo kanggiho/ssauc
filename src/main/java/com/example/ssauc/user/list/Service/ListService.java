@@ -31,40 +31,6 @@ public class ListService {
                 .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
     }
 
-    public Page<TempDto> findAll(Pageable pageable) {
-
-        Page<ListDto> list = listRepository.getProductList(pageable);
-
-        List<TempDto> tempList = list.getContent().stream().map(listDto -> {
-            Duration duration = Duration.between(LocalDateTime.now(), listDto.getEndAt());
-
-            int days = (int) duration.toDays();
-            int hours = (int) duration.toHours() % 24;
-            String bidCount = "입찰 %d회".formatted(listDto.getBidCount());
-            String inform = "⏳ %d일 %d시간".formatted(days, hours);
-            String like = addCommas(String.valueOf(listDto.getLikeCount()));
-            String price = addCommas(listDto.getPrice().toString());
-            String[] mainImage = listDto.getImageUrl().split(",");
-
-            if(days < 0 || hours < 0) { // 마감이 되었다면
-                inform = "⏳ 입찰 마감";
-            }
-
-            return TempDto.builder()
-                    .productId(listDto.getProductId())
-                    .imageUrl(mainImage[0])
-                    .name(listDto.getName())
-                    .price(price)
-                    .bidCount(bidCount)
-                    .gap(inform)
-                    .location(listDto.getLocation())
-                    .likeCount(like)
-                    .build();
-            }).toList();
-
-        return new PageImpl<>(tempList, pageable, list.getTotalElements());
-    }
-
     public Page<TempDto> list(Pageable pageable, Users user) {
 
         Page<WithLikeDto> list;
@@ -85,8 +51,9 @@ public class ListService {
             String like = addCommas(String.valueOf(listDto.getLikeCount()));
             String price = addCommas(listDto.getPrice().toString());
             String[] mainImage = listDto.getImageUrl().split(",");
+            String status = listDto.getStatus();
 
-            if (days < 0 || hours < 0) { // 마감된 경우
+            if (days < 0 || hours < 0 || status.equals("판매완료")) { // 마감된 경우
                 inform = "⏳ 입찰 마감";
             }
 
@@ -100,21 +67,11 @@ public class ListService {
                     .location(listDto.getLocation())
                     .likeCount(like)
                     .liked(user != null && listDto.isLiked()) // 로그인 안 하면 liked는 false로 설정
+                    .status(listDto.getStatus())
                     .build();
         }).toList();
 
         return new PageImpl<>(tempList, pageable, list.getTotalElements());
-    }
-
-
-
-    public static String addCommas(String number) {
-        try {
-            double value = Double.parseDouble(number); // 실수도 처리 가능
-            return String.format("%,.0f", value); // 천 단위마다 콤마 추가
-        } catch (NumberFormatException e) {
-            return "Invalid number format";
-        }
     }
 
     public Page<TempDto> likelist(Pageable pageable, Users user) {
@@ -130,8 +87,9 @@ public class ListService {
             String like = addCommas(String.valueOf(listDto.getLikeCount()));
             String price = addCommas(listDto.getPrice().toString());
             String[] mainImage = listDto.getImageUrl().split(",");
+            String status = listDto.getStatus();
 
-            if(days < 0 || hours < 0) { // 마감이 되었다면
+            if (days < 0 || hours < 0 || status.equals("판매완료")) { // 마감된 경우
                 inform = "⏳ 입찰 마감";
             }
 
@@ -146,6 +104,7 @@ public class ListService {
                     .location(listDto.getLocation())
                     .likeCount(like)
                     .liked(listDto.isLiked())
+                    .status(listDto.getStatus())
                     .build();
         }).toList();
 
@@ -172,8 +131,9 @@ public class ListService {
             String like = addCommas(String.valueOf(listDto.getLikeCount()));
             String price = addCommas(listDto.getPrice().toString());
             String[] mainImage = listDto.getImageUrl().split(",");
+            String status = listDto.getStatus();
 
-            if(days < 0 || hours < 0) { // 마감이 되었다면
+            if (days < 0 || hours < 0 || status.equals("판매완료")) { // 마감된 경우
                 inform = "⏳ 입찰 마감";
             }
 
@@ -187,6 +147,7 @@ public class ListService {
                     .location(listDto.getLocation())
                     .likeCount(like)
                     .liked(listDto.isLiked())
+                    .status(listDto.getStatus())
                     .build();
         }).toList();
 
@@ -213,8 +174,9 @@ public class ListService {
             String like = addCommas(String.valueOf(listDto.getLikeCount()));
             String price = addCommas(listDto.getPrice().toString());
             String[] mainImage = listDto.getImageUrl().split(",");
+            String status = listDto.getStatus();
 
-            if (days < 0 || hours < 0) { // 마감이 되었다면
+            if (days < 0 || hours < 0 || status.equals("판매완료")) { // 마감된 경우
                 inform = "⏳ 입찰 마감";
             }
 
@@ -228,6 +190,7 @@ public class ListService {
                     .location(listDto.getLocation())
                     .likeCount(like)
                     .liked(listDto.isLiked())
+                    .status(listDto.getStatus())
                     .build();
         }).toList();
 
@@ -236,10 +199,6 @@ public class ListService {
 
     public Page<TempDto> getAvailableBidWithLike(Pageable pageable, Users user) {
         Page<WithLikeDto> list = listRepository.getAvailableProductListWithLike(user.getUserId(), pageable);
-
-        log.info("사이즈입니당~!~!");
-        log.info(list.getContent().toString());
-        log.info(String.valueOf(list.getContent().size()));
 
         List<TempDto> tempList = list.getContent().stream()
                 .filter(listDto -> { // 마감되지 않은 상품만 필터링
@@ -268,6 +227,7 @@ public class ListService {
                             .location(listDto.getLocation())
                             .likeCount(like)
                             .liked(listDto.isLiked())
+                            .status(listDto.getStatus())
                             .build();
                 }).toList();
 
@@ -297,9 +257,19 @@ public class ListService {
                             .gap(inform)
                             .location(listDto.getLocation())
                             .likeCount(like)
+                            .status(listDto.getStatus())
                             .build();
                 }).toList();
 
         return new PageImpl<>(tempList, pageable, list.getTotalElements());
+    }
+
+    public static String addCommas(String number) {
+        try {
+            double value = Double.parseDouble(number); // 실수도 처리 가능
+            return String.format("%,.0f", value); // 천 단위마다 콤마 추가
+        } catch (NumberFormatException e) {
+            return "Invalid number format";
+        }
     }
 }

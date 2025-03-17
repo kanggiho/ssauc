@@ -35,7 +35,6 @@
             </div>
         </div>
 
-        <!-- ✅ 페이지네이션을 상품 리스트 바깥으로 이동 -->
         <div class="pagination-container" th:if="${!likelist.isEmpty()}">
             <div class="pagination">
                 <!-- 이전 페이지 버튼 -->
@@ -63,7 +62,7 @@
     </div>
 
     <script th:inline="javascript">
-        var isLoggedIn = /*[[${session.user != null}]]*/ false;
+        var isLoggedIn = /*[[${user != null and user.userId != null}]]*/ false;
 
         function toggleHeart(button) {
             // 로그인 여부 체크: 로그인 안 되어 있으면 메시지 표시 후 리턴

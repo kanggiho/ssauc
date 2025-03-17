@@ -19,4 +19,5 @@ public class ListDto {
     private LocalDateTime createdAt;
     private String location; // Users 테이블
     private int likeCount;
+    private String status;
 }
