@@ -79,54 +79,69 @@
 <br/>
 
 ## 🔨 프로젝트 구조
-![아키텍처](https://firebasestorage.googleapis.com/v0/b/fir-readme-storage.appspot.com/o/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA%202022-06-02%20%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE%2011.19.37.png?alt=media&token=79093ff3-9c0a-40fd-8721-f0fa54625694)
+![아키텍처](https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/architecture.png)
 
 <br/>
 
 ## 🔧 Stack
 
-**Frontend(Web)**
-- **Language** : JavaScript, TypeScript
-- **Library & Framework** : React, Styled-Components, Axios, Recoil, React-Quill, React-Rnd, React-To-Pdf
-- **Deploy**: AWS(S3)
-<br />
+  ### Language
+  <!--Java-->
+  <img src="https://img.shields.io/badge/Java-%23ED8B00.svg?style=flat-square&logo=openjdk&logoColor=white"/>
 
-**Backend**
-- **Language** : Java 
-- **Library & Framework** : Spring Boot
-- **Database** : MySQLDB
-- **ORM** : JPA
-- **Deploy**: AWS(EC2, RDS), Firebase(Storage)
+  
+  ### Library
+  <!--Thymeleaf--><!--Apache-->
+  <img src="https://img.shields.io/badge/Thymeleaf-%23005C0F.svg?style=flat-square&logo=Thymeleaf&logoColor=white"/> <img src="https://img.shields.io/badge/Apache-%23D42029.svg?style=flat-square&logo=apache&logoColor=white"/>
+ 
+  
+  ### Framework
+  <!--Spring--><!--SpringBoot--><!--SpringSecurity--><!--SpringJPA--><!--Tomcat-->
+  <img src="https://img.shields.io/badge/Spring-%236DB33F.svg?style=flat-square&logo=spring&logoColor=white"/> <img src="https://img.shields.io/badge/Spring Boot-%236DB33F.svg?style=flat-square&logo=spring&logoColor=white"/> <img src="https://img.shields.io/badge/Spring Security-%236DB33F.svg?style=flat-square&logo=spring&logoColor=white"/> <img src="https://img.shields.io/badge/Spring JPA-%236DB33F.svg?style=flat-square&logo=spring&logoColor=white"/> <img src="https://img.shields.io/badge/Apache%20tomcat-%23F8DC75.svg?style=flat-square&logo=apache-tomcat&logoColor=black"/>
+
+  ### Database
+  <!--MySQL--><!--Firebase-->
+  <img src="https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=MySQL&logoColor=white"/> <img src="https://img.shields.io/badge/Firebase-a08021?style=flat-square&logo=firebase&logoColor=ffcd34"/>
+  
+  ### ETC
+  <!--Amazon AWS--><!--Amazon S3-->
+  <img src="https://img.shields.io/badge/Amazon AWS-232F3E?style=flat-square&logo=Amazon AWS&logoColor=white"/> <img src="https://img.shields.io/badge/Amazon%20S3-FF9900?style=flat-square&logo=amazons3&logoColor=white"/>
+
+  ### Collaboration
+  <!--Slack--><!--Github-->
+  <img src="https://img.shields.io/badge/Slack-4A154B?style=flat-square&logo=Slack&logoColor=white"/> <img src="https://img.shields.io/badge/Github-%23121011.svg?style=flat-square&logo=github&logoColor=white"/>
+
+
 
 <br/>
 
 ## 💡 기대효과
 
-**자신이 만든 포트폴리오 양식을 웹 사이트에서 관리 및 공유를 할 수 있어 인터넷에 연결만 되어 있다면 언제 어디서든 디자인을 할 수 있다.**
+**경매 시스템의 실시간 입찰 처리 로직 구현을 통해 이벤트 기반 프로그래밍 및 동시성 처리 기법을 학습할 수 있습니다.**
 
-**드래그 앤 드롭 (DND) 기술과 이를 활용하는 법에 대해 학습할 수 있다.**
+**사용자 행동 데이터를 활용한 추천 알고리즘 구현 과정을 통해 데이터 전처리, 모델링, 평가 등을 경험할 수 있습니다.**
 
-**데이터 형성과 상태관리, 구축 기술, 서비스 배포에 대해 학습할 수 있다.**
+**데이터 형성과 상태관리, 구축 기술, 서비스 배포에 대해 학습할 수 있습니다.**
 
-**RESTful API를 적용한 프론트엔드&백엔드 간의 통신을 학습할 수 있다.**
+**프로젝트 진행 과정에서 코드 관리, 협업 도구 활용, 코드 리뷰 등의 개발 협업 방식을 경험하며, 해당 프로세스에 익숙해질 수 있습니다.**
 
 <br/>
 
 ## 👍 활용분야
 
-**편의성**: 학생과 취업준비생이 문서 형식에 구애받지 않고 손쉽게 포트폴리오 제작이 가능하다.
+**편의성**: 사용자들이 실시간 경매를 통해 쉽고 빠르게 중고 물품 거래에 참여할 수 있어, 거래 과정의 편리함과 접근성을 높입니다.
 
-**확장성**: 학생과 취업준비생 뿐만 아니라 기업 등의 고유 양식으로도 제공하여 다양한 분야에 활용할 수 있다.
+**확장성**: 다양한 상품군과 사용자 데이터를 기반으로 추가 기능 및 다른 거래 플랫폼과의 연계가 가능하여, 향후 서비스 확장이 용이합니다.
 
-**수익성**: 사용자가 자신의 디자인을 판매해 수익을 창출할 수 있고 운영자는 판매 수수료를 통하여 수익 창출이 가능하다.
+**수익성**: 경매 방식의 경쟁을 통해 판매자는 적정 가격에 상품을 판매할 수 있고, 플랫폼은 거래 수수료 및 부가 서비스를 통해 수익을 창출할 수 있습니다.
 
-**획일화된 양식**: 제출물을 하나의 디자인 양식으로 관리하여 자료를 분류 및 보관하는데 용이하다.
+**획일화된 양식**: 실시간 경매 및 사용자 인증, 리뷰 시스템을 통해 거래 과정을 투명하게 관리함으로써, 사용자 간 신뢰를 높이고 안전한 거래 환경을 제공합니다.
 
 <br/>
 
 ## 🙋‍♂️ Developer
 
-|                                          Backend                                           |                                         Frontend                                          |                                         Frontend                                          |                                         Frontend                                         |             
-| :----------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------: | 
-|  |  |  |  | 
-|                            [박정근](https://github.com/JGeun)                            |                           [유준호](https://github.com/yjh-1008)                           |                          [이재영](https://github.com/2jaebbang)                          |                         [이찬우](https://github.com/tigerlcw)                          |                           
+|                                          Backend                                           |                                         Backend                                          |                                         Backend                                          |                                         Backend                                         |                                         Backend                                         |             
+| :----------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------: | 
+|팀장|팀원|팀원|팀원|팀원| 
+|                            [강기호](https://github.com/kanggiho)                            |                           [김건희](https://github.com/gunny97h)                           |                          [정영재](https://github.com/Jenius-95)                          |                         [김희재](https://github.com/HeeJava)                          |                         [박상협](https://github.com/son-goten)                          |                           
