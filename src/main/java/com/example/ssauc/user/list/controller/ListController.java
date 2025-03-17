@@ -44,7 +44,7 @@ public class ListController {
         }
 
         model.addAttribute("secondList", secondList);
-        model.addAttribute("user", user); //
+        model.addAttribute("user", user);
 
         return "list/list";
     }
@@ -61,6 +61,7 @@ public class ListController {
 
         Page<TempDto> likelist = listService.likelist(pageable, user);
         model.addAttribute("likelist", likelist);
+        model.addAttribute("user", user);
 
         return "likelist/likelist";
     }
@@ -84,6 +85,7 @@ public class ListController {
             }
 
             model.addAttribute("secondList", categoryList);
+            model.addAttribute("user", user);
 
             return "list/list";
     }
@@ -115,6 +117,7 @@ public class ListController {
         model.addAttribute("secondList", filteredProducts);
         model.addAttribute("minPrice", minPrice);
         model.addAttribute("maxPrice", maxPrice);
+        model.addAttribute("user", user);
 
         return "list/list";
     }
@@ -139,6 +142,8 @@ public class ListController {
         }
 
         model.addAttribute("secondList", availableBid);
+        model.addAttribute("user", user);
+
         return "list/list";
     }
 }

@@ -20,5 +20,6 @@ public class WithLikeDto {
     private LocalDateTime createdAt;
     private String location;
     private int likeCount;
+    private String status;
     private boolean liked;
 }
