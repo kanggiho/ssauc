@@ -549,9 +549,7 @@
 
                     document.getElementById("interestBtn").addEventListener("click", function () {
 
-                        var isLoggedIn = [[${tokenId != 'guest'
-                    }]]
-                        ;
+                        var isLoggedIn = [[${tokenId != 'guest'}]];
 
                         if (!isLoggedIn || isLoggedIn === "false") {
                             // confirm 창의 기본 버튼은 브라우저에 따라 "확인"/"취소"로 표시됩니다.

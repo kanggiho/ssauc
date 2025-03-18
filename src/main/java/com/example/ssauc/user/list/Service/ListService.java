@@ -28,7 +28,7 @@ public class ListService {
     // JWT 현재 이메일을 기반으로 사용자 정보를 조회
     public Users getCurrentUser(String email) {
         return usersRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
+                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다.3"));
     }
 
     public Page<TempDto> list(Pageable pageable, Users user) {
