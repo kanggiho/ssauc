@@ -12,9 +12,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UsersRepository extends JpaRepository<Users, Long> {
-  Optional<Users> findByEmail(String email);
   Optional<Users> findByUserName(String userName);
-  Optional<Users> findByPhone(String phone);
+  Optional<Users> findByEmail(String email);
+  // active만 찾는 메서드
+  Optional<Users> findByUserNameAndPhoneAndStatus(String userName, String phone, String status);
+  // Email로 찾는 메서드
+  Optional<Users> findByEmailAndStatus(String email, String status);
 
   @Transactional
   @Modifying
@@ -33,7 +36,7 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
 
 
 
-  Optional<Users> findByUserNameAndPhone(String userName, String phone);
+
   boolean existsByEmail(String email);
   boolean existsByUserName(String userName);
   boolean existsByPhone(String phone);
