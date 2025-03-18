@@ -81,19 +81,76 @@
                             <a href="/logout" class="text-danger me-3 text-decoration-none">로그아웃</a>
                         </th:block>
 
-                        <!-- 알림 버튼 -->
-                        <div class="dropdown">
+                        <!-- 인증되지 않은 경우(게스트) -->
+                        <a th:if="${#authentication == null or #authentication.name == 'anonymousUser'}"
+                           th:href="@{/login}" class="me-3 text-dark">
+                            <i class="bi bi-bell"></i>
+                        </a>
+
+                        <!-- 인증된 경우 -->
+                        <div class="dropdown" th:if="${#authentication != null && #authentication.name != 'anonymousUser'}">
                             <button class="btn notification-icon" type="button" id="notificationDropdown"
                                     data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-bell"></i>
-                                <span class="notification-badge" id="notificationBadge"></span>
                             </button>
 
-                            <ul class="dropdown-menu" aria-labelledby="notificationDropdown" id="notificationList">
+                            <ul class="dropdown-menu notification-list"
+                                aria-labelledby="notificationDropdown"
+                                id="notificationList"
+                                data-bs-auto-close="false">
+
                                 <li class="dropdown-header">알림</li>
-                                <li class="no-notification text-center text-muted py-3">알림이 없습니다.</li>
+
+                                <!-- 알림 목록 반복 -->
+                                <li th:each="n : ${notifications}">
+                                    <div class="d-flex align-items-center p-3 border-bottom"
+                                         th:classappend="
+                    ${n.type == '채팅'} ? ' bg-chat text-dark' :
+                    (${n.type == '상회입찰'} ? ' bg-bid text-dark' :
+                    (${n.type == '입찰마감'} ? ' bg-deadline text-dark' : ''))
+                 ">
+                                        <!-- 왼쪽 프로필 아이콘 (이미지 사용 가능) -->
+                                        <div class="me-3 d-flex align-items-center justify-content-center icon-circle">
+                                            <i th:classappend="
+                        ${n.type == '채팅'} ? 'bi bi-chat-left-dots' :
+                        (${n.type == '상회입찰'} ? 'bi bi-arrow-up-circle' :
+                        (${n.type == '입찰마감'} ? 'bi bi-hourglass-split' : 'bi bi-bell'))
+                    "></i>
+                                        </div>
+
+                                        <!-- 가운데 텍스트 -->
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold text-dark-notification" th:text="${n.type}">알림 종류</div>
+                                            <div class="text-dark-notification" th:text="${n.message}">알림 메시지</div>
+                                            <div class="text-muted small"
+                                                 th:text="${#temporals.format(n.createdAt, 'yyyy.MM.dd HH:mm')}">
+                                                날짜
+                                            </div>
+                                        </div>
+
+                                        <!-- 개별 알림 삭제 버튼 -->
+                                        <button type="button"
+                                                class="btn-close ms-auto"
+                                                aria-label="Close"
+                                                th:attr="onclick='removeNotification(' + ${n.notificationId} + ', this)'">
+                                        </button>
+                                    </div>
+                                </li>
+
+                                <!-- 알림이 없을 경우 -->
+                                <li th:if="${notifications.size()} == 0" class="no-notification text-center text-muted py-3">
+                                    알림이 없습니다.
+                                </li>
+
+                                <!-- 모든 알림 삭제 버튼 -->
+                                <li th:if="${notifications.size()} != 0" class="dropdown-footer text-center p-2">
+                                    <button type="button" class="btn btn-link text-danger fw-bold" onclick="clearAllNotifications()">
+                                        <i class="bi bi-trash"></i> 비우기
+                                    </button>
+                                </li>
                             </ul>
                         </div>
+
                         <!-- 인증되지 않은 경우 -->
                         <a th:if="${#authentication == null or #authentication.name == 'anonymousUser'}"
                            th:href="@{/login}" class="me-3 text-dark">
@@ -250,46 +307,74 @@
         }
     });
 
-    // 예제 알림 데이터
-    const notifications = [
-        {user: "강기호", message: "님이 입찰하였습니다.", time: "2025.02.20 10:52", img: "/img/index/time.jpg"},
-        {user: "강기호", message: "님이 입찰하였습니다.", time: "2025.02.20 10:52", img: "/img/index/time.jpg"},
-        {user: "강기호", message: "님이 입찰하였습니다.", time: "2025.02.20 10:52", img: "/img/index/time.jpg"}
-    ];
+    function removeNotification(notificationId, btn) {
+        console.log("removeNotification called, id=", notificationId);
 
-    const notificationList = document.getElementById("notificationList");
-    const notificationBadge = document.getElementById("notificationBadge");
-
-    function loadNotifications() {
-        notificationList.innerHTML = `<li class="dropdown-header">알림</li>`;
-
-        if (notifications.length === 0) {
-            notificationList.innerHTML += `<li class="no-notification text-center text-muted py-3">알림이 없습니다.</li>`;
-            notificationBadge.style.display = "none";
-        } else {
-            notifications.forEach(notif => {
-                notificationList.innerHTML += `
-                    <li class="notification-item">
-                        <img src="${notif.img}" alt="User">
-                        <div>
-                            <p class="notification-text"><strong>${notif.user}</strong>${notif.message}</p>
-                            <p class="notification-time">${notif.time}</p>
-                        </div>
-                    </li>
-                `;
+        fetch(`/notifications/${notificationId}/read`, {
+            method: 'PATCH'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to update notification");
+                }
+                // 성공 시, 화면에서 해당 알림 제거
+                const notificationItem = btn.closest('li');
+                if (notificationItem) {
+                    notificationItem.remove();
+                }
+            })
+            .catch(error => {
+                console.error("Error removing notification:", error);
             });
-
-            notificationList.innerHTML += `<li class="clear-btn" onclick="clearNotifications()">🗑️ 비우기</li>`;
-            notificationBadge.style.display = "block";
-        }
     }
 
-    function clearNotifications() {
-        notifications.length = 0;
-        loadNotifications();
-    }
+    document.addEventListener("DOMContentLoaded", function () {
+        // 드롭다운 버튼과 메뉴 요소 가져오기
+        const dropdownButton = document.getElementById("notificationDropdown");
+        const dropdownMenu = document.getElementById("notificationList");
 
-    document.addEventListener("DOMContentLoaded", loadNotifications);
+        // Bootstrap 드롭다운 객체 생성
+        const dropdown = new bootstrap.Dropdown(dropdownButton);
+
+        // 드롭다운 내부 클릭 시 닫히지 않도록 이벤트 방지
+        dropdownMenu.addEventListener("click", function (event) {
+            event.stopPropagation(); // 이벤트 전파 방지 → 드롭다운 닫히는 현상 방지
+        });
+
+        // X 버튼 눌러도 드롭다운이 닫히지 않도록 설정
+        document.querySelectorAll(".btn-close").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.stopPropagation(); // X 버튼 클릭 시 드롭다운 닫힘 방지
+            });
+        });
+    });
+
+    /**
+     * 모든 알림 삭제 (화면에서 제거)
+     */
+    function clearAllNotifications() {
+        console.log("clearAllNotifications 실행됨");
+
+        // 서버로 모든 알림을 삭제하는 API 호출
+        fetch('/notifications/clear', {
+            method: 'DELETE'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to clear notifications");
+                }
+                // UI에서 모든 알림 삭제
+                document.getElementById("notificationList").innerHTML = `
+                <li class="no-notification text-center text-muted py-3">
+                    알림이 없습니다.
+                </li>
+            `;
+                console.log("모든 알림이 삭제됨!");
+            })
+            .catch(error => {
+                console.error("Error clearing notifications:", error);
+            });
+    }
 </script>
 
 </body>

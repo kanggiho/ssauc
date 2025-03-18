@@ -162,6 +162,7 @@
                             </button>
                         </li>
                     </ul>
+
                     <!-- 탭 컨텐츠 -->
                     <div class="tab-content" id="productTabContent">
                         <!-- 설명 탭 -->
@@ -199,6 +200,38 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 유사한 상품 섹션 -->
+            <div class="container mt-5">
+                <h3 class="mb-4">이 상품과 유사한 상품</h3>
+                <!-- row-cols-*와 함께 align-items-stretch로 모든 col이 동일 높이로 확장 -->
+                <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-4 align-items-stretch">
+                    <div class="col" th:each="similarProduct : ${similarProducts}">
+                        <!-- 카드 전체 높이를 100%로 설정 -->
+                        <div class="card h-100 shadow-sm">
+                            <!-- 이미지 영역에 고정 높이 지정 + object-fit으로 균일하게 맞춤 -->
+                            <img th:src="@{${similarProduct.imageUrl}}" class="card-img-top"
+                                 alt="유사 상품 이미지" style="height: 200px; object-fit: cover;"
+                                 onerror="this.src='/images/default-product.png'">
+
+                            <!-- 카드 본문을 flex 컨테이너로 만들어, 내용이 부족해도 하단에 버튼 고정 가능 -->
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title text-truncate" th:text="${similarProduct.name}">상품명</h5>
+                                <p class="card-text text-danger fw-bold"
+                                   th:text="${T(java.lang.String).format('%,d 원', similarProduct.price)}">0원</p>
+
+                                <!-- 아래쪽에 배치할 내용은 mt-auto로 카드 하단에 붙임 -->
+                                <div class="mt-auto">
+                                    <a th:href="@{/bid/bid(productId=${similarProduct.productId})}"
+                                       class="btn btn-primary w-100">상품 보기</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
         </div>
         <script>
 

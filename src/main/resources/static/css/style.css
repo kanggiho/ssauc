@@ -534,15 +534,66 @@ body {
 
 /* 알림 드롭다운 스타일 */
 .dropdown-menu {
+    width: 320px;           /* 드롭다운 너비 */
+    max-height: 300px;      /* 드롭다운 최대 높이 */
+    overflow-y: auto;       /* 세로 스크롤 생성 */
+    overflow-x: hidden;     /* 가로 스크롤 숨김 */
+    white-space: normal;    /* 여러 줄 표시 (줄바꿈 허용) */
+    word-wrap: break-word;  /* 긴 단어나 문자열을 자동으로 줄바꿈 */
+    word-break: break-word; /* (브라우저 호환성 위해 함께 선언) */
+}
+
+/* 알림 드롭다운 스타일 */
+.notification-list {
     width: 320px;
-    max-height: 300px; /* 스크롤 제한 */
+    max-height: 400px;
     overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* 개별 알림 항목 */
+.notification-item {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* 아이콘과 텍스트 사이 간격 */
+    padding: 8px;
+}
+
+/* 아이콘 스타일 */
+.notification-icon {
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+/* 텍스트 영역을 수직 정렬 */
+.notification-text {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* 텍스트 스타일 */
+.notification-text .fw-bold {
+    font-size: 12px;
+}
+
+.notification-text .text-muted {
+    font-size: 11px;
 }
 
 .dropdown-header {
     font-weight: bold;
     text-align: center;
     padding: 10px 0;
+}
+
+.text-dark-notification {
+    color: black;
+    font-size: 13px;
 }
 
 .notification-item {
@@ -560,7 +611,7 @@ body {
 }
 
 .notification-text {
-    font-size: 14px;
+    font-size: 10px;
 }
 
 .notification-time {
