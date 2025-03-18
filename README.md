@@ -44,25 +44,25 @@
 <br/>
 
 ## ⭐ 주요 기능
-- **메인 페이지** : 메뉴바, 추천 상품 리스트, 인기 상품 리스트 적용
+- **메인 페이지** : 메뉴바, 추천 상품 리스트, 인기 상품 리스트
 
 ![메인](https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/mainpage.png)
 
 <br/>
 
-- **PLP(상품 목록 페이지)** : 상품의 간단한 정보 및 좋아요 기능, 필터링 기능 적용
+- **PLP(상품 목록 페이지)** : 상품의 간단한 정보 및 좋아요 기능, 필터링 기능
 
 ![상품리스트](https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/plp.png)
 
 <br/>
 
-- **상품등록 페이지** : 상품을 경매에 등록하는 기능 적용
+- **상품등록 페이지** : 상품을 경매에 등록하는 기능
 
 ![상품등록](https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/product.png)
 
 <br/>
 
-- **PDP(상품 상세 페이지)** : 상품에 대한 상세한 정보 및 입찰, 자동입찰, 즉시구매 기능 적용
+- **PDP(상품 상세 페이지)** : 상품에 대한 상세한 정보 및 입찰, 자동입찰, 즉시구매 기능
 
 ![상품상세](https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/pdp.png)
 
