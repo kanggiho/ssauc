@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -115,6 +116,7 @@ public class MypageController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
+
 
     // 리뷰 현황 (작성 가능, 받은, 보낸)
     @GetMapping("/evaluation")
@@ -216,5 +218,20 @@ public class MypageController {
     }
 
 
+    // 회원 정보 페이지
+    @GetMapping("/info")
+    public String memberInfo(HttpServletRequest request, Model model) {
+        Users user = tokenExtractor.getUserFromToken(request);
+        if(user == null) {
+            return "redirect:/login";
+        }
+        Users userInfo = mypageService.getUserInfo(user.getEmail());
+        model.addAttribute("user", userInfo);
+
+        List<ReputationGraphDto> reputationData = mypageService.getReputationHistory(userInfo);
+        model.addAttribute("reputationData", reputationData);
+
+        return "/mypage/info";
+    }
 
 }
