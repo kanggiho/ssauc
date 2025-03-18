@@ -26,7 +26,7 @@ public class UserService {
 
     public Users getCurrentUser(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
+                .orElse(null);
     }
 
     public String register(UserRegistrationDTO dto) {

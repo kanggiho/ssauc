@@ -40,4 +40,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                                 @Param("minPrice") Long minPrice,
                                 @Param("maxPrice") Long maxPrice,
                                 Pageable pageable);
+
+    List<Product> findByCategory_CategoryId(Long categoryId);
+
+    List<Product> findAllByOrderByLikeCountDesc();
 }
