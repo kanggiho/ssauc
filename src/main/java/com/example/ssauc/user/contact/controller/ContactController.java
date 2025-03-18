@@ -1,24 +1,15 @@
 package com.example.ssauc.user.contact.controller;
 
-import com.example.ssauc.user.contact.service.BoardService;
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.login.util.TokenExtractor;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequiredArgsConstructor
 @RequestMapping("contact")
 public class ContactController {
-
-    private final BoardService boardService;
-    private final TokenExtractor tokenExtractor;
-
     @GetMapping("faq")
     public String faq(Model model) {
         model.addAttribute("currentPage", "faq");
@@ -27,18 +18,15 @@ public class ContactController {
 
 
     @GetMapping("qna")
-    public String qna(HttpServletRequest request,// JWT 인증으로부터 가져옴
-                      Model model) {
+    public String qna(Model model, HttpSession session) {
 
-        Users user = tokenExtractor.getUserFromToken(request);
-        //로그인 확인
-        if (user == null) {
-            // 로그인 안 된 경우 처리
-            return "redirect:/login";
+        if(session.getAttribute("user") != null) {
+            Users reportUser = (Users) session.getAttribute("user");
+            String reporter = reportUser.getUserName();
+            model.addAttribute("reporter", reporter);
         }
-        Users latestUser = boardService.getCurrentUser(user.getEmail());
-        model.addAttribute("user", latestUser.getUserName());
 
+        model.addAttribute("currentPage", "qna");
         return "contact/qna";
     }
 

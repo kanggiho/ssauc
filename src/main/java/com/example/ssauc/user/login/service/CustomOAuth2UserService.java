@@ -1,6 +1,5 @@
 package com.example.ssauc.user.login.service;
 
-
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +20,11 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Lazy  // 클래스 전체에 지연 초기화 적용
+@Lazy
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-    private final UsersRepository userRepository;
-    private final @Lazy PasswordEncoder passwordEncoder; // 이제 EncoderConfig에서 주입받음
     private final UsersRepository usersRepository;
+    private final @Lazy PasswordEncoder passwordEncoder;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -78,6 +76,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         Optional<Users> userOptional = usersRepository.findByEmail(email);
         if (userOptional.isEmpty()) {
+            // DB에 없는 사용자이면 additional_info_required
             OAuth2Error oauth2Error = new OAuth2Error(
                     "additional_info_required",
                     "additional_info_required:" + email + ":" + nickname,
@@ -86,18 +85,18 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.getDescription());
         }
 
-        // user가 존재하긴 하지만, status가 active가 아닐 경우
+        // user가 존재하지만, status != active이면 소셜 로그인 불가
         Users user = userOptional.get();
         if (!"active".equalsIgnoreCase(user.getStatus())) {
-            // inactive 상태인 경우, description에 이메일과 닉네임 정보를 포함해서 전달
             OAuth2Error oauth2Error = new OAuth2Error(
                     "account_inactive",
-                    "inactive|" + email + "|" + nickname,
+                    "inactive|" + email + "|" + nickname,  // inactive|이메일|닉네임
                     null
             );
             throw new OAuth2AuthenticationException(oauth2Error, "inactive user");
         }
 
+        // active 계정이면 로그인 허용
         Map<String, Object> modifiableAttributes = new HashMap<>(attributes);
         modifiableAttributes.put("email", email);
 

@@ -12,12 +12,18 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UsersRepository extends JpaRepository<Users, Long> {
-  Optional<Users> findByUserName(String userName);
+
   Optional<Users> findByEmail(String email);
-  // active만 찾는 메서드
-  Optional<Users> findByUserNameAndPhoneAndStatus(String userName, String phone, String status);
-  // Email로 찾는 메서드
+  Optional<Users> findByUserName(String userName);
+  Optional<Users> findByPhone(String phone);
+
+  // active만 찾는 메서드 (예: findByUserNameAndStatus, findByEmailAndStatus)
   Optional<Users> findByEmailAndStatus(String email, String status);
+  Optional<Users> findByUserNameAndPhoneAndStatus(String userName, String phone, String status);
+
+  boolean existsByEmail(String email);
+  boolean existsByUserName(String userName);
+  boolean existsByPhone(String phone);
 
   @Transactional
   @Modifying
@@ -33,13 +39,6 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
   @Modifying
   @Query("UPDATE Users u SET u.warningCount = u.warningCount + :warningCount WHERE u.userId = :userId")
   int updateUserByWarningCount(@Param("warningCount") int warningCount, @Param("userId") Long userId);
-
-
-
-
-  boolean existsByEmail(String email);
-  boolean existsByUserName(String userName);
-  boolean existsByPhone(String phone);
 
   List<Users> findByLastLoginBefore(LocalDateTime date);
 

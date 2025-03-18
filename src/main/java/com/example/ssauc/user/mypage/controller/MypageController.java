@@ -62,10 +62,39 @@ public class MypageController {
         Users currentUser = userProfileService.getCurrentUser(user.getEmail());
         model.addAttribute("user", currentUser);
         // location 필드를 공백 기준으로 분리 (예: "우편번호 기본주소 상세주소")
-        String[] addressParts = currentUser.getLocation() != null ? currentUser.getLocation().split(" ", 3) : new String[0];
-        model.addAttribute("zipcode", addressParts.length > 0 ? addressParts[0] : "");
-        model.addAttribute("address", addressParts.length > 1 ? addressParts[1] : "");
-        model.addAttribute("addressDetail", addressParts.length > 2 ? addressParts[2] : "");
+        String location = currentUser.getLocation();
+        if (location == null || location.isEmpty()) {
+            // location이 없을 때 기본값
+            model.addAttribute("zipcode", "");
+            model.addAttribute("address", "");
+            model.addAttribute("addressDetail", "");
+        } else {
+            String[] parts = location.split(" ");
+            String zipcode = parts.length >= 1 ? parts[0] : "";
+            String address = "";
+            String addressDetail = "";
+
+            // 기본 주소: index 1,2,3까지
+            if (parts.length >= 4) {
+                address = parts[1] + " " + parts[2] + " " + parts[3];
+            } else if (parts.length == 2) {
+                // 우편번호 + 한 단어만 있을 경우
+                address = parts[1];
+            }
+            // 상세 주소: index 4부터 나머지
+            if (parts.length > 4) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 4; i < parts.length; i++) {
+                    sb.append(parts[i]).append(" ");
+                }
+                addressDetail = sb.toString().trim();
+            }
+
+            model.addAttribute("zipcode", zipcode);
+            model.addAttribute("address", address);
+            model.addAttribute("addressDetail", addressDetail);
+        }
+
         return "mypage/profile-update";
     }
 
@@ -218,21 +247,18 @@ public class MypageController {
     }
 
 
-    // 회원 탈퇴 페이지 진입
-
+    // 회원 탈퇴 페이지
     @GetMapping("/withdraw")
     public String withdrawPage(HttpServletRequest request, Model model) {
         Users user = tokenExtractor.getUserFromToken(request);
         if (user == null) {
             return "redirect:/login";
         }
-        // 굳이 user 정보를 넘길 필요가 없다면 생략 가능
         model.addAttribute("user", user);
         return "/mypage/withdraw";
     }
 
-    // 회원 탈퇴 처리 (AJAX)
-
+    // 회원 탈퇴 처리 (토큰 쿠키 삭제)
     @PostMapping("/withdraw")
     @ResponseBody
     public ResponseEntity<?> withdrawUser(@RequestBody Map<String, String> requestBody,
@@ -247,10 +273,10 @@ public class MypageController {
             return ResponseEntity.badRequest().body("비밀번호를 입력해주세요.");
         }
         try {
-            // 회원 탈퇴 로직 (status를 inactive로 변경)
+            // 탈퇴 로직 (inactive로 변경)
             userProfileService.withdrawUser(user, inputPassword);
 
-            // 로그아웃 처리: JWT 관련 쿠키 삭제
+            // 토큰 쿠키 삭제 (로그아웃)
             Cookie accessCookie = new Cookie("jwt_access", null);
             accessCookie.setMaxAge(0);
             accessCookie.setPath("/");

@@ -21,8 +21,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         // 클라이언트에서 메시지 보낼 때의 prefix
-        config.setApplicationDestinationPrefixes("/pub", "/app");
+        config.setApplicationDestinationPrefixes("/pub");
         // 클라이언트에서 메시지 구독할 때의 prefix
-        config.enableSimpleBroker("/sub", "/topic");
+        config.enableSimpleBroker("/sub");
     }
 }
