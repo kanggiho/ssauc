@@ -7,6 +7,8 @@ import com.example.ssauc.user.chat.entity.Report;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.util.TokenExtractor;
 import com.example.ssauc.user.product.entity.Product;
+import com.example.ssauc.user.recommendation.dto.RecommendationDto;
+import com.example.ssauc.user.recommendation.service.RecommendationService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class BidController {
 
     @Autowired
     private BidService bidService;
+
+    @Autowired
+    private RecommendationService recommendationService;
 
     private final TokenExtractor tokenExtractor;
 
@@ -70,6 +75,9 @@ public class BidController {
         model.addAttribute("tempMaxBidUser", tempMaxBidUser);
 
         model.addAttribute("product", product);
+
+        List<RecommendationDto> similarProducts = recommendationService.getSimilarProducts(productId);
+        model.addAttribute("similarProducts", similarProducts);
 
 
         return "bid/bid"; // 해당 페이지로 이동

@@ -44,7 +44,7 @@ public class ProductInformDto {
 
     private String location; // 지역
 
-    private int viewCount; // 조회수
+    private Long viewCount; // 조회수
 
     private int likeCount; // 좋아요 수
 }
