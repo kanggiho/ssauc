@@ -38,22 +38,11 @@ public class ChatbotService {
                 .model("gpt-3.5-turbo")  // 모델명 (gpt-3.5-turbo, gpt-4 등)
                 .messages(messages)
                 .maxTokens(800)         // 응답 토큰 제한 (적절히 조절)
-                .temperature(0.8)       // 창의성 (0 ~ 1)
+                .temperature(1.0)       // 창의성 (0 ~ 1)
                 .build();
 
         // 4) ChatGPT API 호출
         ChatCompletionResult result = openAiService.createChatCompletion(request);
-
-
-        if (result.getChoices() == null || result.getChoices().isEmpty()) {
-            // 응답이 없을 경우 예외 처리 or 기본 메시지
-            return Chatbot.builder()
-                    .sender("BOT")
-                    .message("죄송합니다. 답변을 생성할 수 없었습니다.")
-                    .build();
-        }
-
-
 
         // 5) 응답 메시지 추출 (여러 choices 중 첫 번째)
         String reply = result.getChoices().get(0).getMessage().getContent();

@@ -73,4 +73,17 @@ public class UserProfileService {
 
         usersRepository.save(user);
     }
+
+    //회원 탈퇴 로직
+
+    public void withdrawUser(Users user, String password) {
+        // 비밀번호 매칭 확인
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+        }
+        // 비밀번호가 맞으면 status = 'inactive'
+        user.setStatus("inactive");
+        usersRepository.save(user);
+    }
 }
+

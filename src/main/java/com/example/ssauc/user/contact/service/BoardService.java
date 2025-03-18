@@ -1,6 +1,5 @@
 package com.example.ssauc.user.contact.service;
 
-import com.example.ssauc.common.service.CommonUserService;
 import com.example.ssauc.user.contact.entity.Board;
 import com.example.ssauc.user.contact.repository.BoardRepository;
 import com.example.ssauc.user.login.entity.Users;
@@ -15,12 +14,6 @@ import java.util.List;
 public class BoardService {
 
     private final BoardRepository boardRepository;
-    private final CommonUserService commonUserService;
-
-    public Users getCurrentUser(String email) {
-        return commonUserService.getCurrentUser(email);
-    }
-
 
     // 1) 등록 (QnA 작성)
     public Board createBoard(Users user,
