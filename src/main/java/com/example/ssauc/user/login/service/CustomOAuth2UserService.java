@@ -86,6 +86,18 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.getDescription());
         }
 
+        // user가 존재하긴 하지만, status가 active가 아닐 경우
+        Users user = userOptional.get();
+        if (!"active".equalsIgnoreCase(user.getStatus())) {
+            // inactive 상태인 경우, description에 이메일과 닉네임 정보를 포함해서 전달
+            OAuth2Error oauth2Error = new OAuth2Error(
+                    "account_inactive",
+                    "inactive|" + email + "|" + nickname,
+                    null
+            );
+            throw new OAuth2AuthenticationException(oauth2Error, "inactive user");
+        }
+
         Map<String, Object> modifiableAttributes = new HashMap<>(attributes);
         modifiableAttributes.put("email", email);
 

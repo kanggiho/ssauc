@@ -2,11 +2,14 @@ package com.example.ssauc.user.login.controller;
 
 
 import com.example.ssauc.user.login.dto.UserRegistrationDTO;
+import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.login.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 /**
  * 회원가입/중복검사 REST API
@@ -41,9 +44,11 @@ public class UserController {
         if (email == null || !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
             return ResponseEntity.badRequest().body("유효한 이메일 주소를 입력하세요.");
         }
-        if (userRepository.existsByEmail(email)) {
+        Optional<Users> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isPresent() && "active".equalsIgnoreCase(userOpt.get().getStatus())) {
             return ResponseEntity.badRequest().body("이미 사용 중인 이메일입니다.");
         }
+        // 만약 존재하지만 inactive 상태라면 사용 가능하도록 처리
         return ResponseEntity.ok("사용 가능한 이메일입니다.");
     }
 
