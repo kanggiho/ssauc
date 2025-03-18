@@ -60,10 +60,39 @@ public class MypageController {
         Users currentUser = userProfileService.getCurrentUser(user.getEmail());
         model.addAttribute("user", currentUser);
         // location 필드를 공백 기준으로 분리 (예: "우편번호 기본주소 상세주소")
-        String[] addressParts = currentUser.getLocation() != null ? currentUser.getLocation().split(" ", 3) : new String[0];
-        model.addAttribute("zipcode", addressParts.length > 0 ? addressParts[0] : "");
-        model.addAttribute("address", addressParts.length > 1 ? addressParts[1] : "");
-        model.addAttribute("addressDetail", addressParts.length > 2 ? addressParts[2] : "");
+        String location = currentUser.getLocation();
+        if (location == null || location.isEmpty()) {
+            // location이 없을 때 기본값
+            model.addAttribute("zipcode", "");
+            model.addAttribute("address", "");
+            model.addAttribute("addressDetail", "");
+        } else {
+            String[] parts = location.split(" ");
+            String zipcode = parts.length >= 1 ? parts[0] : "";
+            String address = "";
+            String addressDetail = "";
+
+            // 기본 주소: index 1,2,3까지
+            if (parts.length >= 4) {
+                address = parts[1] + " " + parts[2] + " " + parts[3];
+            } else if (parts.length == 2) {
+                // 우편번호 + 한 단어만 있을 경우
+                address = parts[1];
+            }
+            // 상세 주소: index 4부터 나머지
+            if (parts.length > 4) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 4; i < parts.length; i++) {
+                    sb.append(parts[i]).append(" ");
+                }
+                addressDetail = sb.toString().trim();
+            }
+
+            model.addAttribute("zipcode", zipcode);
+            model.addAttribute("address", address);
+            model.addAttribute("addressDetail", addressDetail);
+        }
+
         return "mypage/profile-update";
     }
 
