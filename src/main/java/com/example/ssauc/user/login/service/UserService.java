@@ -73,6 +73,13 @@ public class UserService {
         if (userOpt.isPresent()) {
             Users user = userOpt.get();
             log.info("사용자 조회 성공: {}", normalizedEmail);
+
+            // status가 active인지 확인 (대소문자 구분 없이 비교)
+            if (!"active".equalsIgnoreCase(user.getStatus())) {
+                log.warn("로그인 실패 - 사용자 상태가 active가 아님: {}", normalizedEmail);
+                return Optional.empty();
+            }
+
             if (passwordEncoder.matches(password, user.getPassword())) {
                 log.info("비밀번호 일치함: {}", normalizedEmail);
 
@@ -84,6 +91,8 @@ public class UserService {
                 String refreshToken = jwtUtil.generateRefreshToken(normalizedEmail);
                 log.info("생성된 Access Token: {}", accessToken);
                 log.info("생성된 Refresh Token: {}", refreshToken);
+
+
                 refreshTokenService.saveRefreshToken(normalizedEmail, refreshToken);
                 return Optional.of(new LoginResponseDTO(accessToken, refreshToken));
             } else {

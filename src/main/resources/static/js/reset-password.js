@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         console.log("전송 전 휴대폰 (국제 형식):", phone);
         if (!/^\+82\d{9,10}$/.test(phone)) {
-            phoneError.textContent = "유효한 휴대폰 번호 형식이 아닙니다. (예: +821035438227)";
+            phoneError.textContent = "유효한 핸드폰 번호를 입력해주세요 ex)01012345678";
             return;
         }
         firebase.auth().signInWithPhoneNumber(phone, recaptchaVerifier)
@@ -169,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         if (!/^(010\d{8})$/.test(phone)) {
-            phoneError.textContent = "휴대폰 번호를 01012345678 형식으로 입력하세요.";
+            phoneError.textContent = "유효한 핸드폰 번호를 입력해주세요 ex)01012345678";
             return;
         }
         if (!firebaseIdToken) {

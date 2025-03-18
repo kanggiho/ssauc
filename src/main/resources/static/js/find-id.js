@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function() {
         console.log("휴대폰 번호 입력:", phone);
         const phoneRegex = /^010\d{8}$/; // 010 + 8자리 숫자
         if (!phoneRegex.test(phone)) {
-            setError(phoneError, "유효한 휴대폰 번호를 01012345678 형식으로 입력하세요.");
+            setError(phoneError, "유효한 핸드폰 번호를 입력해주세요 ex)01012345678");
             sendCodeBtn.disabled = true;
         } else {
             setError(phoneError, "", false);
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         const phoneRegex = /^010\d{8}$/;
         if (!phoneRegex.test(phone)) {
-            setError(phoneError, "유효한 휴대폰 번호를 010XXXXXXXX 형식으로 입력하세요.");
+            setError(phoneError, "유효한 핸드폰 번호를 입력해주세요 ex)01012345678");
             return;
         }
         // Firebase에 전송할 번호: "010XXXXXXXX" -> "+8210XXXXXXXX"

@@ -59,6 +59,8 @@ public class ReputationServiceImpl implements ReputationService {
     // 기존 평판 업데이트
     private double applyReputationChange(Users user, double changeAmount) {
         double newReputation = user.getReputation() + changeAmount;
+        // 🌟 평판이 0점 미만이면 0점, 100점 초과이면 100점으로 제한
+        newReputation = Math.max(0, Math.min(newReputation, 100));
         user.setReputation(newReputation);
         userRepository.save(user);
         return newReputation;
