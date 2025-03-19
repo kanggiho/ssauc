@@ -2,8 +2,10 @@ package com.example.ssauc.user.mypage.service;
 
 import com.example.ssauc.common.service.CommonUserService;
 import com.example.ssauc.user.login.entity.Users;
+import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.mypage.dto.*;
 import com.example.ssauc.user.mypage.event.ReviewSubmittedEvent;
+import com.example.ssauc.user.mypage.repository.ReputationHistoryRepository;
 import com.example.ssauc.user.order.entity.Orders;
 import com.example.ssauc.user.order.repository.OrdersRepository;
 import com.example.ssauc.user.pay.entity.Review;
@@ -15,6 +17,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,11 +29,33 @@ public class MypageServiceImpl implements MypageService {
     private final ReviewRepository reviewRepository;
     private final OrdersRepository ordersRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final UsersRepository usersRepository;
+    private final ReputationHistoryRepository reputationHistoryRepository;
 
     // JWT 기반 DB에서 최신 사용자 정보를 조회
     @Override
     public Users getCurrentUser(String email) {
         return commonUserService.getCurrentUser(email);
+    }
+
+    // ===================== 회원 정보 =====================
+    @Override
+    public Users getUserInfo(String email) {
+        return usersRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    @Override
+    public List<ReputationGraphDto> getReputationHistory(Users user) {
+        // 각 유저의 전체 평판 기록을 조회
+        return reputationHistoryRepository.findByUser(user)
+                .stream()
+                .map(rh -> ReputationGraphDto.builder()
+                        .createdAt(rh.getCreatedAt())
+                        .newScore(rh.getNewScore())
+                        .build())
+                .sorted(Comparator.comparing(ReputationGraphDto::getCreatedAt)) // 그래프 그릴 때 시간 순서대로 점 찍기 위해 필요
+                .collect(Collectors.toList());
     }
 
     // ===================== 리뷰 관리 =====================
@@ -38,6 +65,7 @@ public class MypageServiceImpl implements MypageService {
         return reviewRepository.findByReviewee_UserId(user.getUserId(), pageable)
                 .map(review -> convertToDto(review, user.getUserId()));
     }
+
     // 작성한 리뷰 목록 조회
     @Override
     public Page<EvaluationReviewDto> getWrittenReviews(Users user, Pageable pageable) {

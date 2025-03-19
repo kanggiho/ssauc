@@ -26,9 +26,6 @@ public class UserActivity {
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
-    @Column(name = "avg_response_time")
-    private Long avgResponseTime;
-
     @Column(name = "monthly_trade_count")
     private Long monthlyTradeCount;
 

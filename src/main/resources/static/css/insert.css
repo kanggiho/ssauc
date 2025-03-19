@@ -36,12 +36,12 @@ h2 {
 
 /* 라벨 스타일 */
 .label-cell {
-    background-color: #e0e0e0;
+    background-color: black;
     font-weight: bold;
     text-align: center;
     width: 17%;
     font-size: 16px;
-    color: black;
+    color: white;
 }
 
 /* 입력칸 스타일 */

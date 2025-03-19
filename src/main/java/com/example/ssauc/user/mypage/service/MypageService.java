@@ -5,6 +5,8 @@ import com.example.ssauc.user.mypage.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface MypageService {
     // JWT 기반 인증 환경에서 사용자 정보 (@AuthenticationPrincipal 사용)
     Users getCurrentUser(String email);
@@ -26,4 +28,10 @@ public interface MypageService {
 
     // 리뷰 상세 정보
     EvaluatedDto getReviewById(Long reviewId, Long currentUserId);
+
+    // 회원 정보 불러오기
+    Users getUserInfo(String email);
+
+    // 회원 정보 페이지 그래프
+    List<ReputationGraphDto> getReputationHistory(Users user);
 }
