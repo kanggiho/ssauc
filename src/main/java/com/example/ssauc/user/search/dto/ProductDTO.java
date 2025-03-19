@@ -1,5 +1,6 @@
 package com.example.ssauc.user.search.dto;
 
+import com.example.ssauc.user.product.entity.Category;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,4 +24,5 @@ public class ProductDTO {
     private String imageUrl;      // 상품 이미지 URL
     private Long viewCount;       // 조회수
     private String status;        // 판매 상태 (판매 중, 판매 완료 등)
+    private String location;      // 지역
 }
