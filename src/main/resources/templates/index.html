@@ -49,7 +49,7 @@
         <div class="recent-items-container">
             <!-- 최근 본 상품 목록 반복 -->
             <div th:each="view : ${recentViews}">
-                <a th:href="@{/product/detail(productId=${view.product.productId})}" class="recent-item">
+                <a th:href="@{/bid/bid(productId=${view.product.productId})}" class="recent-item">
                     <img th:src="${view.product.imageUrl}" alt="상품 이미지">
                 </a>
             </div>
@@ -91,56 +91,56 @@
             <!-- 첫 번째 슬라이드 -->
             <div class="carousel-item active">
                 <div class="category-group">
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=1)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-phone"></i>
                         </div>
                         <p>디지털기기</p>
                     </a>
 
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=2)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-lamp"></i>
                         </div>
                         <p>가구/인테리어</p>
                     </a>
 
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=3)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-bag-heart"></i>
                         </div>
                         <p>유아동</p>
                     </a>
 
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=4)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-person-fill"></i>
                         </div>
                         <p>여성의류</p>
                     </a>
 
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=5)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-handbag"></i>
                         </div>
                         <p>여성잡화</p>
                     </a>
 
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=6)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-person-badge"></i>
                         </div>
                         <p>남성패션/잡화</p>
                     </a>
 
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=7)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-houses"></i>
                         </div>
                         <p>생활가전</p>
                     </a>
 
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=8)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-house-door"></i>
                         </div>
@@ -152,56 +152,56 @@
             <!-- 두 번째 슬라이드 -->
             <div class="carousel-item">
                 <div class="category-group">
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=9)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-bicycle"></i>
                         </div>
                         <p>스포츠/레저</p>
                     </a>
 
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=10)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-controller"></i>
                         </div>
                         <p>취미/게임/음반</p>
                     </a>
 
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=11)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-gem"></i>
                         </div>
                         <p>뷰티/미용</p>
                     </a>
 
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=12)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-flower1"></i>
                         </div>
                         <p>식물</p>
                     </a>
 
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=13)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-basket"></i>
                         </div>
                         <p>가공식품</p>
                     </a>
 
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=14)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-heart-pulse"></i>
                         </div>
                         <p>건강기능식품</p>
                     </a>
 
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=15)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-piggy-bank"></i>
                         </div>
                         <p>반려동물용품</p>
                     </a>
 
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=16)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-ticket-detailed"></i>
                         </div>
@@ -213,21 +213,21 @@
             <!-- 세 번째 슬라이드 -->
             <div class="carousel-item">
                 <div class="category-group">
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=17)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-book"></i>
                         </div>
                         <p>도서</p>
                     </a>
 
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=18)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-book-half"></i>
                         </div>
                         <p>유아도서</p>
                     </a>
 
-                    <a href="#" class="category-item">
+                    <a th:href="@{/list/category(categoryId=19)}" class="category-item">
                         <div class="category-icon">
                             <i class="bi bi-box"></i>
                         </div>
