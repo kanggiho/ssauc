@@ -55,13 +55,13 @@
         <!-- 상단 요약 정보 (신뢰도 및 SSAUC 머니) -->
         <div class="mypage-summary">
             <!-- 신뢰도 박스 -->
-            <a th:href="@{/mypage/evaluation}" class="mypage-box trust-score">
-                <p>나의 신뢰도 ></p>
+            <a th:href="@{/mypage/info}" class="mypage-box trust-score">
+                <p>🔍 나의 정보 ></p>
                 <h2 th:text="${user.reputation}">100 점</h2>
             </a>
             <!-- SSAUC 머니 박스 -->
             <a th:href="@{/cash/cash}" class="mypage-box money">
-                <p>🔨 SSAUC 머니 ></p>
+                <p>💷 SSAUC 머니 ></p>
                 <h2 th:text="${T(java.lang.String).format('%,d 원', user.cash)}">0 원</h2>
             </a>
         </div>

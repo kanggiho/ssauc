@@ -12,4 +12,7 @@ public interface ReputationHistoryRepository extends JpaRepository<ReputationHis
 
     // 특정 사용자의 평판 변화 이력을 조회 (중복 계산 방지용)
     List<ReputationHistory> findByUserAndChangeTypeNotLike(Users user, String pattern);
+
+    // 특정 사용자의 평판 기록 조회
+    List<ReputationHistory> findByUser(Users user);
 }
