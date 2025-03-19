@@ -33,9 +33,9 @@ public class FindIdController {
     public ResponseEntity<String> sendCode(@RequestParam String userName,
                                            @RequestParam String phone) {
         // 사용자 확인 (닉네임 + 전화번호)
-        Users user = usersRepository.findByUserNameAndPhone(userName, phone).orElse(null);
-        if (user == null) {
-            return ResponseEntity.badRequest().body("해당 정보의 회원이 없습니다.");
+        var userOpt = usersRepository.findByUserNameAndPhoneAndStatus(userName, phone, "active");
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("해당 정보의 (active) 회원이 없습니다.");
         }
         // 6자리 SMS 인증번호 생성
         String code = String.format("%06d", new Random().nextInt(1000000));
@@ -65,10 +65,12 @@ public class FindIdController {
                 return ResponseEntity.badRequest().body("전화번호 불일치");
             }
             // 닉네임과 전화번호로 사용자 조회 (DB에 저장된 전화번호는 로컬 형식)
-            Users user = usersRepository.findByUserNameAndPhone(userName, phone).orElse(null);
-            if (user == null) {
-                return ResponseEntity.badRequest().body("사용자 없음");
+            // 닉네임/전화번호/active로 사용자 조회
+            var userOpt = usersRepository.findByUserNameAndPhoneAndStatus(userName, phone, "active");
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("닉네임 혹은 휴대폰 번호를 확인해주세요.");
             }
+            Users user = userOpt.get();
             return ResponseEntity.ok(user.getEmail());
         } catch (Exception e) {
             e.printStackTrace();

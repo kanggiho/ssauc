@@ -47,13 +47,17 @@ public class ResetPasswordController {
                 return ResponseEntity.badRequest().body("전화번호 불일치");
             }
             // 이메일과 전화번호가 일치하는 사용자인지 확인 (DB에는 로컬형식 저장)
-            Users user = usersRepository.findByEmail(email).orElse(null);
-            if (user == null || !user.getPhone().equals(phone)) {
+            var userOpt = usersRepository.findByEmailAndStatus(email, "active");
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("이메일 혹은 휴대폰 번호를 확인해주세요.");
+            }
+            Users user = userOpt.get();
+            // phone 확인
+            if (!user.getPhone().equals(phone)) {
                 return ResponseEntity.badRequest().body("회원 정보가 일치하지 않습니다.");
             }
             return ResponseEntity.ok("새 비밀번호를 설정합니다.");
         } catch (Exception e) {
-            log.error("Firebase 토큰 검증 실패", e);
             return ResponseEntity.badRequest().body("토큰 검증 실패: " + e.getMessage());
         }
     }

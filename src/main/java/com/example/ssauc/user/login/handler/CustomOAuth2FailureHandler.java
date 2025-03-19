@@ -3,7 +3,9 @@ package com.example.ssauc.user.login.handler;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +13,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+@Slf4j
 @Component
 public class CustomOAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
@@ -20,22 +23,32 @@ public class CustomOAuth2FailureHandler extends SimpleUrlAuthenticationFailureHa
             HttpServletResponse response,
             AuthenticationException exception
     ) throws IOException, ServletException {
-        System.out.println("OAuth2 인증 실패: " + exception.getMessage());
+        log.warn("소셜 로그인 실패: {}", exception.getMessage());
 
-        String msg = exception.getMessage();
-        // "additional_info_required:이메일:닉네임" 형식인지 확인
-        if (msg != null && msg.startsWith("additional_info_required:")) {
-            String[] data = msg.split(":");
-            if (data.length >= 3) {
-                // 한글 및 특수문자가 포함될 수 있으므로 URL 인코딩 처리
-                String email = URLEncoder.encode(data[1], StandardCharsets.UTF_8);
-                String nickname = URLEncoder.encode(data[2], StandardCharsets.UTF_8);
-                // signup.html로 이동할 때, 인코딩된 이메일과 닉네임을 쿼리 파라미터로 전송
-                response.sendRedirect("/signup?email=" + email + "&nickname=" + nickname);
-                return;
+        // OAuth2AuthenticationException 일 경우, description에서 데이터 추출
+        if (exception instanceof OAuth2AuthenticationException oauthEx) {
+            String desc = oauthEx.getError().getDescription();
+            // ex: "inactive|test@example.com|홍길동"
+            if (desc != null && desc.startsWith("inactive|")) {
+                String[] parts = desc.split("\\|");
+                if (parts.length >= 3) {
+                    // parts[1] -> email, parts[2] -> nickname
+                    String email = parts[1];
+                    String nickname = parts[2];
+
+                    // URL 인코딩 (한글 닉네임 등)
+                    String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8);
+                    String encodedNickname = URLEncoder.encode(nickname, StandardCharsets.UTF_8);
+
+                    // signup 페이지로 리다이렉트, 쿼리 파라미터에 이메일/닉네임 전달
+                    String redirectUrl = "/signup?inactive=true&email=" + encodedEmail + "&nickname=" + encodedNickname;
+                    response.sendRedirect(redirectUrl);
+                    return; // 메서드 종료
+                }
             }
         }
-        // 그 외 OAuth2 로그인 실패 시 기본 실패 핸들러 동작
-        super.onAuthenticationFailure(request, response, exception);
+
+        // 그 외 일반적인 로그인 실패 처리
+        response.sendRedirect("/login?error=true");
     }
 }
