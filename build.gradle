@@ -199,6 +199,9 @@ dependencies {
 
     compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
 
+    // Google Authenticator 라이브러리
+    implementation 'com.warrenstrange:googleauth:1.3.0'
+
 }
 
 
