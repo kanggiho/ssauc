@@ -6,6 +6,8 @@ import com.example.ssauc.user.bid.service.BidService;
 import com.example.ssauc.user.chat.entity.Report;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.util.TokenExtractor;
+import com.example.ssauc.user.main.entity.RecentlyViewed;
+import com.example.ssauc.user.main.service.RecentlyViewedService;
 import com.example.ssauc.user.product.entity.Product;
 import com.example.ssauc.user.recommendation.dto.RecommendationDto;
 import com.example.ssauc.user.recommendation.service.RecommendationService;
@@ -31,6 +33,9 @@ public class BidController {
     @Autowired
     private RecommendationService recommendationService;
 
+    @Autowired
+    private RecentlyViewedService recentlyViewedService;
+
     private final TokenExtractor tokenExtractor;
 
     @GetMapping("/bid")
@@ -43,6 +48,11 @@ public class BidController {
             model.addAttribute("tokenName", user.getUserName());
             Boolean isLikeProduct = bidService.isProductLike(productId, user.getUserId());
             model.addAttribute("isLikeProduct", isLikeProduct);
+
+            List<RecentlyViewed> recentlyVieweds = recentlyViewedService.getRecentlyViewedItems(user);
+            model.addAttribute("recentViews", recentlyVieweds);
+
+            recentlyViewedService.saveViewedProduct(user, productId);
         } else {
             model.addAttribute("tokenId", "guest");
         }

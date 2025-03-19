@@ -3,12 +3,13 @@ package com.example.ssauc.user.main.controller;
 import com.example.ssauc.common.algorithm.RecommendationAlgorithm;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.util.TokenExtractor;
+import com.example.ssauc.user.main.entity.RecentlyViewed;
 import com.example.ssauc.user.main.repository.ProductLikeRepository;
+import com.example.ssauc.user.main.service.RecentlyViewedService;
 import com.example.ssauc.user.product.entity.Product;
 import com.example.ssauc.user.product.repository.CategoryRepository;
 import com.example.ssauc.user.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,6 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -26,6 +26,8 @@ public class MainController {
     private final ProductLikeRepository productLikeRepository;
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final RecentlyViewedService recentlyViewedService;
+
     private final TokenExtractor tokenExtractor;
 
 
@@ -43,6 +45,10 @@ public class MainController {
             long userId = user.getUserId();
             // 추천된 상품의 productId 리스트 조회
             List<Long> pickId = ra.recommendAlgorithm(userId);
+
+            List<RecentlyViewed> recentlyVieweds = recentlyViewedService.getRecentlyViewedItems(user);
+
+            model.addAttribute("recentViews", recentlyVieweds);
 
             // 추천된 각 productId에 대해 Product 객체 조회하여 picks 리스트에 추가
             for (Long id : pickId) {
@@ -64,14 +70,6 @@ public class MainController {
         }
 
         model.addAttribute("hotsProducts", hots);
-
-
-
-
-
-
-
-
 
         return "index";
     }

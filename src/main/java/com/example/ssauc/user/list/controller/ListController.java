@@ -4,6 +4,8 @@ import com.example.ssauc.user.list.Service.ListService;
 import com.example.ssauc.user.list.dto.TempDto;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.util.TokenExtractor;
+import com.example.ssauc.user.main.entity.RecentlyViewed;
+import com.example.ssauc.user.main.service.RecentlyViewedService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("list")
 @Slf4j
@@ -24,6 +28,7 @@ public class ListController {
 
     private final ListService listService;
     private final TokenExtractor tokenExtractor;
+    private final RecentlyViewedService recentlyViewedService;
 
     @GetMapping("/list")
     public String secondhandauction(Model model, @PageableDefault(size = 30) Pageable pageable, HttpServletRequest request) {
@@ -39,6 +44,10 @@ public class ListController {
 
         if(user != null) {
             secondList = listService.list(pageable, user);
+
+            List<RecentlyViewed> recentlyVieweds = recentlyViewedService.getRecentlyViewedItems(user);
+
+            model.addAttribute("recentViews", recentlyVieweds);
         } else {
             secondList = listService.list(pageable, null);
         }
@@ -60,6 +69,11 @@ public class ListController {
         Users user = tokenExtractor.getUserFromToken(request);
 
         Page<TempDto> likelist = listService.likelist(pageable, user);
+
+        List<RecentlyViewed> recentlyVieweds = recentlyViewedService.getRecentlyViewedItems(user);
+
+        model.addAttribute("recentViews", recentlyVieweds);
+
         model.addAttribute("likelist", likelist);
         model.addAttribute("user", user);
 
@@ -80,6 +94,11 @@ public class ListController {
 
             if(user != null) {
                 categoryList = listService.categoryList(pageable, user, categoryId);
+
+                List<RecentlyViewed> recentlyVieweds = recentlyViewedService.getRecentlyViewedItems(user);
+
+                model.addAttribute("recentViews", recentlyVieweds);
+
             } else {
                 categoryList = listService.categoryList(pageable, null, categoryId);
             }
@@ -110,6 +129,10 @@ public class ListController {
 
         if(user != null) {
             filteredProducts = listService.getProductsByPrice(pageable, user, minPrice, maxPrice);
+            List<RecentlyViewed> recentlyVieweds = recentlyViewedService.getRecentlyViewedItems(user);
+
+            model.addAttribute("recentViews", recentlyVieweds);
+
         } else {
             filteredProducts = listService.getProductsByPrice(pageable, null, minPrice, maxPrice);
         }
@@ -137,6 +160,10 @@ public class ListController {
 
         if(user != null) {
             availableBid = listService.getAvailableBidWithLike(pageable, user);
+            List<RecentlyViewed> recentlyVieweds = recentlyViewedService.getRecentlyViewedItems(user);
+
+            model.addAttribute("recentViews", recentlyVieweds);
+
         } else {
             availableBid = listService.getAvailableBid(pageable);
         }
