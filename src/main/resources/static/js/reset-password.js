@@ -40,9 +40,9 @@ document.addEventListener("DOMContentLoaded", () => {
     emailInput.addEventListener("input", () => {
         const email = emailInput.value.trim();
         if (!isValidEmail(email)) {
-            setError(emailError, "유효한 이메일 형식이 아닙니다.");
+            displayError(emailError, "유효한 이메일 형식이 아닙니다.");
         } else {
-            setError(emailError, "", false);
+            displayError(emailError, "", false);
         }
     });
 
@@ -50,9 +50,9 @@ document.addEventListener("DOMContentLoaded", () => {
     newPasswordInput.addEventListener("input", () => {
         const newPw = newPasswordInput.value.trim();
         if (!isPasswordComplex(newPw)) {
-            setError(newPwError, "비밀번호는 최소 8자, 영문, 숫자, 특수문자를 포함해야 합니다.");
+            displayError(newPwError, "비밀번호는 최소 8자, 영문, 숫자, 특수문자를 포함해야 합니다.");
         } else {
-            setError(newPwError, "적합한 비밀번호입니다.", false);
+            displayError(newPwError, "적합한 비밀번호입니다.", false);
         }
     });
 
@@ -61,9 +61,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const newPw = newPasswordInput.value.trim();
         const confirmPw = confirmPasswordInput.value.trim();
         if (newPw !== confirmPw) {
-            setError(confirmPwError, "비밀번호가 일치하지 않습니다.");
+            displayError(confirmPwError, "비밀번호가 일치하지 않습니다.");
         } else {
-            setError(confirmPwError, "비밀번호가 일치합니다.", false);
+            displayError(confirmPwError, "비밀번호가 일치합니다.", false);
         }
     });
 

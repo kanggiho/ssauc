@@ -1,7 +1,7 @@
 package com.example.ssauc.user.contact.dto;
 
 import lombok.*;
-@Data
+
 @Getter
 @Setter
 @AllArgsConstructor

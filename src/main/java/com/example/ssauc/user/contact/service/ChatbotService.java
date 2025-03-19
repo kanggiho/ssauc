@@ -44,7 +44,6 @@ public class ChatbotService {
         // 4) ChatGPT API 호출
         ChatCompletionResult result = openAiService.createChatCompletion(request);
 
-
         if (result.getChoices() == null || result.getChoices().isEmpty()) {
             // 응답이 없을 경우 예외 처리 or 기본 메시지
             return Chatbot.builder()
@@ -52,8 +51,6 @@ public class ChatbotService {
                     .message("죄송합니다. 답변을 생성할 수 없었습니다.")
                     .build();
         }
-
-
 
         // 5) 응답 메시지 추출 (여러 choices 중 첫 번째)
         String reply = result.getChoices().get(0).getMessage().getContent();

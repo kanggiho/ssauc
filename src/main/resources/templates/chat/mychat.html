@@ -417,6 +417,7 @@
             const dto = {
                 chatRoomId: currentRoomId,
                 senderId: userId,
+                otherUserId: selectedRoom.otherUserId,
                 message: text
             };
             stompClient.send('/pub/chat/message', {}, JSON.stringify(dto));

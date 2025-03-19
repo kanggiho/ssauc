@@ -29,16 +29,15 @@ public class ContactController {
     @GetMapping("qna")
     public String qna(HttpServletRequest request,// JWT 인증으로부터 가져옴
                       Model model) {
-
         Users user = tokenExtractor.getUserFromToken(request);
         //로그인 확인
         if (user == null) {
             // 로그인 안 된 경우 처리
             return "redirect:/login";
         }
+
         Users latestUser = boardService.getCurrentUser(user.getEmail());
         model.addAttribute("user", latestUser.getUserName());
-
         return "contact/qna";
     }
 

@@ -8,6 +8,8 @@ import com.example.ssauc.user.chat.repository.ChatMessageRepository;
 import com.example.ssauc.user.chat.repository.ChatRoomRepository;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.repository.UsersRepository;
+import com.example.ssauc.user.main.entity.Notification;
+import com.example.ssauc.user.main.repository.NotificationRepository;
 import com.example.ssauc.user.product.entity.Product;
 import com.example.ssauc.user.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,8 @@ public class ChatService {
     private final UsersRepository userRepository;
     private final ProductRepository productRepository;
     private final BanRepository banRepository;
+    private final UsersRepository usersRepository;
+    private final NotificationRepository notificationRepository;
 
     /**
      * 채팅방 생성
@@ -59,7 +63,7 @@ public class ChatService {
     /**
      * 메시지 저장
      */
-    public ChatMessage saveMessage(Long chatRoomId, Long senderId, String message) {
+    public ChatMessage saveMessage(Long chatRoomId, Long senderId, Long otherUserId, String message) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new IllegalArgumentException("채팅방이 존재하지 않습니다."));
         Users sender = userRepository.findById(senderId)
@@ -70,7 +74,22 @@ public class ChatService {
         chatMessage.setSender(sender);
         chatMessage.setMessage(message);
         chatMessage.setSentAt(LocalDateTime.now());
+
+        chatNotice(senderId,otherUserId,message);
+
+
         return chatMessageRepository.save(chatMessage);
+    }
+
+    public void chatNotice(Long userId, Long otherUserId, String message) {
+        Notification notification = Notification.builder()
+                .user(usersRepository.findById(otherUserId).orElseThrow())
+                .type("채팅")
+                .message(usersRepository.findById(userId).orElseThrow().getUserName() + "님께서 메세지를 보냈습니다.\n" + message)
+                .createdAt(LocalDateTime.now())
+                .readStatus(1)
+                .build();
+        notificationRepository.save(notification);
     }
 
 
@@ -117,8 +136,6 @@ public class ChatService {
                 })
                 .collect(Collectors.toList());
     }
-
-
 
 
     /**

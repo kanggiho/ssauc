@@ -72,6 +72,10 @@ public class Users {
     @Column(columnDefinition = "bigint default 0")
     private Long cash;
 
+    // review.comment 요약 (초기값 null)
+    @Column(name = "review_summary", columnDefinition = "TEXT")
+    private String reviewSummary;
+
     // 생성자 (username, password 만 받는 생성자)
     public Users(String userName, String password) {
         this.userName = userName;

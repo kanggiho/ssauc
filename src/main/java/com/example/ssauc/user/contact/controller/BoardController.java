@@ -5,8 +5,8 @@ import com.example.ssauc.user.contact.service.BoardService;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.util.TokenExtractor;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class BoardController {
     private final BoardService boardService;
     private final TokenExtractor tokenExtractor;
+
     // [POST] 문의 등록 처리
     @PostMapping("/create")
     public String createQna(
@@ -37,7 +38,7 @@ public class BoardController {
 
         // 2) 필수 값(제목, 내용,카테고리) 검증
         if (subject == null || subject.trim().isEmpty()
-                ||category == null || category.trim().isEmpty()
+                || category == null || category.trim().isEmpty()
                 || message == null || message.trim().isEmpty()) {
 
 

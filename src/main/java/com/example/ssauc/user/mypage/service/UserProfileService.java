@@ -26,9 +26,9 @@ public class UserProfileService {
         // 닉네임 업데이트 (변경 값이 있을 경우)
         if (dto.getUserName() != null && !dto.getUserName().isEmpty() &&
                 !dto.getUserName().equals(user.getUserName())) {
-            if (usersRepository.existsByUserName(dto.getUserName())) {
-                throw new RuntimeException("이미 사용 중인 닉네임입니다.");
-            }
+//            if (usersRepository.existsByUserName(dto.getUserName())) {
+//                throw new RuntimeException("이미 사용 중인 닉네임입니다.");
+//            }
             user.setUserName(dto.getUserName());
         }
 
@@ -81,8 +81,9 @@ public class UserProfileService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
-        // 비밀번호가 맞으면 status = 'inactive'
+        // inactive로 전환
         user.setStatus("inactive");
+        user.setUpdatedAt(LocalDateTime.now());
         usersRepository.save(user);
     }
 }
