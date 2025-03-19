@@ -7,11 +7,15 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Setting;
 
 import java.time.LocalDateTime;
 
 @Data
 @Document(indexName = "products")
+@Setting(settingPath = "/elasticsearch/mappings/mapping_products.json")
+// 또는 자동완성 기능을 추가하고 싶다면 index_mapping.json을 사용할 수 있습니다.
+// @Setting(settingPath = "/elasticsearch/mappings/index_mapping.json")
 public class ProductDocument {
 
     @Id

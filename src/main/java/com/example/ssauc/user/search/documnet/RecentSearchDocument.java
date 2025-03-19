@@ -5,11 +5,13 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Setting;
 
 import java.time.LocalDateTime;
 
 @Data
 @Document(indexName = "recent_search")
+@Setting(settingPath = "/elasticsearch/mappings/recent_search.json")
 public class RecentSearchDocument {
 
     @Id
