@@ -17,8 +17,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ChatParticipantRepositoryTest {
 
-    @Autowired
-    private ChatParticipantRepository chatParticipantRepository;
 
     @Autowired
     private UsersRepository usersRepository;
