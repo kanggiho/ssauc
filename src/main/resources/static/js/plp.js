@@ -1,7 +1,7 @@
-// 자동완성 추천어를 표시할 DOM 요소
-let autoCompleteList = null;
-// 연관 검색어 표시할 DOM 요소
-let relatedRow = null;
+/**
+ * plp.js (검색/필터/정렬/페이지네이션/자동완성/연관검색어)
+ * + 상품 렌더링 시, list.html과 동일한 정보(즉시구매가격, 입찰 횟수, 남은 시간, 위치, 좋아요수) 표시
+ */
 
 document.addEventListener("DOMContentLoaded", function () {
     console.log("🚀 PLP 페이지 로딩됨");
@@ -9,54 +9,36 @@ document.addEventListener("DOMContentLoaded", function () {
     // -------------------------
     // 주요 DOM 요소
     // -------------------------
-    const searchInput = document.getElementById("searchInput");
-    const searchIcon = document.getElementById("searchIcon");
-    const productGrid = document.getElementById("productGrid");
-    const paginationEl = document.getElementById("pagination");
-    const sortSelect = document.getElementById("sortSelect");
+    const searchInput       = document.getElementById("searchInput");
+    const searchIcon        = document.getElementById("searchIcon");
+    const searchAlert       = document.getElementById("searchAlert");
+    const productGrid       = document.getElementById("productGrid");
+    const paginationEl      = document.getElementById("pagination");
+    const sortSelect        = document.getElementById("sortSelect");
     const auctionOnlyCheckbox = document.getElementById("auctionOnlyCheckbox");
-    const filterCategoryEl = document.getElementById("filterCategory");
-    const minPriceInput = document.getElementById("minPriceInput");
-    const maxPriceInput = document.getElementById("maxPriceInput");
-    const filterResetBtn = document.getElementById("filterResetBtn");
-    const totalCountLabel = document.getElementById("totalCountLabel");
-    const searchAlert = document.getElementById("searchAlert"); // 검색어 미입력 경고
+    const filterCategoryEl  = document.getElementById("filterCategory");
+    const minPriceInput     = document.getElementById("minPriceInput");
+    const maxPriceInput     = document.getElementById("maxPriceInput");
+    const filterResetBtn    = document.getElementById("filterResetBtn");
+    const totalCountLabel   = document.getElementById("totalCountLabel");
 
-    // ① 자동완성 목록 생성 (UL 등)
-    autoCompleteList = document.createElement("ul");
-    autoCompleteList.id = "autoCompleteList";
-    autoCompleteList.style.position = "absolute";
-    autoCompleteList.style.border = "1px solid #ddd";
-    autoCompleteList.style.backgroundColor = "#fff";
-    autoCompleteList.style.zIndex = "9999";
-    autoCompleteList.style.display = "none";
-    // 문서 body에 붙이거나, 검색창 부모요소에 appendChild 할 수 있음
-    document.body.appendChild(autoCompleteList);
-
-    // ② 연관 검색어 표시부 생성
-    relatedRow = document.createElement("div");
-    relatedRow.id = "relatedRow";
-    relatedRow.style.margin = "5px 0";
-    relatedRow.style.display = "none";
-    // 검색 입력칸 바로 밑에 표시하고 싶다면, searchInput.parentNode.insertBefore(relatedRow, searchInput.nextSibling);
-    // 여기서는 body 말미에 붙여두고 위치를 CSS로 조정 가능
-    searchInput.parentNode.appendChild(relatedRow);
+    const autoCompleteList  = document.getElementById("autoCompleteList");
+    const relatedSearchContainer = document.getElementById("relatedSearchContainer");
+    const relatedSearchList = document.getElementById("relatedSearchList");
 
     // -------------------------
-    // 전역 상태 관리
+    // 전역 상태
     // -------------------------
-    let currentKeyword = "";
-    let currentPage = 1;
-    let pageSize = 30; // 한 페이지에 30개씩
-    let currentSort = "VIEW_DESC"; // 기본 정렬: 조회수 많은 순
-    let auctionOnly = false; // 경매중 상품만 보기
-    let selectedCategories = []; // 카테고리 다중 선택
-    let minPrice = null; // 최소 가격
-    let maxPrice = null; // 최대 가격
+    let currentKeyword   = "";
+    let currentPage      = 1;
+    let pageSize         = 30;
+    let currentSort      = "VIEW_DESC";
+    let auctionOnly      = false;
+    let selectedCategories = [];
+    let minPrice         = null;
+    let maxPrice         = null;
 
-    // -------------------------
-    // URL 파라미터에서 검색어 추출
-    // -------------------------
+    // URL 파라미터에서 keyword 추출
     const urlParams = new URLSearchParams(window.location.search);
     const keywordParam = urlParams.get("keyword");
     if (keywordParam) {
@@ -65,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // -------------------------
-    // 상품 목록 로딩 (API 호출)
+    // 상품 목록 로딩 (백엔드 API 호출)
     // -------------------------
     function loadProducts() {
         const params = new URLSearchParams();
@@ -73,25 +55,26 @@ document.addEventListener("DOMContentLoaded", function () {
         if (currentKeyword) params.append("keyword", currentKeyword);
         params.append("page", currentPage);
         params.append("size", pageSize);
-        params.append("sort", currentSort); // ✅ 정렬 옵션 반영
-
-        if (auctionOnly) params.append("auctionOnly", "true"); // ✅ 경매 상품 필터 반영
-        if (selectedCategories.length > 0) params.append("categories", selectedCategories.join(",")); // ✅ 선택한 카테고리 필터 적용
+        params.append("sort", currentSort);
+        if (auctionOnly) params.append("auctionOnly", "true");
+        if (selectedCategories.length > 0) {
+            params.append("categories", selectedCategories.join(","));
+        }
         if (minPrice !== null && maxPrice !== null) {
             params.append("minPrice", minPrice);
             params.append("maxPrice", maxPrice);
         }
 
+        // 실제 구현 시, plp용 엔드포인트(/api/products/plp) 맞추세요
         const url = "/api/products/plp?" + params.toString();
-        console.log("📡 API 호출:", url);
+        console.log("📡 [PLP] API 호출:", url);
 
         fetch(url)
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
-                console.log("📦 API 응답:", data);
+                // data 구조 가정: { products:[], totalCount:0, page:1, totalPages:1 }
                 renderProducts(data.products);
                 renderPagination(data.page, data.totalPages);
-
                 if (totalCountLabel) {
                     totalCountLabel.textContent = `총 ${data.totalCount}개의 상품`;
                 }
@@ -100,7 +83,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // -------------------------
-    // 상품 리스트 렌더링
+    // 상품 렌더링
+    // (list.html처럼: 사진, 상품명, 즉시구매가, 입찰횟수, 남은시간, 판매자 위치, 좋아요 수)
     // -------------------------
     function renderProducts(products) {
         if (!productGrid) return;
@@ -109,50 +93,92 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        productGrid.innerHTML = products.map(product => `
-          <div class="col">
-              <div class="card product-card position-relative">
-                  <!-- 좋아요 버튼 -->
-                  <button class="icon-btn position-absolute top-0 end-0" data-product-id="${product.productId}" onclick="toggleHeart(this)">
-                      <i class="${product.liked ? 'bi bi-heart-fill' : 'bi bi-heart'}"></i>
-                  </button>
-                  <a href="/bid/bid?productId=${product.productId}">
-                      <img src="${product.imageUrl || '/img/noimage.png'}" class="card-img-top" alt="상품 이미지">
-                      <div class="card-body">
-                          <p class="product-title">${product.name}</p>
-                          <p class="product-price">${(product.price || 0).toLocaleString()}원</p>                      
-                          <p class="product-info">입찰 수: ${product.bidCount}회 | ⏳ ${product.status}</p>
-                          <p class="product-info">조회 수: ${product.viewCount}회 | ❤️ ${product.likeCount}</p>
-                                </div>
-                  </a>
+        productGrid.innerHTML = products.map(product => {
+            // 남은 시간 계산(예: endAt vs 현재시간)
+            let gapText = "⏳ 입찰 마감";
+            if (product.endAt) {
+                const now = new Date();
+                const endTime = new Date(product.endAt);
+                const diffMs = endTime - now;
+                if (diffMs > 0) {
+                    // 남아있는 경우
+                    const diffDays = Math.floor(diffMs / (1000*60*60*24));
+                    const diffHours = Math.floor((diffMs / (1000*60*60)) % 24);
+                    gapText = `⏳ ${diffDays}일 ${diffHours}시간`;
+                }
+            }
+
+            // 상품 가격 (즉시 구매가)
+            const displayPrice = (product.price || 0).toLocaleString() + "원";
+
+            // 입찰 횟수
+            const bidCountText = `입찰 수: ${product.bidCount || 0}회`;
+
+            // 좋아요 수
+            const likeCountText = product.likeCount || 0;
+
+            // 판매자 위치
+            const locationText = product.location ? product.location : "위치정보 없음";
+
+            // 좋아요 여부 => 버튼 아이콘
+            // product.liked 가 true면 'bi-heart-fill', false면 'bi-heart'
+            const heartClass = product.liked ? 'bi bi-heart-fill' : 'bi bi-heart';
+
+            // 상품 이미지
+            const imageUrl = product.imageUrl ? product.imageUrl : "/img/noimage.png";
+
+            return `
+              <div class="col">
+                  <div class="card product-card position-relative">
+                      <!-- 좋아요 버튼 -->
+                      <button class="icon-btn" data-product-id="${product.productId}" onclick="toggleHeart(this)">
+                          <i class="${heartClass}"></i>
+                      </button>
+                      <!-- 상세 페이지 링크 -->
+                      <a href="/bid/bid?productId=${product.productId}">
+                          <img src="${imageUrl}" class="card-img-top" alt="상품이미지">
+                          <div class="card-body">
+                              <p class="product-title">${product.name || '상품명'}</p>
+                              <p class="product-price">${displayPrice}</p>
+                              <p class="product-info">${bidCountText} | ${gapText}</p>
+                              <p class="product-info">${locationText} | ❤️ <span class="like-count">${likeCountText}</span></p>
+                          </div>
+                      </a>
+                  </div>
               </div>
-          </div>
-        `).join("");
+            `;
+        }).join("");
     }
 
     // -------------------------
-    // 좋아요 기능
+    // 좋아요 토글
+    // (기존 plp.js와 동일)
     // -------------------------
     window.toggleHeart = function (button) {
         const productId = button.getAttribute("data-product-id");
         const icon = button.querySelector("i");
         const likeCountElement = button.closest(".product-card").querySelector(".like-count");
+
         let currentCount = parseInt(likeCountElement?.textContent?.replace(/,/g, ''), 10) || 0;
 
         fetch("/api/like", {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({productId})
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId })
         })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
+                // liked=true => fill, liked=false => empty
                 icon.classList.toggle("bi-heart-fill", data.liked);
                 icon.classList.toggle("bi-heart", !data.liked);
-                if (likeCountElement) {
-                    likeCountElement.textContent = data.liked ? ++currentCount : Math.max(0, --currentCount);
+                if (data.liked) {
+                    currentCount++;
+                } else {
+                    currentCount = Math.max(0, currentCount - 1);
                 }
+                likeCountElement.textContent = currentCount.toLocaleString();
             })
-            .catch(error => console.error("❌ 좋아요 API 오류:", error));
+            .catch(err => console.error("❌ 좋아요 API 오류:", err));
     };
 
     // -------------------------
@@ -168,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function () {
         currentKeyword = query;
         currentPage = 1;
 
-        // 🔥 검색어 저장 API 호출 (검색어를 최근검색어 및 인기검색어에 저장)
+        // 검색어 저장 API
         fetch("/api/save-search", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -182,6 +208,7 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(data => {
                 console.log("✅ 검색어 저장 완료:", query);
+                // 새로고침 or loadProducts() 호출
                 window.location.href = `/plp?keyword=${encodeURIComponent(query)}`;
             })
             .catch(error => {
@@ -190,28 +217,41 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    // ③ 자동완성 관련 이벤트
+    // 검색 input 'Enter'
+    if (searchInput) {
+        searchInput.addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                performSearch();
+            }
+        });
+    }
+    // 검색 아이콘 클릭
+    if (searchIcon) {
+        searchIcon.addEventListener("click", performSearch);
+    }
+
+    // -------------------------
+    // 자동완성 + 연관검색어
+    // (기존 plp.js 로직)
+    // -------------------------
     searchInput.addEventListener("input", function(e) {
         const prefix = e.target.value.trim();
         if (!prefix) {
             autoCompleteList.style.display = "none";
-            relatedRow.style.display = "none";
+            relatedSearchContainer.style.display = "none";
             return;
         }
-        // 자동완성 API 호출
+        // 자동완성
         fetch(`/api/autocomplete?prefix=${encodeURIComponent(prefix)}`)
             .then(res => res.json())
-            .then(suggestions => {
-                showAutoComplete(suggestions);
-            })
+            .then(suggestions => showAutoComplete(suggestions))
             .catch(err => console.error("❌ 자동완성 API 오류:", err));
 
-        // 연관 검색어 API 호출 (plp 검색 입력칸 밑)
+        // 연관 검색어
         fetch(`/api/related-search?keyword=${encodeURIComponent(prefix)}`)
             .then(res => res.json())
-            .then(relatedData => {
-                showRelatedKeywords(relatedData);
-            })
+            .then(relatedData => showRelatedKeywords(relatedData))
             .catch(err => console.error("❌ 연관 검색어 API 오류:", err));
     });
 
@@ -220,11 +260,10 @@ document.addEventListener("DOMContentLoaded", function () {
             autoCompleteList.style.display = "none";
             return;
         }
-        // 검색창 위치 찾기
         const rect = searchInput.getBoundingClientRect();
         autoCompleteList.style.left = rect.left + "px";
-        autoCompleteList.style.top = (rect.bottom + window.scrollY) + "px";
-        autoCompleteList.style.width = rect.width + "px";
+        autoCompleteList.style.top  = (rect.bottom + window.scrollY) + "px";
+        autoCompleteList.style.width= rect.width + "px";
 
         autoCompleteList.innerHTML = "";
         suggestions.forEach(sugg => {
@@ -235,7 +274,7 @@ document.addEventListener("DOMContentLoaded", function () {
             li.addEventListener("click", () => {
                 searchInput.value = sugg;
                 autoCompleteList.style.display = "none";
-                performSearch(); // 즉시 검색 수행 or 사용자가 엔터 치게 할 수도 있음
+                performSearch();
             });
             autoCompleteList.appendChild(li);
         });
@@ -244,19 +283,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function showRelatedKeywords(keywords) {
         if (!keywords || keywords.length === 0) {
-            relatedRow.style.display = "none";
-            relatedRow.innerHTML = "";
+            relatedSearchContainer.style.display = "none";
+            relatedSearchList.innerHTML = "";
             return;
         }
-        relatedRow.style.display = "block";
-        relatedRow.innerHTML = `
-          <div style="font-weight:bold; margin-bottom:5px;">연관 검색어</div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            ${keywords.map(k => `<span class="relatedItem" style="cursor:pointer; color:blue;">${k}</span>`).join("")}
-          </div>
-        `;
-        // 클릭 시 검색
-        document.querySelectorAll(".relatedItem").forEach(item => {
+        relatedSearchContainer.style.display = "block";
+        relatedSearchList.innerHTML = keywords.map(k => `<li style="cursor:pointer; color:blue; list-style:none;">${k}</li>`).join("");
+        relatedSearchList.querySelectorAll("li").forEach(item => {
             item.addEventListener("click", () => {
                 searchInput.value = item.textContent;
                 performSearch();
@@ -264,70 +297,17 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 검색 input 'Enter' 키 이벤트
-    searchInput.addEventListener("keypress", function (e) {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            performSearch();
-        }
-    });
-    // 검색 아이콘 클릭 이벤트
-    if (searchIcon) {
-        searchIcon.addEventListener("click", performSearch);
-    }
-
     // -------------------------
-    // 카테고리 목록 불러오기
+    // 페이지네이션
     // -------------------------
-    function loadCategories() {
-        fetch("/api/products/categories")
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("서버 응답 오류");
-                }
-                return response.json();
-            })
-            .then(categories => {
-                if (!Array.isArray(categories) || categories.length === 0) {
-                    categories = ["기타"];
-                }
-
-                filterCategoryEl.innerHTML = categories.map(category => `
-                    <li>
-                        <label>
-                            <input type="checkbox" value="${category}">
-                            ${category}
-                        </label>
-                    </li>
-                `).join("");
-
-                filterCategoryEl.querySelectorAll("input[type=checkbox]").forEach(chk => {
-                    chk.addEventListener("change", function () {
-                        selectedCategories = Array.from(
-                            filterCategoryEl.querySelectorAll("input[type=checkbox]:checked")
-                        ).map(chk => chk.value);
-                        loadProducts();
-                    });
-                });
-            })
-            .catch(err => console.error("❌ 카테고리 API 오류:", err));
-    }
-
-    // 초기 로딩 시 카테고리 불러오기
-    loadCategories();
-
-    // -------------------------
-    // 페이지네이션 렌더링
-    // -------------------------
-    function renderPagination(currentPage, totalPages) {
+    function renderPagination(currentPageNum, totalPages) {
         if (!paginationEl) return;
         paginationEl.innerHTML = "";
-
         if (totalPages <= 1) return;
 
         for (let i = 1; i <= totalPages; i++) {
             const pageBtn = document.createElement("button");
-            pageBtn.className = `page-btn ${i === currentPage ? "active" : ""}`;
+            pageBtn.className = `page-btn ${i === currentPageNum ? "active" : ""}`;
             pageBtn.textContent = i;
             pageBtn.addEventListener("click", () => {
                 currentPage = i;
@@ -338,45 +318,96 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // -------------------------
-    // 필터 & 정렬 이벤트 바인딩
+    // 카테고리 목록 로딩
+    // (필요 시 API로 불러오거나, 상수로 둬도 됨)
+    // -------------------------
+    function loadCategories() {
+        // 예시: /api/products/categories
+        fetch("/api/products/categories")
+            .then(res => res.json())
+            .then(categories => {
+                if (!categories || categories.length === 0) {
+                    categories = ["기타"];
+                }
+                filterCategoryEl.innerHTML = categories.map(cat => `
+                    <li>
+                        <label>
+                            <input type="checkbox" value="${cat}"> ${cat}
+                        </label>
+                    </li>
+                `).join("");
+                filterCategoryEl.querySelectorAll("input[type=checkbox]").forEach(chk => {
+                    chk.addEventListener("change", function() {
+                        selectedCategories = Array.from(
+                            filterCategoryEl.querySelectorAll("input[type=checkbox]:checked")
+                        ).map(c => c.value);
+                        currentPage = 1;
+                        loadProducts();
+                    });
+                });
+            })
+            .catch(err => console.error("❌ 카테고리 API 오류:", err));
+    }
+
+    // -------------------------
+    // 정렬
     // -------------------------
     if (sortSelect) {
-        sortSelect.addEventListener("change", function () {
+        sortSelect.addEventListener("change", function() {
             currentSort = this.value;
             currentPage = 1;
             loadProducts();
         });
     }
 
-    auctionOnlyCheckbox.addEventListener("change", function () {
-        auctionOnly = this.checked;
-        currentPage = 1;
-        loadProducts();
-    });
+    // -------------------------
+    // 경매만 보기
+    // -------------------------
+    if (auctionOnlyCheckbox) {
+        auctionOnlyCheckbox.addEventListener("change", function() {
+            auctionOnly = this.checked;
+            currentPage = 1;
+            loadProducts();
+        });
+    }
 
-    window.filterByInputPrice = function () {
-        minPrice = parseInt(minPriceInput.value) || 0;
-        maxPrice = parseInt(maxPriceInput.value) || 0;
-        if (minPrice > maxPrice) {
-            alert("최소 가격이 최대 가격보다 클 수 없습니다.");
+    // -------------------------
+    // 가격 필터
+    // -------------------------
+    window.filterByInputPrice = function() {
+        const minVal = parseInt(minPriceInput.value) || 0;
+        const maxVal = parseInt(maxPriceInput.value) || 999999999;
+        if (minVal > maxVal) {
+            alert("최소 가격이 최대 가격보다 큽니다.");
             return;
         }
+        minPrice = minVal;
+        maxPrice = maxVal;
         currentPage = 1;
         loadProducts();
     };
 
-    filterResetBtn.addEventListener("click", function () {
+    // -------------------------
+    // 필터 초기화
+    // -------------------------
+    filterResetBtn.addEventListener("click", function() {
         auctionOnlyCheckbox.checked = false;
         auctionOnly = false;
         selectedCategories = [];
-        minPrice = maxPrice = null;
-        minPriceInput.value = maxPriceInput.value = "";
-        currentSort = "VIEW_DESC";
+        minPrice = null;
+        maxPrice = null;
+        minPriceInput.value = "";
+        maxPriceInput.value = "";
         sortSelect.value = "VIEW_DESC";
+        currentSort = "VIEW_DESC";
         currentPage = 1;
+        filterCategoryEl.querySelectorAll("input[type=checkbox]").forEach(chk => chk.checked = false);
         loadProducts();
     });
 
-    // 초기 로딩
-    loadProducts();
+    // -------------------------
+    // 초기 로드
+    // -------------------------
+    loadCategories(); // 카테고리 목록 불러오기
+    loadProducts();   // 상품 목록 불러오기
 });
