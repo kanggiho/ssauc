@@ -1,5 +1,5 @@
 
-    /* 카테고리 컨테이너 */
+/* 카테고리 컨테이너 */
 .category-container {
     display: flex;
     justify-content: center;
@@ -85,7 +85,7 @@
     color: #ffc107;
 }
 
-/* 아이콘 버튼 */
+/* 아이콘 버튼 (여백 최소화) */
 .icon-btn {
     position: absolute;
     top: 10px;
@@ -93,14 +93,25 @@
     background-color: white;
     border: none;
     cursor: pointer;
-    padding: 5px;
+    padding: 3px;  /* 기존 5px → 3px로 축소 */
+    width: 30px;   /* 버튼 크기 조정 */
+    height: 30px;  /* 버튼 크기 조정 */
+    line-height: 30px; /* 아이콘을 정중앙에 배치 */
     border-radius: 50%;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+/* ✅ 호버 시 스타일 변경 */
+.icon-btn:hover {
+    background-color: #f8f8f8;
+}
+
+/* 아이콘 크기 조정 */
 .icon-btn i {
-    font-size: 1.2rem;
-    color: black;
+    font-size: 18px;  /* 기존보다 작게 조정 */
 }
 
 /* 배너 스타일 */
