@@ -61,7 +61,7 @@
             <div class="recent-items-container">
                 <!-- 최근 본 상품 목록 반복 -->
                 <div th:each="view : ${recentViews}">
-                    <a th:href="@{/product/detail(productId=${view.product.productId})}" class="recent-item">
+                    <a th:href="@{/bid/bid(productId=${view.product.productId})}" class="recent-item">
                         <img th:src="${view.product.imageUrl}" alt="상품 이미지">
                     </a>
                 </div>
