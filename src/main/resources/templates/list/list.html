@@ -31,8 +31,8 @@
                 <div class="sidebar">
                     <h5>필터</h5>
                     <div class="canBid">
-                            <input class="form-check-input" id="filter_available_bid" type="checkbox" onchange="toggleCheckBox()">
-                            <span>경매 가능만 보기</span>
+                        <input class="form-check-input" id="filter_available_bid" type="checkbox" onchange="toggleCheckBox()">
+                        <span>경매 가능만 보기</span>
                     </div>
 
                     <h5>카테고리</h5>
@@ -69,21 +69,21 @@
             <div class="col-lg-10">
                 <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
                     <div class="col" th:each="product : ${secondList}">
-                            <div class="card product-card">
-                                <button class="icon-btn" th:data-product-id="${product.productId}" onclick="toggleHeart(this)">
-                                    <i th:class="${product.liked} ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
-                                </button>
-                                <a th:href="@{/bid/bid(productId=${product.productId})}">
-                                    <div class="image-container">
-                                        <img    class="product-img"
-                                                th:inline="text"
-                                                th:style="${product.getGap().equals('⏳ 입찰 마감') or product.getStatus().equals('판매완료')? 'filter: opacity(0.3) drop-shadow(0 0 0 #000000);' : ''}"
-                                                th:src="${product.imageUrl}" alt="시계">
-                                        <div class="overlay-text"
-                                             th:if="${product.getGap().equals('⏳ 입찰 마감') or product.getStatus().equals('판매완료')}">
-                                            ⏳ 입찰 마감
-                                        </div>
+                        <div class="card product-card">
+                            <button class="icon-btn" th:data-product-id="${product.productId}" onclick="toggleHeart(this)">
+                                <i th:class="${product.liked} ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
+                            </button>
+                            <a th:href="@{/bid/bid(productId=${product.productId})}">
+                                <div class="image-container">
+                                    <img    class="product-img"
+                                            th:inline="text"
+                                            th:style="${product.getGap().equals('⏳ 입찰 마감') or product.getStatus().equals('판매완료')? 'filter: opacity(0.3) drop-shadow(0 0 0 #000000);' : ''}"
+                                            th:src="${product.imageUrl}" alt="시계">
+                                    <div class="overlay-text"
+                                         th:if="${product.getGap().equals('⏳ 입찰 마감') or product.getStatus().equals('판매완료')}">
+                                        ⏳ 입찰 마감
                                     </div>
+                                </div>
                                 <div class="card-body">
                                     <p class="product-title" th:text="${product.name}"></p>
                                     <p class="product-price" th:text="${product.price}"></p>
@@ -92,8 +92,8 @@
                                         [[${product.location}]] | ❤️ <span class="like-count" th:text="${product.likeCount}"></span>
                                     </p>
                                 </div>
-                                </a>
-                            </div>
+                            </a>
+                        </div>
                     </div>
                 </div>
 
