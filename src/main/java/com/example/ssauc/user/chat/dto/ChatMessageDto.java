@@ -11,6 +11,7 @@ import lombok.*;
 public class ChatMessageDto {
     private Long chatRoomId;
     private Long senderId;
+    private Long otherUserId;
     private String message;
 
 

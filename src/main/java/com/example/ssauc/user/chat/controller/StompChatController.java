@@ -27,6 +27,7 @@ public class StompChatController {
         ChatMessage savedMessage = chatService.saveMessage(
                 messageDto.getChatRoomId(),
                 messageDto.getSenderId(),
+                messageDto.getOtherUserId(),
                 messageDto.getMessage()
         );
 
