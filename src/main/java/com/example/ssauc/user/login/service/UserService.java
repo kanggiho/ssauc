@@ -26,7 +26,7 @@ public class UserService {
 
     public Users getCurrentUser(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
+                .orElse(null);
     }
 
     public String register(UserRegistrationDTO dto) {
@@ -34,11 +34,33 @@ public class UserService {
         if (!dto.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
             return "유효한 이메일 입력";
         }
-        if (userRepository.existsByEmail(dto.getEmail())) {
-            return "이미 가입된 이메일";
+        Optional<Users> existingUserOpt = userRepository.findByEmail(dto.getEmail());
+        if (existingUserOpt.isPresent()) {
+            Users existingUser = existingUserOpt.get();
+            if ("active".equalsIgnoreCase(existingUser.getStatus())) {
+                return "이미 가입된 이메일";
+            } else {
+                // inactive 상태이면 기존 정보를 업데이트하여 재가입(재활성화) 시킵니다.
+                existingUser.setUserName(dto.getUserName());
+                existingUser.setPhone(dto.getPhone());
+                existingUser.setPassword(passwordEncoder.encode(dto.getPassword()));
+                String fullLocation = dto.getZipcode() + " " + dto.getAddress() + " " + dto.getAddressDetail();
+                existingUser.setLocation(fullLocation);
+                existingUser.setUpdatedAt(LocalDateTime.now());
+                // inactive에서 active로 변경
+                existingUser.setStatus("active");
+                userRepository.save(existingUser);
+                return "회원가입 성공";
+            }
         }
-        if (userRepository.existsByUserName(dto.getUserName())) {
-            return "이미 존재하는 닉네임";
+        Optional<Users> existingUserByNicknameOpt = userRepository.findByUserName(dto.getUserName());
+        if (existingUserByNicknameOpt.isPresent()) {
+            Users existingUserByNickname = existingUserByNicknameOpt.get();
+            // 닉네임이 active 상태이거나, inactive 상태지만 본인 이메일이 아니면 중복 처리
+            if ("active".equalsIgnoreCase(existingUserByNickname.getStatus()) ||
+                    !existingUserByNickname.getEmail().equals(dto.getEmail())) {
+                return "이미 사용 중인 닉네임";
+            }
         }
         if (userRepository.existsByPhone(dto.getPhone())) {
             return "이미 사용 중인 전화번호";

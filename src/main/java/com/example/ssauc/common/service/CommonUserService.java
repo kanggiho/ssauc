@@ -12,6 +12,6 @@ public class CommonUserService {
 
     public Users getCurrentUser(String email) {
         return usersRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
+                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다.2"));
     }
 }

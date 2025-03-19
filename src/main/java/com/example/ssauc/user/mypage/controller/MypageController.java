@@ -7,7 +7,9 @@ import com.example.ssauc.user.login.util.TokenExtractor;
 import com.example.ssauc.user.mypage.dto.*;
 import com.example.ssauc.user.mypage.service.MypageService;
 import com.example.ssauc.user.mypage.service.UserProfileService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -116,7 +118,6 @@ public class MypageController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
-
 
     // 리뷰 현황 (작성 가능, 받은, 보낸)
     @GetMapping("/evaluation")
@@ -233,5 +234,54 @@ public class MypageController {
 
         return "/mypage/info";
     }
+    // 회원 탈퇴 페이지 진입
+
+    @GetMapping("/withdraw")
+    public String withdrawPage(HttpServletRequest request, Model model) {
+        Users user = tokenExtractor.getUserFromToken(request);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        // 굳이 user 정보를 넘길 필요가 없다면 생략 가능
+        model.addAttribute("user", user);
+        return "/mypage/withdraw";
+    }
+
+    // 회원 탈퇴 처리 (AJAX)
+
+    @PostMapping("/withdraw")
+    @ResponseBody
+    public ResponseEntity<?> withdrawUser(@RequestBody Map<String, String> requestBody,
+                                          HttpServletRequest request,
+                                          HttpServletResponse response) {
+        Users user = tokenExtractor.getUserFromToken(request);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+        String inputPassword = requestBody.get("password");
+        if (inputPassword == null || inputPassword.isEmpty()) {
+            return ResponseEntity.badRequest().body("비밀번호를 입력해주세요.");
+        }
+        try {
+            // 회원 탈퇴 로직 (status를 inactive로 변경)
+            userProfileService.withdrawUser(user, inputPassword);
+
+            // 로그아웃 처리: JWT 관련 쿠키 삭제
+            Cookie accessCookie = new Cookie("jwt_access", null);
+            accessCookie.setMaxAge(0);
+            accessCookie.setPath("/");
+            response.addCookie(accessCookie);
+
+            Cookie refreshCookie = new Cookie("jwt_refresh", null);
+            refreshCookie.setMaxAge(0);
+            refreshCookie.setPath("/");
+            response.addCookie(refreshCookie);
+
+            return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
 
 }
