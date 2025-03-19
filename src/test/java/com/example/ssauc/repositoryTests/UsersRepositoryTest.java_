@@ -33,7 +33,7 @@ class UsersRepositoryTest {
 
         // When (데이터 저장 및 조회)
         Users savedUser = usersRepository.save(user);
-        Users foundUser = usersRepository.findByEmail("test@example.com");
+        Users foundUser = usersRepository.findByEmail("test@example.com").orElse(null);
 
         // Then (검증)
         assertThat(foundUser).isNotNull();

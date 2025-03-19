@@ -1,14 +1,19 @@
 plugins {
     id 'java'
-    id 'war'
     id 'org.springframework.boot' version '3.0.2'
     id 'io.spring.dependency-management' version '1.1.7'
 }
+
 
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+}
+
+
+jar {
+    enabled = false
 }
 
 group = 'com.example'
@@ -68,7 +73,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+    //providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
     // 개발시에만 내장된 tomcat을 사용하고
     // 배포시에는 외부 tomcat이 있어 배포파일은 war파일에는 포함시키지 않겠다는 의미
     // 배포파일 war파일에 포함하고자 하는 경우 implementation으로 변경
@@ -199,6 +204,9 @@ dependencies {
 
     compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
 
+    // RDS 배포
+    implementation 'com.mysql:mysql-connector-j'
+
 }
 
 
@@ -215,8 +223,6 @@ dependencies {
 //        }
 //    }
 //}
-
-
 
 
 tasks.named('test') {
