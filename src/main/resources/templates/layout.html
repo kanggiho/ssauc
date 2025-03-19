@@ -124,17 +124,18 @@
                                     </div>
                                 </li>
 
-                                <!-- 알림이 없을 경우 -->
-                                <li th:if="${notifications.size()} == 0" class="no-notification text-center text-muted py-3">
+                                <!-- 알림이 없을 때 -->
+                                <li th:if="${notifications.size() == 0}" class="no-notification text-center text-muted py-3">
                                     알림이 없습니다.
                                 </li>
 
-                                <!-- 모든 알림 삭제 버튼 -->
-                                <li th:if="${notifications.size()} != 0" class="dropdown-footer text-center p-2">
+                                <!-- 알림이 있을 때 -->
+                                <li th:if="${notifications.size() != 0}" class="dropdown-footer text-center p-2">
                                     <button type="button" class="btn btn-link text-danger fw-bold" onclick="clearAllNotifications()">
                                         <i class="bi bi-trash"></i> 비우기
                                     </button>
                                 </li>
+
                             </ul>
                         </div>
 

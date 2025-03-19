@@ -56,7 +56,7 @@ public class GlobalNotificationAdvice {
             for (Notification notification : unreadNotifications) {
                 System.out.println(notification.getMessage());
             }
-            System.out.println(unreadNotifications.size() + " 사이즈이즈임즈이ㅏ느이ㅏㅑ머노라ㅓㅕㅁㄷㄶ라ㅣ머놓ㄹㅇㄹ");
+            System.out.println(unreadNotifications.size() + " 사이즈");
             model.addAttribute("notifications", unreadNotifications);
         }
     }
