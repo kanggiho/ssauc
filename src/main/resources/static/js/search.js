@@ -3,56 +3,56 @@ document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("search-input");
     const searchForm = document.getElementById("search-form");
     const recentSearchesUl = document.getElementById("recent-searches");
-    const popularSearchesUl = document.getElementById("popular-searches");
+    const popularSearchesLeftUl = document.getElementById("popular-searches-left");
+    const popularSearchesRightUl = document.getElementById("popular-searches-right");
     const closeBtn = document.getElementById("closeBtn");
-    const searchAlert = document.getElementById("searchAlert");
 
-    // 자동완성 목록 생성 (필요한 경우 사용)
+    // 인기 검색어 영역 확인
+    if (!popularSearchesLeftUl || !popularSearchesRightUl) {
+        console.error("인기 검색어 영역(좌측, 우측)이 HTML에 정의되어 있지 않습니다.");
+    }
+
+    // 삭제된 키워드를 관리할 Set (삭제 후 re-fetch 시 필터링)
+    const deletedKeywords = new Set();
+
+    // 자동완성 목록 생성
     let autoCompleteList = document.createElement("ul");
     autoCompleteList.id = "autoCompleteList-search";
-    autoCompleteList.style.position = "absolute";
-    autoCompleteList.style.border = "1px solid #ddd";
-    autoCompleteList.style.backgroundColor = "#fff";
-    autoCompleteList.style.zIndex = "9999";
-    autoCompleteList.style.display = "none";
+    Object.assign(autoCompleteList.style, {
+        position: "absolute",
+        border: "1px solid #ddd",
+        backgroundColor: "#fff",
+        zIndex: "9999",
+        display: "none"
+    });
     document.body.appendChild(autoCompleteList);
 
-    // ※ 연관 검색어 관련 DOM 요소는 search 페이지에서는 사용하지 않으므로 주석 처리
-    // let relatedRow = document.createElement("div");
-    // relatedRow.id = "relatedRow";
-    // relatedRow.style.margin = "5px 0";
-    // relatedRow.style.display = "none";
-    // searchInput.parentNode.appendChild(relatedRow);
-
-    // URL 파라미터에서 검색어(keyword)를 추출하여 입력란에 반영
+    // URL 파라미터에서 검색어 추출
     const urlParams = new URLSearchParams(window.location.search);
     const urlKeyword = urlParams.get("keyword");
     if (urlKeyword) {
         searchInput.value = urlKeyword;
     }
 
-    // 닫기 버튼(X)을 누르면 메인 페이지로 이동
+    // 닫기 버튼 클릭 시 메인 페이지로 이동
     if (closeBtn) {
         closeBtn.addEventListener("click", () => {
             window.location.href = "/";
         });
     }
 
-    // 중복 호출 방지 플래그
     let searchLoggingInProgress = false;
-
-    // 검색어 저장 API 호출 후 결과 페이지(plp 페이지)로 이동하는 함수
     function saveSearchAndRedirect(keyword) {
+        // 만약 새로 검색하면 해당 키워드는 삭제 목록에서 제거
+        deletedKeywords.delete(keyword);
         if (searchLoggingInProgress) return;
         searchLoggingInProgress = true;
         const query = keyword.trim();
         if (!query) {
-            if (searchAlert) searchAlert.style.display = "block";
             alert("검색어를 입력하세요.");
             searchLoggingInProgress = false;
             return;
         }
-        if (searchAlert) searchAlert.style.display = "none";
         fetch("/api/save-search", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -66,7 +66,6 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(data => {
                 console.log("✅ 검색어 저장 완료:", query);
-                // 결과 페이지(plp)로 이동
                 window.location.href = `/plp?keyword=${encodeURIComponent(query)}`;
             })
             .catch(error => {
@@ -78,7 +77,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    // form 제출 이벤트 처리
     if (searchForm) {
         searchForm.addEventListener("submit", function(e) {
             e.preventDefault();
@@ -93,30 +91,18 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 자동완성 API 및 관련 이벤트
     searchInput.addEventListener("input", function(e) {
         const prefix = e.target.value.trim();
         if (!prefix) {
             autoCompleteList.style.display = "none";
-            // 관련 검색어 부분 주석 처리
-            // relatedRow.style.display = "none";
             return;
         }
-        // 자동완성 API 호출
         fetch(`/api/autocomplete?prefix=${encodeURIComponent(prefix)}`)
             .then(res => res.json())
             .then(suggestions => {
                 renderAutoComplete(suggestions);
             })
             .catch(err => console.error("❌ 자동완성 오류:", err));
-
-        // 연관 검색어 API 호출 (search 페이지에서는 사용하지 않음)
-        // fetch(`/api/related-search?keyword=${encodeURIComponent(prefix)}`)
-        //     .then(res => res.json())
-        //     .then(relatedData => {
-        //         showRelatedKeywords(relatedData);
-        //     })
-        //     .catch(err => console.error("❌ 연관 검색어 오류:", err));
     });
 
     function renderAutoComplete(suggestions) {
@@ -144,29 +130,6 @@ document.addEventListener("DOMContentLoaded", function () {
         autoCompleteList.style.display = "block";
     }
 
-    // 연관 검색어 관련 함수는 주석 처리 (search 페이지에서는 사용하지 않음)
-    // function showRelatedKeywords(keywords) {
-    //     if (!keywords || keywords.length === 0) {
-    //         relatedRow.style.display = "none";
-    //         relatedRow.innerHTML = "";
-    //         return;
-    //     }
-    //     relatedRow.style.display = "block";
-    //     relatedRow.innerHTML = `
-    //       <div style="font-weight:bold; margin-bottom:5px;">연관 검색어</div>
-    //       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-    //         ${keywords.map(k => `<span class="relatedItem" style="cursor:pointer; color:blue;">${k}</span>`).join("")}
-    //       </div>
-    //     `;
-    //     document.querySelectorAll(".relatedItem").forEach(item => {
-    //         item.addEventListener("click", () => {
-    //             searchInput.value = item.textContent;
-    //             saveSearchAndRedirect(item.textContent);
-    //         });
-    //     });
-    // }
-
-    // 검색 input 'Enter' 키 이벤트
     searchInput.addEventListener("keypress", function (e) {
         if (e.key === "Enter") {
             e.preventDefault();
@@ -174,20 +137,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // 검색 아이콘 클릭 이벤트
-    if (document.getElementById("searchIcon")) {
-        document.getElementById("searchIcon").addEventListener("click", function () {
-            saveSearchAndRedirect(searchInput.value);
-        });
-    }
-
     // 최근 검색어 API 호출
     fetch("/api/recent-searches", {
         method: "GET",
         headers: { "Content-Type": "application/json" }
     })
         .then(response => {
-            if (!response.ok) return response.json().then(err => { throw new Error(err.error || "서버 오류"); });
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.error || "서버 오류"); });
+            }
             return response.json();
         })
         .then(data => {
@@ -207,20 +165,30 @@ document.addEventListener("DOMContentLoaded", function () {
         headers: { "Content-Type": "application/json" }
     })
         .then(response => {
-            if (!response.ok) return response.json().then(err => { throw new Error(err.error || "서버 오류"); });
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.error || "서버 오류"); });
+            }
             return response.json();
         })
         .then(data => {
-            console.log("✅ 인기 검색어:", data.popularSearches);
-            updatePopularSearches(data.popularSearches);
+            if (data.popularSearches) {
+                console.log("✅ 인기 검색어:", data.popularSearches);
+                updatePopularSearches(data.popularSearches);
+            } else if (data.message) {
+                console.log("인기 검색어 없음:", data.message);
+                if (popularSearchesLeftUl) popularSearchesLeftUl.innerHTML = `<li class="empty">${data.message}</li>`;
+                if (popularSearchesRightUl) popularSearchesRightUl.innerHTML = "";
+            } else {
+                console.log("예상치 못한 인기 검색어 응답:", data);
+            }
         })
         .catch(error => {
             console.error("❌ 인기 검색어 API 오류:", error);
-            if (popularSearchesUl) {
-                popularSearchesUl.innerHTML = `<li class="error">❌ 인기 검색어를 불러올 수 없습니다.</li>`;
-            }
+            if (popularSearchesLeftUl) popularSearchesLeftUl.innerHTML = `<li class="error">❌ 인기 검색어를 불러올 수 없습니다.</li>`;
+            if (popularSearchesRightUl) popularSearchesRightUl.innerHTML = `<li class="error">❌ 인기 검색어를 불러올 수 없습니다.</li>`;
         });
 
+    // 최근 검색어 업데이트 (캐러셀 형태)
     function updateRecentSearches(searches) {
         if (!recentSearchesUl) return;
         recentSearchesUl.innerHTML = "";
@@ -228,61 +196,98 @@ document.addEventListener("DOMContentLoaded", function () {
             recentSearchesUl.innerHTML = `<li class="empty">최근 검색어가 없습니다.</li>`;
             return;
         }
-        const uniqueSearches = Array.from(new Set(searches.filter(s => s && s.trim().length > 0)));
+        // deletedKeywords에 포함되지 않은 고유 키워드만 표시
+        const uniqueSearches = Array.from(new Set(
+            searches.filter(s => s && s.trim().length > 0 && !deletedKeywords.has(s))
+        ));
         uniqueSearches.forEach(search => {
-            let li = document.createElement("li");
+            const li = document.createElement("li");
             li.className = "recent-search-item";
-            li.textContent = search;
-            let deleteBtn = document.createElement("button");
+            const button = document.createElement("button");
+            button.className = "check-btn";
+            const spanKeyword = document.createElement("span");
+            spanKeyword.className = "keyword-part";
+            spanKeyword.textContent = search;
+            const deleteBtn = document.createElement("button");
             deleteBtn.className = "delete-btn";
             deleteBtn.textContent = "X";
-            deleteBtn.addEventListener("click", (event) => {
-                event.stopPropagation();
+            // X 버튼 클릭 시: UI에서 즉시 삭제하고, 서버에서 동일 키워드 모두 삭제
+            deleteBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                li.remove();
+                deletedKeywords.add(search);
                 deleteRecentSearch(search);
             });
-            li.appendChild(deleteBtn);
-            li.addEventListener("click", () => {
-                searchInput.value = search;
+            button.addEventListener("click", () => {
                 saveSearchAndRedirect(search);
             });
+            button.appendChild(spanKeyword);
+            button.appendChild(deleteBtn);
+            li.appendChild(button);
             recentSearchesUl.appendChild(li);
         });
     }
 
+    // 인기 검색어 업데이트 (좌/우 두 컬럼)
     function updatePopularSearches(list) {
-        if (!popularSearchesUl) return;
-        popularSearchesUl.innerHTML = "";
+        if (!popularSearchesLeftUl || !popularSearchesRightUl) return;
+        popularSearchesLeftUl.innerHTML = "";
+        popularSearchesRightUl.innerHTML = "";
         if (!list || list.length === 0) {
-            popularSearchesUl.innerHTML = `<li class="empty">인기 검색어가 없습니다.</li>`;
+            popularSearchesLeftUl.innerHTML = `<li class="empty">인기 검색어가 없습니다.</li>`;
+            popularSearchesRightUl.innerHTML = "";
             return;
         }
-        list.forEach((item, index) => {
-            let li = document.createElement("li");
-            li.className = "popular-search-item";
-            li.innerHTML = `<span class="rank">${index + 1}</span> <span class="keyword-span">${item.keyword}</span>`;
-            li.addEventListener("click", () => {
-                searchInput.value = item.keyword;
-                saveSearchAndRedirect(item.keyword);
-            });
-            popularSearchesUl.appendChild(li);
+        // 객체형이면 item.keyword, 단순 문자열이면 그대로 사용
+        const processedList = list.map(item => (typeof item === "object" ? item.keyword : item));
+        const firstHalf = processedList.slice(0, 5);
+        const secondHalf = processedList.slice(5, 10);
+        console.log("첫 번째 컬럼:", firstHalf);
+        console.log("두 번째 컬럼:", secondHalf);
+        firstHalf.forEach((keyword, index) => {
+            const li = createPopularItem(keyword, index + 1);
+            popularSearchesLeftUl.appendChild(li);
+        });
+        secondHalf.forEach((keyword, index) => {
+            const li = createPopularItem(keyword, index + 6);
+            popularSearchesRightUl.appendChild(li);
         });
     }
 
+    function createPopularItem(keyword, rank) {
+        const li = document.createElement("li");
+        li.className = "popular-search-item";
+        li.innerHTML = `
+            <span class="rank">${rank}</span>
+            <span class="keyword-span">${keyword}</span>
+        `;
+        li.addEventListener("click", () => {
+            searchInput.value = keyword;
+            saveSearchAndRedirect(keyword);
+        });
+        return li;
+    }
+
     function deleteRecentSearch(searchKeyword) {
-        fetch("/api/recent-searches?keyword=" + encodeURIComponent(searchKeyword), {
+        fetch(`/api/recent-searches?keyword=${encodeURIComponent(searchKeyword)}`, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" }
         })
             .then(response => {
-                if (!response.ok) return response.json().then(err => { throw new Error(err.error || "검색어 삭제 실패"); });
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.error || "검색어 삭제 실패"); });
+                }
                 return response.json();
             })
-            .then(data => {
-                console.log("✅ 삭제된 검색어:", searchKeyword);
+            .then(() => {
+                // 삭제 후 최신 목록 갱신
                 fetch("/api/recent-searches")
                     .then(resp => resp.json())
-                    .then(data => updateRecentSearches(data.recentSearches))
-                    .catch(err => console.error("❌ 최근 검색어 API 오류:", err));
+                    .then(data => {
+                        console.log("✅ 최신 최근 검색어:", data.recentSearches);
+                        updateRecentSearches(data.recentSearches);
+                    })
+                    .catch(err => console.error("❌ 최근 검색어 갱신 오류:", err));
             })
             .catch(error => console.error("❌ 최근 검색어 삭제 오류:", error));
     }
