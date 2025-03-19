@@ -116,23 +116,29 @@ function getRecaptchaVerifier() {
 /***********************************************
  * 2. 이메일 중복 확인
  ***********************************************/
-emailCheckBtn.addEventListener("click", async function () {
-    const email = emailInput.value.trim();
-    if (!email) {
-        displayError(emailError, "이메일을 입력하세요.");
+emailCheckBtn.addEventListener("click", async () => {
+    const emailVal = emailInput.value.trim();
+    emailError.textContent = "";
+    emailVerified = false;
+    if (!/^[A-Za-z0-9+_.-]+@(.+)$/.test(emailVal)) {
+        emailError.textContent = "유효한 이메일 형식이 아닙니다.";
         return;
     }
-    console.log("이메일 중복 확인 요청, email:", email);
     try {
-        const msg = await callApi(`/check-email?email=${encodeURIComponent(email)}`);
-        displayError(emailError, msg, true);
+        const res = await fetch(`/api/user/check-email?email=${encodeURIComponent(emailVal)}`);
+        if (!res.ok) {
+            throw new Error(await res.text());
+        }
+        const msg = await res.text(); // "사용 가능한 이메일입니다."
+        emailError.textContent = msg;
+        emailError.style.color = "green";
         emailVerified = true;
     } catch (err) {
-        console.error("이메일 중복 확인 에러:", err);
-        displayError(emailError, err.message);
-        emailVerified = false;
+        emailError.textContent = err.message;
+        emailError.style.color = "red";
     }
 });
+
 
 /***********************************************
  * 3. 닉네임 중복 확인

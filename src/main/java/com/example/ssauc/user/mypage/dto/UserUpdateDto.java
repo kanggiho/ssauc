@@ -4,14 +4,13 @@ import lombok.Data;
 
 @Data
 public class UserUpdateDto {
-    private String userName;
-    private String password;
+    private String userName;       // 닉네임
+    private String password;       // 새 비밀번호
     private String confirmPassword;
-    private String phone;
-    // 개별 주소 필드
+    private String phone;          // 새 휴대폰 번호
     private String zipcode;
     private String address;
     private String addressDetail;
-    // 프로필 이미지 URL (S3 업로드 후 받아온 URL)
-    private String profileImage;
+    private String profileImage;   // 업로드된 이미지 URL
+    private String firebaseToken;  // 휴대폰 인증 토큰(선택)
 }
