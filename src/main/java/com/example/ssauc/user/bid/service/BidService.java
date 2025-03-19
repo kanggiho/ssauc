@@ -287,7 +287,7 @@ public class BidService {
             if (1770 < gap && gap < 1830) {
                 List<Users> users = bidRepository.findUserIdsByProductId(product.getProductId());
 
-                String message = product + " 상품의 입찰마감시간이 30분 남았습니다.";
+                String message = product.getName() + " 상품의 입찰마감시간이 30분 남았습니다.";
 
                 for (Users user : users) {
                     Notification notification = Notification

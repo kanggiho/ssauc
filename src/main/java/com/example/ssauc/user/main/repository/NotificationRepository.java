@@ -20,4 +20,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
                                             @Param("type") String type,
                                             @Param("readStatus") int readStatus);
 
+    List<Notification> findByUser_UserIdAndReadStatus(Long userId, int i);
 }
