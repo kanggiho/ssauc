@@ -1,0 +1,9 @@
+{
+  "mappings": {
+    "properties": {
+      "userId":    { "type": "keyword" },
+      "keyword":   { "type": "text" },
+      "searchedAt":{ "type": "date" }
+    }
+  }
+}

@@ -66,7 +66,10 @@ public class ProductSearchService {
      */
     public List<ProductDocument> adminSearchProducts(String keyword) {
         NativeQuery query = NativeQuery.builder()
-                .withQuery(q -> q.match(m -> m.field("name").query(keyword)))
+                .withQuery(q -> q.bool(b -> b
+                        .should(s -> s.match(m -> m.field("name").query(keyword)))
+                        .should(s -> s.match(m -> m.field("category").query(keyword)))
+                ))
                 .build();
         SearchHits<ProductDocument> hits = elasticsearchOperations.search(query, ProductDocument.class);
         return hits.getSearchHits().stream()
