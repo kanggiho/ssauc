@@ -33,31 +33,20 @@ public class ListController {
     @GetMapping("/list")
     public String secondhandauction(Model model, @PageableDefault(size = 30) Pageable pageable, HttpServletRequest request) {
         Users user = null;
-
         try {
             user = tokenExtractor.getUserFromToken(request);
         } catch(Exception e) {
             log.error(e.getMessage());
         }
-
-        Page<TempDto> secondList;
-
+        Page<TempDto> secondList = (user != null) ? listService.list(pageable, user) : listService.list(pageable, null);
         if(user != null) {
-            secondList = listService.list(pageable, user);
-
             List<RecentlyViewed> recentlyVieweds = recentlyViewedService.getRecentlyViewedItems(user);
-
             model.addAttribute("recentViews", recentlyVieweds);
-        } else {
-            secondList = listService.list(pageable, null);
         }
-
         model.addAttribute("secondList", secondList);
         model.addAttribute("user", user);
-
         return "list/list";
     }
-
 
     @GetMapping("/premiumlist")
     public String premiumlist() {
@@ -67,46 +56,33 @@ public class ListController {
     @GetMapping("/likelist")
     public String likelist(Model model, @PageableDefault(size = 30) Pageable pageable, HttpServletRequest request) {
         Users user = tokenExtractor.getUserFromToken(request);
-
         Page<TempDto> likelist = listService.likelist(pageable, user);
-
         List<RecentlyViewed> recentlyVieweds = recentlyViewedService.getRecentlyViewedItems(user);
-
         model.addAttribute("recentViews", recentlyVieweds);
-
         model.addAttribute("likelist", likelist);
         model.addAttribute("user", user);
-
         return "likelist/likelist";
     }
 
     @GetMapping("/category")
     public String category(Model model, @RequestParam("categoryId") Long categoryId, @PageableDefault(size = 30) Pageable pageable, HttpServletRequest request) {
-            Users user = null;
+        Users user = null;
+        try {
+            user = tokenExtractor.getUserFromToken(request);
+        } catch(Exception e) {
+            log.error(e.getMessage());
+        }
+        Page<TempDto> categoryList = (user != null)
+                ? listService.categoryList(pageable, user, categoryId)
+                : listService.categoryList(pageable, null, categoryId);
 
-            try {
-                user = tokenExtractor.getUserFromToken(request);
-            } catch(Exception e) {
-                log.error(e.getMessage());
-            }
-
-            Page<TempDto> categoryList;
-
-            if(user != null) {
-                categoryList = listService.categoryList(pageable, user, categoryId);
-
-                List<RecentlyViewed> recentlyVieweds = recentlyViewedService.getRecentlyViewedItems(user);
-
-                model.addAttribute("recentViews", recentlyVieweds);
-
-            } else {
-                categoryList = listService.categoryList(pageable, null, categoryId);
-            }
-
-            model.addAttribute("secondList", categoryList);
-            model.addAttribute("user", user);
-
-            return "list/list";
+        if(user != null) {
+            List<RecentlyViewed> recentlyVieweds = recentlyViewedService.getRecentlyViewedItems(user);
+            model.addAttribute("recentViews", recentlyVieweds);
+        }
+        model.addAttribute("secondList", categoryList);
+        model.addAttribute("user", user);
+        return "list/list";
     }
 
     @GetMapping("/price")
@@ -116,61 +92,43 @@ public class ListController {
             @PageableDefault(size = 30) Pageable pageable,
             HttpServletRequest request,
             Model model) {
-
         Users user = null;
-
         try {
             user = tokenExtractor.getUserFromToken(request);
         } catch(Exception e) {
             log.error(e.getMessage());
         }
-
-        Page<TempDto> filteredProducts;
-
+        Page<TempDto> filteredProducts = (user != null)
+                ? listService.getProductsByPrice(pageable, user, minPrice, maxPrice)
+                : listService.getProductsByPrice(pageable, null, minPrice, maxPrice);
         if(user != null) {
-            filteredProducts = listService.getProductsByPrice(pageable, user, minPrice, maxPrice);
             List<RecentlyViewed> recentlyVieweds = recentlyViewedService.getRecentlyViewedItems(user);
-
             model.addAttribute("recentViews", recentlyVieweds);
-
-        } else {
-            filteredProducts = listService.getProductsByPrice(pageable, null, minPrice, maxPrice);
         }
-
         model.addAttribute("secondList", filteredProducts);
         model.addAttribute("minPrice", minPrice);
         model.addAttribute("maxPrice", maxPrice);
         model.addAttribute("user", user);
-
         return "list/list";
     }
-
 
     @GetMapping("/availableBid")
     public String getAvailableBid(Pageable pageable, HttpServletRequest request, Model model) {
         Users user = null;
-
         try {
             user = tokenExtractor.getUserFromToken(request);
         } catch(Exception e) {
             log.error(e.getMessage());
         }
-
-        Page<TempDto> availableBid;
-
+        Page<TempDto> availableBid = (user != null)
+                ? listService.getAvailableBidWithLike(pageable, user)
+                : listService.getAvailableBid(pageable);
         if(user != null) {
-            availableBid = listService.getAvailableBidWithLike(pageable, user);
             List<RecentlyViewed> recentlyVieweds = recentlyViewedService.getRecentlyViewedItems(user);
-
             model.addAttribute("recentViews", recentlyVieweds);
-
-        } else {
-            availableBid = listService.getAvailableBid(pageable);
         }
-
         model.addAttribute("secondList", availableBid);
         model.addAttribute("user", user);
-
         return "list/list";
     }
 }
