@@ -10,6 +10,8 @@ import com.example.ssauc.user.bid.repository.PdpRepository;
 import com.example.ssauc.user.bid.repository.ProductReportRepository;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.repository.UsersRepository;
+import com.example.ssauc.user.main.entity.Notification;
+import com.example.ssauc.user.main.repository.NotificationRepository;
 import com.example.ssauc.user.main.repository.ProductLikeRepository;
 import com.example.ssauc.user.product.entity.Product;
 import com.example.ssauc.user.product.repository.ProductRepository;
@@ -23,6 +25,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,8 +48,12 @@ public class BidService {
 
     @Autowired
     private ProductLikeRepository productLikeRepository;
+
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
 
     public ProductInformDto getBidInform(Long productId) {
@@ -128,6 +135,9 @@ public class BidService {
         bidRepository.save(bid);
         setAdditionalTime(bidRequestDto.getProductId());
 
+        overBidNotice(bidProduct.getProductId(), bidUser.getUserId());
+
+
         return true;
     }
 
@@ -137,7 +147,7 @@ public class BidService {
     public boolean autoBid(AutoBidRequestDto autoBidRequestDto) {
         Long productId = autoBidRequestDto.getProductId();
         String userIdStr = autoBidRequestDto.getUserId();
-        Long maxBidAmount = (long)autoBidRequestDto.getMaxBidAmount();
+        Long maxBidAmount = (long) autoBidRequestDto.getMaxBidAmount();
 
         Product product = pdpRepository.findProductForUpdate(autoBidRequestDto.getProductId())
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
@@ -179,7 +189,7 @@ public class BidService {
         Product product = pdpRepository.findProductForUpdate(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
         Long currentPrice = product.getTempPrice(); // 현재가
-        Long minIncrement = (long)product.getMinIncrement();
+        Long minIncrement = (long) product.getMinIncrement();
 
         // 1) 해당 상품의 active=true인 자동입찰 목록 조회
         List<AutoBid> autoBidders = autoBidRepository.findByProductAndActiveIsTrue(product);
@@ -234,6 +244,9 @@ public class BidService {
                     .build();
             bidRepository.save(newBid);
             setAdditionalTime(productId);
+
+            overBidNotice(productId, topBidder.getUser().getUserId());
+
         }
     }
 
@@ -262,6 +275,34 @@ public class BidService {
         for (Product product : productSet) {
             processAutoBidding(product.getProductId());
         }
+        deadlineBidNotice();
+    }
+
+
+    public void deadlineBidNotice(){
+        List<Product> products = productRepository.findAll();
+
+        for (Product product : products) {
+            int gap = (int) Duration.between(LocalDateTime.now(), product.getEndAt()).toSeconds();
+            if (1770 < gap && gap < 1830) {
+                List<Users> users = bidRepository.findUserIdsByProductId(product.getProductId());
+
+                String message = product + " 상품의 입찰마감시간이 30분 남았습니다.";
+
+                for (Users user : users) {
+                    Notification notification = Notification
+                            .builder()
+                            .user(user)
+                            .type("입찰마감")
+                            .message(message)
+                            .createdAt(LocalDateTime.now())
+                            .readStatus(1)
+                            .build();
+                    notificationRepository.save(notification);
+                }
+
+            }
+        }
     }
 
 
@@ -271,16 +312,16 @@ public class BidService {
     public String getHighestBidUser() {
         Long tempUserId = bidRepository.findUserIdWithHighestBidPrice();
 
-        if(tempUserId == null) {
+        if (tempUserId == null) {
             return "입찰자 없음";
-        }else{
+        } else {
             Users user = usersRepository.findById(tempUserId).orElseThrow();
             return user.getUserName();
         }
 
     }
 
-    public boolean isProductLike(Long productId, Long userId){
+    public boolean isProductLike(Long productId, Long userId) {
         return productLikeRepository.countByProductIdAndUserId(productId, userId) > 0;
 
     }
@@ -290,8 +331,8 @@ public class BidService {
         LocalDateTime now = LocalDateTime.now();
         Product product = pdpRepository.findById(productId).orElseThrow();
         long seconds = Duration.between(now, product.getEndAt()).getSeconds();
-        if(seconds<=300){
-            extendProductEndAt(productId,600);
+        if (seconds <= 300) {
+            extendProductEndAt(productId, 600);
         }
 
     }
@@ -304,6 +345,45 @@ public class BidService {
 
         // JPQL을 통해 업데이트
         pdpRepository.updateEndAt(productId, newEndAt);
+    }
+
+    public void overBidNotice(Long productId, Long userId) {
+
+        // 해당 productId와 현재 입찰한 userId가 아닌 사용자들에게 알림 생성
+        List<Long> overwhelmedUser = bidRepository.findDistinctUserIdByProductIdAndNotUserId(productId, userId);
+
+        // 상품 이름 조회
+        String productName = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found")).getName();
+
+        for (Long over : overwhelmedUser) {
+
+            String message = productName + " 상품이 상회 입찰 되었습니다.";
+
+            // 먼저, 해당 사용자(over)에 대해 동일 조건의 알림이 존재하는지 확인
+            Optional<Notification> existingNotificationOpt = notificationRepository
+                    .findNotification(over, message, "상회입찰", 1);
+
+            if (existingNotificationOpt.isPresent()) {
+                // 이미 존재하면 readStatus 업데이트만 수행
+                Notification existingNotification = existingNotificationOpt.get();
+                existingNotification.setReadStatus(0);
+                notificationRepository.save(existingNotification);
+            } else {
+                // 존재하지 않으면 새 알림 생성
+                Users targetUser = usersRepository.findById(over)
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+
+                Notification notification = Notification.builder()
+                        .user(targetUser)
+                        .type("상회입찰")
+                        .message(message)
+                        .createdAt(LocalDateTime.now())
+                        .readStatus(1)
+                        .build();
+                notificationRepository.save(notification);
+            }
+        }
     }
 
 
