@@ -28,18 +28,21 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findBySellerAndStatusAndEndAtBefore(Users seller, String status, LocalDateTime cutoff, Pageable pageable);
 
 
-    @Query("SELECT p FROM Product p JOIN FETCH p.category WHERE " +
-            "( :keyword IS NULL OR p.name LIKE %:keyword% ) " +
+    @Query("SELECT p FROM Product p " +
+            "JOIN FETCH p.category " +
+            "JOIN FETCH p.seller " +
+            "WHERE ( :keyword IS NULL OR p.name LIKE %:keyword% ) " +
             "AND ( :auctionOnly IS NULL OR (p.status = '판매중' AND p.tempPrice IS NOT NULL) ) " +
             "AND ( :categories IS NULL OR p.category.name IN :categories ) " +
             "AND ( :minPrice IS NULL OR p.price >= :minPrice ) " +
-            "AND ( :maxPrice IS NULL OR p.price <= :maxPrice ) ")
+            "AND ( :maxPrice IS NULL OR p.price <= :maxPrice )")
     List<Product> findByFilters(@Param("keyword") String keyword,
                                 @Param("auctionOnly") Boolean auctionOnly,
                                 @Param("categories") List<String> categories,
                                 @Param("minPrice") Long minPrice,
                                 @Param("maxPrice") Long maxPrice,
                                 Pageable pageable);
+
 
     List<Product> findByCategory_CategoryId(Long categoryId);
 

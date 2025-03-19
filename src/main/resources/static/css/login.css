@@ -87,7 +87,7 @@
 
 /* 소셜 로그인 영역 */
 .login-social {
-    margin-top: 30px;
+    margin-top: 20px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -122,7 +122,7 @@
     align-items: center;
     max-width: 900px;
     max-height: 800px;
-    margin-top: 55px;
+    margin-top: 65px;
 }
 
 .login-ad-image {
