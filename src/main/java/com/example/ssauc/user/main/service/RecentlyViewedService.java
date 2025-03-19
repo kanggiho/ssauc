@@ -3,6 +3,8 @@ package com.example.ssauc.user.main.service;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.main.entity.RecentlyViewed;
 import com.example.ssauc.user.main.repository.RecentlyViewedRepository;
+import com.example.ssauc.user.product.entity.Product;
+import com.example.ssauc.user.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,7 @@ import java.util.List;
 public class RecentlyViewedService {
 
     private final RecentlyViewedRepository recentlyViewedRepository;
+    private final ProductService productService;
 
     /**
      * 특정 유저가 최근에 본 상품 목록 조회
@@ -22,19 +25,33 @@ public class RecentlyViewedService {
         return recentlyViewedRepository.findAllByUserOrderByViewedAtDesc(user);
     }
 
-    /**
-     * 사용자가 어떤 상품을 새로 봤을 때 저장하는 메서드 예시
-     */
     public void saveViewedProduct(Users user, Long productId) {
-        // 이미 본 기록이 있다면(또는 중복 제거 로직을 원하는 경우) 여기서 처리 가능
-        // 예를 들어, productId 중복 체크, 최근 본 기록 5개까지만 유지 등
+        Product product = productService.getProductById(productId);
 
-        RecentlyViewed viewed = RecentlyViewed.builder()
-                .user(user)
-//                .product(/* product를 productId로 조회해서 넣어주기 */)
-                .viewedAt(LocalDateTime.now())
-                .build();
+        // 이미 본 상품인지 확인
+        RecentlyViewed existing = recentlyViewedRepository.findByUserAndProduct(user, product);
 
-        recentlyViewedRepository.save(viewed);
+        if (existing != null) {
+            // 기존 기록이 있으면 시간만 갱신 -> 최신 기록으로 올라감
+            existing.setViewedAt(LocalDateTime.now());
+            recentlyViewedRepository.save(existing);
+        } else {
+            // 처음 보는 상품이면 새로 저장
+            RecentlyViewed viewed = RecentlyViewed.builder()
+                    .user(user)
+                    .product(product)
+                    .viewedAt(LocalDateTime.now())
+                    .build();
+            recentlyViewedRepository.save(viewed);
+        }
+
+//         필요 시, DB 자체를 7개까지만 유지하고 싶다면 여기서 정리
+//         (예: 7개 초과 시 가장 오래된 기록 삭제)
+         List<RecentlyViewed> userViews = recentlyViewedRepository.findAllByUserOrderByViewedAtDesc(user);
+         if (userViews.size() > 7) {
+             for (int i = 7; i < userViews.size(); i++) {
+                 recentlyViewedRepository.delete(userViews.get(i));
+             }
+         }
     }
 }
