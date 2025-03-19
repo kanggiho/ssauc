@@ -1,9 +1,9 @@
 package com.example.ssauc.repositoryTests;
 
+import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.order.entity.Orders;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.order.repository.OrdersRepository;
-import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.product.entity.Category;
 import com.example.ssauc.user.product.entity.Product;
 import com.example.ssauc.user.product.repository.CategoryRepository;

@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +35,13 @@ public interface PdpRepository extends JpaRepository<Product, Long> {
   @Transactional
   @Query("UPDATE Product p SET p.tempPrice = :tempPrice, p.bidCount = p.bidCount + 1 WHERE p.productId = :productId")
   int updateProductField(@Param("tempPrice") Long tempPrice, @Param("productId") Long productId);
+
+
+  @Modifying
+  @Transactional
+  @Query("UPDATE Product p SET p.endAt = :newEndAt WHERE p.productId = :productId")
+  void updateEndAt(@Param("productId") Long productId, @Param("newEndAt") LocalDateTime newEndAt);
+
 
 
 }

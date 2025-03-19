@@ -5,9 +5,14 @@ import com.example.ssauc.user.bid.dto.*;
 import com.example.ssauc.user.bid.service.BidService;
 import com.example.ssauc.user.chat.entity.Report;
 import com.example.ssauc.user.login.entity.Users;
+import com.example.ssauc.user.login.util.TokenExtractor;
 import com.example.ssauc.user.product.entity.Product;
-import jakarta.servlet.http.HttpSession;
+import com.example.ssauc.user.recommendation.dto.RecommendationDto;
+import com.example.ssauc.user.recommendation.service.RecommendationService;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,32 +22,35 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/bid")
+@RequiredArgsConstructor
 public class BidController {
 
     @Autowired
     private BidService bidService;
 
+    @Autowired
+    private RecommendationService recommendationService;
+
+    private final TokenExtractor tokenExtractor;
 
     @GetMapping("/bid")
-    public String bidPage(@RequestParam("productId") Long productId, Model model, HttpSession session) {
+    public String bidPage(@RequestParam("productId") Long productId, Model model, HttpServletRequest request) {
 
-        ProductInformDto dto = bidService.getBidInform(productId);
-        List<CarouselImage> carouselImages = bidService.getCarouselImages(productId);
+        Users user = tokenExtractor.getUserFromToken(request);
 
-
-        if (session.getAttribute("user") != null) {
-
-            Users user = (Users) session.getAttribute("user");
-            model.addAttribute("sessionId", user.getUserId());
-            model.addAttribute("sessionName", user.getUserName());
+        if (user  != null) {
+            model.addAttribute("tokenId", user.getUserId());
+            model.addAttribute("tokenName", user.getUserName());
             Boolean isLikeProduct = bidService.isProductLike(productId, user.getUserId());
             model.addAttribute("isLikeProduct", isLikeProduct);
         } else {
-            model.addAttribute("sessionId", "guest");
+            model.addAttribute("tokenId", "guest");
         }
 
 
+        ProductInformDto dto = bidService.getBidInform(productId);
 
+        List<CarouselImage> carouselImages = bidService.getCarouselImages(productId);
 
         Product product = bidService.getProduct(productId);
 
@@ -68,6 +76,9 @@ public class BidController {
 
         model.addAttribute("product", product);
 
+        List<RecommendationDto> similarProducts = recommendationService.getSimilarProducts(productId);
+        model.addAttribute("similarProducts", similarProducts);
+
 
         return "bid/bid"; // 해당 페이지로 이동
     }
@@ -83,14 +94,16 @@ public class BidController {
     }
 
     @PostMapping("report")
-    public ResponseEntity<String> reportPost(@RequestBody ReportDto reportDto, HttpSession session) {
+    public ResponseEntity<String> reportPost(@RequestBody ReportDto reportDto, HttpServletRequest request) {
 
-        Users logName = (Users) session.getAttribute("user");
+        Users user = tokenExtractor.getUserFromToken(request);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
 
-        ReportDto dto = (ReportDto) reportDto;
-        dto.setReporterId(logName.getUserId());
+        reportDto.setReporterId(user.getUserId());
 
-        bidService.insertReportData(dto);
+        bidService.insertReportData(reportDto);
 
         return ResponseEntity.ok("신고가 등록되었습니다.");
     }

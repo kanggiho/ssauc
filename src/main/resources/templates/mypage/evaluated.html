@@ -21,35 +21,60 @@
 
         <!-- 리뷰 상세 정보 영역 -->
         <div class="review-detail">
-            <p class="reviewer">작성자: 홍길동</p>
-            <p class="reviewee">대상자: 김철수</p>
-            <p class="product-name">상품명: DANIEL KLENI</p>
+            <p class="reviewee" th:text="'받은 사람: ' + ${review.revieweeName}"></p>
+            <p class="product-name">
+                거래한 상품:
+                <span class="productBid"
+                      th:data-href="|${review.transactionType=='구매' ? '/history/bought?id=' : '/history/sold?id='}${review.productId}|"
+                      th:text="${review.productName}"
+                      onclick="location.href=this.dataset.href">
+                </span>
+            </p>
 
-            <!-- 평가 항목 -->
+            <!-- 평가 항목 (거래 타입에 따라 조건부 처리) -->
+            <hr>
             <div class="review-ratings">
                 <div class="rating-item">
                     <span class="rating-label">대화 매너:</span>
-                    <span class="rating-value positive">😊 좋아요</span>
+                    <span class="rating-value"
+                          th:classappend="${review.option1} ? ' positive' : ' negative'"
+                          th:text="${review.option1} ? '😊 친절했어요' : '😐 아쉬워요'">
+                    </span>
                 </div>
                 <div class="rating-item">
-                    <span class="rating-label">약속 준수:</span>
-                    <span class="rating-value positive">⌚ 잘 지켰어요</span>
+                    <span class="rating-label"
+                          th:text="${#strings.equals(reviewType, 'written') ? (review.transactionType == '구매' ? '상품 상태:' : '가격 협상 과정:') : (review.transactionType == '구매' ? '가격 협상 과정:' : '상품 상태:')}">
+                    </span>
+                    <span class="rating-value"
+                          th:classappend="${review.option2} ? ' positive' : ' negative'"
+                          th:text="${#strings.equals(reviewType, 'written') ? (review.transactionType == '구매' ? (review.option2 ? '✨ 마음에 들어요' : '💔 설명과 달라요') : (review.option2 ? '😍 깔끔한 거래' : '🥶 무리한 요청'))
+                                      : (review.transactionType == '구매' ? (review.option2 ? '😍 깔끔한 거래' : '🥶 무리한 요청') : (review.option2 ? '✨ 마음에 들어요' : '💔 설명과 달라요'))}">
+                    </span>
                 </div>
                 <div class="rating-item">
-                    <span class="rating-label">상품 만족도:</span>
-                    <span class="rating-value negative">📉 아쉬워요</span>
+                    <span class="rating-label"
+                          th:text="${#strings.equals(reviewType, 'written') ? (review.transactionType == '구매' ? '가격:' : '상품 수령 후 피드백:') : (review.transactionType == '구매' ? '상품 수령 후 피드백:' : '가격:')}">
+                    </span>
+                    <span class="rating-value"
+                          th:classappend="${review.option3} ? ' positive' : ' negative'"
+                          th:text="${#strings.equals(reviewType, 'written') ? (review.transactionType == '구매' ? (review.option3 ? '🤩 합리적이에요' : '🤑 비쌌어요') : (review.option3 ? '💬 빠른 피드백' : '🚫 연락 두절'))
+                                      : (review.transactionType == '구매' ? (review.option3 ? '💬 빠른 피드백' : '🚫 연락 두절') : (review.option3 ? '🤩 합리적이에요' : '🤑 비쌌어요'))}">
+                    </span>
                 </div>
             </div>
 
             <!-- 리뷰 내용 -->
             <div class="review-comment">
                 <h3>리뷰 내용</h3>
-                <p>거래가 원활했고, 상대방의 응대가 친절했습니다. 다만 상품에 약간의 아쉬움이 있었습니다.</p>
-            </div>
-
-            <!-- 작성일 -->
-            <div class="review-date">
-                <p>작성일: 2025-02-05</p>
+                <div class="comment-info">
+                    <p th:text="${review.comment}"></p>
+                </div>
+                <hr>
+                <!-- 작성자 및 작성일 -->
+                <div class="review-date">
+                    <p class="reviewer" th:text="'작성한 사람: ' + ${review.reviewerName}"></p>
+                    <p th:text="'작성일: ' + ${#temporals.format(review.createdAt, 'yyyy-MM-dd')}"></p>
+                </div>
             </div>
         </div>
     </main>

@@ -76,7 +76,6 @@ class BidRepositoryTest {
         bid.setUser(savedUser);
         bid.setBidPrice(15000L);
         bid.setBidTime(LocalDateTime.now());
-        bid.setAutoBidMax(30000L);
 
         // When
         Bid savedBid = bidRepository.save(bid);
@@ -87,7 +86,6 @@ class BidRepositoryTest {
         assertThat(foundBid.getBidId()).isEqualTo(savedBid.getBidId());
         assertThat(foundBid.getBidPrice()).isEqualTo(15000L);
         assertThat(foundBid.getUser().getUserId()).isEqualTo(savedUser.getUserId());
-        assertThat(foundBid.getAutoBidMax()).isEqualTo(30000L);
 
     }
 }

@@ -363,7 +363,7 @@
     const openChargeModalBtn = document.getElementById("openChargeModal");
     const chargeModal = document.getElementById("chargeModal");
     const closeModalBtn = document.getElementById("closeModalBtn");
-    let currentCash = /*[[${session.user.cash}]]*/ 0;
+    let currentCash = /*[[${user.cash}]]*/ 0;
 
     openChargeModalBtn.addEventListener("click", () => {
         // 모달 열기
@@ -602,6 +602,16 @@
         // 환급 금액이 사용자가 가진 머니(currentCash)보다 초과하면 안 됨.
         if (amount > currentCash) {
             document.getElementById("withdrawErrorMsg").innerText = "환급 신청 금액은 보유한 쏙머니 이하이어야 합니다.";
+            document.getElementById("withdrawErrorMsg").style.visibility = "visible";
+            return;
+        }
+
+        let currentCount = parseInt(document.getElementById("currentWithdrawCount").textContent) || 0;
+        let commission = currentCount >= 3 ? 1000 : 0;
+
+        // 환급 요청 금액이 수수료보다 작거나 같으면 예외 처리
+        if (amount <= commission) {
+            document.getElementById("withdrawErrorMsg").innerText = "환급 요청 금액이 수수료보다 작거나 같습니다. 환급 요청 금액을 수정해주세요.";
             document.getElementById("withdrawErrorMsg").style.visibility = "visible";
             return;
         }

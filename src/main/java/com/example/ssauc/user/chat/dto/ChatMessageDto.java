@@ -10,12 +10,8 @@ import lombok.*;
 @NoArgsConstructor
 public class ChatMessageDto {
     private Long chatRoomId;
-    private long senderId;
-    private String messageText;
-
-
-    // 필요 시, senderName이나 timestamp 등을 추가
-
+    private Long senderId;
+    private String message;
 
 
 }

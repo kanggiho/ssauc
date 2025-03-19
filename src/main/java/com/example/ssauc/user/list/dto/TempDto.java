@@ -18,4 +18,5 @@ public class TempDto {
     private String location; // Users 테이블
     private String likeCount;
     private boolean liked;
+    private String status;
 }

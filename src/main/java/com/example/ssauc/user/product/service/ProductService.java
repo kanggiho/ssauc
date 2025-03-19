@@ -1,7 +1,7 @@
 package com.example.ssauc.user.product.service;
 
+import com.example.ssauc.common.service.CommonUserService;
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.product.dto.ProductInsertDto;
 import com.example.ssauc.user.product.dto.ProductUpdateDto;
 import com.example.ssauc.user.product.entity.Category;
@@ -20,15 +20,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductService {
 
-    private final UsersRepository usersRepository;
+    private final CommonUserService commonUserService;
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
-    public Users getCurrentUser(Long userId) {
-        return usersRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
+
+    // JWT 현재 이메일을 기반으로 사용자 정보를 조회
+    public Users getCurrentUser(String email) {
+        return commonUserService.getCurrentUser(email);
     }
 
+    // 새로운 상품을 등록
     public Product insertProduct(ProductInsertDto dto, Users seller) {
         // 카테고리 검증: categoryName으로 조회
         Category category = categoryRepository.findByName(dto.getCategoryName())
@@ -52,28 +54,32 @@ public class ProductService {
                 .status("판매중")
                 .createdAt(LocalDateTime.now())
                 .endAt(auctionClosingDateTime)
-                .viewCount(0)
+                .viewCount(0L)
                 .minIncrement(dto.getMinIncrement())
                 .dealType(dto.getDealType())
                 .build();
         return productRepository.save(product);
     }
 
+    // 상품 ID를 기반으로 상품 정보를 조회
     public Product getProductById(Long productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
     }
 
+    // 모든 상품 카테고리 목록을 조회
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
     }
 
+    // 특정 상품에 입찰이 존재하는지 확인
     public boolean hasBids(Long productId) {
         // Product 엔티티의 bidCount 필드를 이용하거나 bidRepository를 이용하여 해당 상품의 입찰 건수가 있는지 체크
         Product product = getProductById(productId);
         return product.getBidCount() > 0;
     }
 
+    // 상품 정보 수정
     public void updateProduct(ProductUpdateDto dto, Users seller) {
         Product product = getProductById(dto.getProductId());
         if (!product.getSeller().getUserId().equals(seller.getUserId())) {
@@ -102,6 +108,7 @@ public class ProductService {
         productRepository.save(product);
     }
 
+    // 상품 삭제
     public void deleteProduct(Long productId, Users seller) {
         Product product = getProductById(productId);
         if (!product.getSeller().getUserId().equals(seller.getUserId())) {

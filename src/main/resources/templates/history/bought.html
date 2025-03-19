@@ -12,8 +12,10 @@
     /* 캐러셀 전체 영역 및 각 슬라이드의 고정 높이 설정 */
     .carousel-inner,
     .carousel-item {
-      max-height: 400px;
-      max-width: 400px;
+      height: 300px;
+      width: 300px;
+      position: relative;
+      margin: 0 auto;
     }
     /* 캐러셀 슬라이드 이미지 스타일 */
     .carousel-item img {
@@ -21,6 +23,40 @@
       height: 100%;
       object-fit: cover;
       display: block;
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    .carousel-control-prev,
+    .carousel-control-next {
+      width: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 2;
+      position: absolute;
+    }
+
+    .carousel-control-prev {
+      left: 0;
+    }
+
+    .carousel-control-next {
+      right: 0;
+    }
+
+    .card-body {
+      padding-bottom: 0 !important;
+    }
+
+    .tracking {
+      margin-bottom: 16px;
+    }
+    .tracking-area {
+      margin-top: -24px;  /* 위로 조금 당기기 */
     }
     /* 스마트택배 배송 조회 버튼 */
     .smartapi-btn {
@@ -63,10 +99,16 @@
       <div class="card mb-4">
         <div class="card-header fw-bold">구매 상품 정보</div>
         <div class="card-body">
-          <div class="row">
+          <div class="row align-items-center">
             <!-- 왼쪽: 상품 정보 -->
             <div class="col-md-7">
-              <p><strong>상품 이름:</strong> <span th:text="${boughtDetail.productName}">상품 A</span></p>
+              <p>
+                <strong>상품 이름:</strong>
+                <span class="productBid"
+                      th:text="${boughtDetail.productName}"
+                      th:onclick="|location.href='/bid/bid?productId=' + ${boughtDetail.productId}|">
+                </span>
+              </p>
               <p><strong>경매 시작가:</strong> <span th:text="${boughtDetail.startPrice}">10000</span></p>
               <p><strong>등록 시간:</strong> <span
                       th:text="${#temporals.format(boughtDetail.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2025-02-05 14:30:00</span>

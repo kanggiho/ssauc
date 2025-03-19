@@ -1,5 +1,6 @@
 package com.example.ssauc.user.contact.service;
 
+import com.example.ssauc.common.service.CommonUserService;
 import com.example.ssauc.user.contact.entity.Board;
 import com.example.ssauc.user.contact.repository.BoardRepository;
 import com.example.ssauc.user.login.entity.Users;
@@ -14,6 +15,12 @@ import java.util.List;
 public class BoardService {
 
     private final BoardRepository boardRepository;
+    private final CommonUserService commonUserService;
+
+    public Users getCurrentUser(String email) {
+        return commonUserService.getCurrentUser(email);
+    }
+
 
     // 1) 등록 (QnA 작성)
     public Board createBoard(Users user,
@@ -24,7 +31,7 @@ public class BoardService {
                 .subject(subject)
                 .message(message)
                 .createdAt(LocalDateTime.now()) // 등록 시점
-                .status("등록")          // 기본 상태값 (필요시 수정)
+                .status("답변대기")          // 기본 상태값 (필요시 수정)
                 .build();
         return boardRepository.save(board);
     }

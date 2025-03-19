@@ -89,7 +89,10 @@ class ReviewRepositoryTest {
                 .reviewer(reviewer)
                 .reviewee(reviewee)
                 .order(order)
-                .grade(5)
+                .option1(true)
+                .option2(false)
+                .option3(true)
+                .baseScore(1.0)
                 .comment("Great transaction!")
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -100,7 +103,10 @@ class ReviewRepositoryTest {
 
         // Then - 검증
         assertThat(foundReview).isNotNull();
-        assertThat(foundReview.getGrade()).isEqualTo(5);
+        assertThat(foundReview.getOption1()).isTrue();
+        assertThat(foundReview.getOption2()).isFalse();
+        assertThat(foundReview.getOption3()).isTrue();
+        assertThat(foundReview.getBaseScore()).isEqualTo(1.0);
         assertThat(foundReview.getComment()).isEqualTo("Great transaction!");
         assertThat(foundReview.getReviewer().getUserName()).isEqualTo("reviewer");
         assertThat(foundReview.getReviewee().getUserName()).isEqualTo("reviewee");

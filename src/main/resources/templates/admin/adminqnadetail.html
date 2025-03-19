@@ -32,6 +32,7 @@
 </head>
 <body>
 <div class="container py-5" layout:fragment="content">
+  <!-- 기존 신고(문의) 상세내역 카드 -->
   <div class="row justify-content-center">
     <div class="col-md-8">
       <div class="card shadow-sm">
@@ -46,28 +47,24 @@
               <p class="form-control-plaintext" th:text="${board.getBoardId()}">문의번호</p>
             </div>
           </div>
-
           <div class="mb-3 row">
             <label class="col-sm-3 col-form-label fw-bold">제목</label>
             <div class="col-sm-9">
               <p class="form-control-plaintext" th:text="${board.getSubject()}">제목</p>
             </div>
           </div>
-
           <div class="mb-3 row">
             <label class="col-sm-3 col-form-label fw-bold">작성자</label>
             <div class="col-sm-9">
               <p class="form-control-plaintext" th:text="${board.getUser().getUserName()}">작성자</p>
             </div>
           </div>
-
           <div class="mb-3 row">
             <label class="col-sm-3 col-form-label fw-bold">문의내용</label>
             <div class="col-sm-9">
               <p class="form-control-plaintext" th:text="${board.getMessage()}">문의내용</p>
             </div>
           </div>
-
           <div class="mb-3 row">
             <label class="col-sm-3 col-form-label fw-bold">문의시간</label>
             <div class="col-sm-9">
@@ -75,65 +72,109 @@
                  th:text="${#temporals.format(board.getCreatedAt(), 'yyyy-MM-dd HH시 mm분 ss초')}">문의시간</p>
             </div>
           </div>
-
           <div class="mb-3 row">
             <label class="col-sm-3 col-form-label fw-bold">답변상태</label>
             <div class="col-sm-9">
               <p class="form-control-plaintext" th:text="${board.getStatus()}">답변상태</p>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-          <!-- 등록/취소 버튼 -->
+  <!-- 답변 등록 카드 -->
+  <div class="row justify-content-center mt-4" th:if="${!isReply}">
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h4 class="mb-0">답변 남기기</h4>
+        </div>
+        <div class="card-body">
+          <div class="mb-3 row">
+            <label for="answerTitle" class="col-sm-3 col-form-label fw-bold">답변 제목</label>
+            <div class="col-sm-9">
+              <input type="text" id="answerTitle" class="form-control" placeholder="답변 제목을 입력해 주세요">
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="answerContent" class="col-sm-3 col-form-label fw-bold">답변 내용</label>
+            <div class="col-sm-9">
+              <textarea id="answerContent" class="form-control" rows="5" placeholder="답변 내용을 입력해 주세요"></textarea>
+            </div>
+          </div>
           <div class="d-flex justify-content-end">
-            <button id="submitButton" type="button" class="btn custom-btn me-3">등록</button>
-            <button type="button" class="btn custom-btn2" onclick="location.href='/admin/report'">취소</button>
+            <button id="answerSubmitButton" type="button" class="btn custom-btn me-3">답변 등록</button>
+            <button type="button" class="btn custom-btn2" onclick="location.href='/admin/board'">취소</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- 등록된 답변 카드 -->
+  <div class="row justify-content-center mt-4" th:if="${isReply}">
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h4 class="mb-0">등록된 답변</h4>
+        </div>
+        <div class="card-body">
+          <div class="mb-3 row">
+            <label for="answerTitle" class="col-sm-3 col-form-label fw-bold">답변 제목</label>
+            <div class="col-sm-9">
+              <p class="form-control-plaintext" th:text="${reply.getSubject()}">답변 제목</p>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="answerContent" class="col-sm-3 col-form-label fw-bold">답변 내용</label>
+            <div class="col-sm-9">
+              <p class="form-control-plaintext" th:text="${reply.getMessage()}">답변 내용</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
   <!-- Bootstrap 5 JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('submitButton').addEventListener('click', function() {
-        // 선택된 처리 조치 값을 가져옴
-        var action = document.getElementById('actionSelect').value;
-        if (!action) {
-          alert('처리 조치를 선택해 주세요.');
+
+      // 답변 등록 버튼 이벤트
+      document.getElementById('answerSubmitButton').addEventListener('click', function() {
+        // 답변 제목과 내용 가져오기
+        var answerTitle = document.getElementById('answerTitle').value.trim();
+        var answerContent = document.getElementById('answerContent').value.trim();
+        if (!answerTitle || !answerContent) {
+          alert('답변 제목과 내용을 모두 입력해 주세요.');
           return;
         }
-
-        // 필요하다면 추가 데이터도 함께 전송 가능 (예: 신고번호)
         var boardId = [[${board.getBoardId()}]];
-        // 여기서는 처리 조치(action)만 전송합니다.
-
-        // FormData 객체를 생성하여 전송할 데이터 구성
+        // FormData 객체 생성
         var formData = new FormData();
-        formData.append('action', action);
+        formData.append('answerTitle', answerTitle);
+        formData.append('answerContent', answerContent);
         formData.append('boardId', boardId);
-
-        // axios를 사용하여 POST 요청 전송
-        axios.post('/admin/board/result', formData)
+        // axios로 POST 요청 전송 (컨트롤러에서 이 URL을 매핑)
+        axios.post('/admin/qna/result', formData)
                 .then(function(response) {
-                  console.log("axios 응답:", response);
-                  alert('등록이 완료되었습니다.');
-                  window.location.href = '/admin/board';
+                  console.log("답변 등록 axios 응답:", response);
+                  alert('답변 등록이 완료되었습니다.');
+                  window.location.href = '/admin/qna';
                 })
                 .catch(function(error) {
-                  console.error("axios 에러:", error);
-                  alert('등록에 실패했습니다.');
+                  console.error("답변 등록 axios 에러:", error);
+                  alert('답변 등록에 실패했습니다.');
                 });
       });
     });
   </script>
-
-
-
-
 </div>
-
 </body>
 </html>

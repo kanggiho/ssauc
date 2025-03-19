@@ -3,8 +3,6 @@ package com.example.ssauc.user.login.entity;
 import com.example.ssauc.user.bid.entity.AutoBid;
 import com.example.ssauc.user.bid.entity.Bid;
 import com.example.ssauc.user.chat.entity.Ban;
-import com.example.ssauc.user.chat.entity.ChatMessage;
-import com.example.ssauc.user.chat.entity.ChatParticipant;
 import com.example.ssauc.user.chat.entity.Report;
 import com.example.ssauc.user.contact.entity.Board;
 import com.example.ssauc.user.main.entity.Notification;
@@ -46,30 +44,67 @@ public class Users {
     @Column(nullable = false, length = 255)
     private String password;
 
-    @Column(length = 20, unique = true)
+    @Column(length = 15, unique = true)
     private String phone;
 
-    @Column(length = 500)
+    // profileImage: 기본값 적용 (DDL 기본값과 @PrePersist로 세팅)
+    @Column(length = 500, columnDefinition = "varchar(500) default 'https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/default-profile.png'")
     private String profileImage;
 
-    @Column(length = 255) // 🔹 추가된 부분 (지역 정보)
-    private String location;
+    @Column(length = 300)
+    private String location; // 지역 정보
 
+    // status: 기본값 active
+    @Column(columnDefinition = "varchar(50) default 'active'")
     private String status;
+
+    // reputation: 기본값 50.0
+    @Column(columnDefinition = "double default 50.0")
     private Double reputation;
+
     private int warningCount;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastLogin;
 
+    // cash: 기본값 0
+    @Column(columnDefinition = "bigint default 0")
     private Long cash;
 
-    // 🔹 추가: username과 password만 받는 생성자
+    // 생성자 (username, password 만 받는 생성자)
     public Users(String userName, String password) {
         this.userName = userName;
         this.password = password;
-        this.createdAt = LocalDateTime.now(); // 생성 시간 자동 설정 (선택)
+        this.createdAt = LocalDateTime.now();
+    }
+
+    // 신규 생성 시 기본값 설정 (엔티티가 persist 되기 전에 실행)
+    @PrePersist
+    public void prePersist() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+        if (this.profileImage == null) {
+            this.profileImage = "https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/default-profile.png";
+        }
+        if (this.status == null) {
+            this.status = "active";
+        }
+        if (this.reputation == null) {
+            this.reputation = 30.0;
+        }
+        if (this.cash == null) {
+            this.cash = 0L;
+        }
+        if (this.lastLogin == null) {
+            this.lastLogin = LocalDateTime.now();
+        }
+    }
+
+    // 마지막 로그인 시간 업데이트 메서드 (로그인 성공 시 서비스에서 호출)
+    public void updateLastLogin() {
+        this.lastLogin = LocalDateTime.now();
     }
 
     // 연관 관계 설정
@@ -89,10 +124,6 @@ public class Users {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductLike> likedProducts;
 
-
-
-
-
     @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Orders> purchasedOrders;
 
@@ -107,20 +138,6 @@ public class Users {
 
     @OneToMany(mappedBy = "payer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payment> payments;
-
-
-
-
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChatParticipant> chatParticipants;
-
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChatMessage> sentMessages;
-
-
-
-
 
     @OneToMany(mappedBy = "reporter", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Report> reportsByUser;
@@ -140,10 +157,6 @@ public class Users {
     @OneToMany(mappedBy = "blockedUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ban> bansAsBlockedUser;
 
-
-
-
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Withdraw> withdraws;
 
@@ -155,5 +168,18 @@ public class Users {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReputationHistory> reputationHistories;
+
+
+
+
+
+    // 채팅기능 구현
+
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<ChatParticipant> chatParticipants;
+//
+//    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<ChatMessage> sentMessages;
+
 
 }

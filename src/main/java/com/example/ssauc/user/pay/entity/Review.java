@@ -36,12 +36,23 @@ public class Review {
     @JoinColumn(name = "order_id", nullable = false)
     private Orders order;
 
-    @Column(name = "grade")
-    private Integer grade;
+    // true: 긍정, false: 부정으로 가정하여 후에 각각 +0.5 또는 -0.5로 계산 가능
+    @Column(name = "option1")
+    private Boolean option1;
+
+    @Column(name = "option2")
+    private Boolean option2;
+
+    @Column(name = "option3")
+    private Boolean option3;
+
+    @Column(name = "base_score")
+    private Double baseScore;
 
     @Column(name = "comment", columnDefinition = "TEXT")
     private String comment;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
 }

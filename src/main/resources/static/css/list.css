@@ -26,6 +26,34 @@ body {
     padding: 20px;
     border-radius: 8px;
 }
+
+.image-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.overlay-text {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.product-img {
+    width: 100%;
+    border-radius: 8px;
+    max-height: 200px;
+    object-fit: cover;
+}
+
 .product-card {
     border: none;
     transition: transform 0.2s;
@@ -135,7 +163,7 @@ body {
 
 .product-title {
     color: black;
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: bold;
     display: -webkit-box;
     -webkit-line-clamp: 1; /* 최대 1줄 */
@@ -226,6 +254,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 10;
 }
 
 /* ✅ 아이콘 크기 조정 */

@@ -58,12 +58,17 @@
                                     <i th:class="${product.liked} ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
                                 </button>
                                 <a th:href="@{/bid/bid(productId=${product.productId})}">
-                                <img    class="product-img"
-                                        th:inline="text"
-                                        th:style="${product.getGap().equals('⏳ 입찰 마감') ? 'filter: opacity(0.5) drop-shadow(0 0 0 #333333);' : ''}"
-                                        th:src="${product.imageUrl}" alt="시계">
+                                    <div class="image-container">
+                                        <img    class="product-img"
+                                                th:inline="text"
+                                                th:style="${product.getGap().equals('⏳ 입찰 마감') or product.getStatus().equals('판매완료')? 'filter: opacity(0.3) drop-shadow(0 0 0 #000000);' : ''}"
+                                                th:src="${product.imageUrl}" alt="시계">
+                                        <div class="overlay-text"
+                                             th:if="${product.getGap().equals('⏳ 입찰 마감') or product.getStatus().equals('판매완료')}">
+                                            ⏳ 입찰 마감
+                                        </div>
+                                    </div>
                                 <div class="card-body">
-
                                     <p class="product-title" th:text="${product.name}"></p>
                                     <p class="product-price" th:text="${product.price}"></p>
                                     <p class="product-info">[[${product.bidCount}]] | [[${product.gap}]]</p>
@@ -78,20 +83,21 @@
 
                 <div class="pagination-container">
                     <div class="pagination">
-                        <th:block th:with="
-                                  isFiltered=${param.minPrice != null or param.maxPrice != null}
-                                   ">
+                        <th:block th:with="isPriceFiltered=${(param.minPrice != null or param.maxPrice != null)}">
+
                             <!-- 이전 페이지 버튼 -->
                             <a th:if="${secondList.hasPrevious()}"
-                               th:href="${isFiltered} ? @{/list/price(minPrice=${param.minPrice}, maxPrice=${param.maxPrice}, categoryId=${param.categoryId}, page=${secondList.number - 1})}
-                                    : @{/list/list(page=${secondList.number - 1})}"
+                               th:href="${isPriceFiltered} ?
+                   @{/list/price(minPrice=${param.minPrice}, maxPrice=${param.maxPrice}, categoryId=${param.categoryId}, page=${secondList.number - 1})} :
+                   @{/list/list(page=${secondList.number - 1})}"
                                class="page-link">&lt;</a>
 
                             <!-- 페이지 번호 (5개씩 표시) -->
                             <th:block th:with="start=${(secondList.number / 5) * 5}, end=${T(java.lang.Math).min(start + 4, secondList.totalPages - 1)}">
                                 <a th:each="i : ${#numbers.sequence(start, end)}"
-                                   th:href="${isFiltered} ? @{/list/price(minPrice=${param.minPrice}, maxPrice=${param.maxPrice}, categoryId=${param.categoryId}, page=${i})}
-                                        : @{/list/list(page=${i})}"
+                                   th:href="${isPriceFiltered} ?
+                       @{/list/price(minPrice=${param.minPrice}, maxPrice=${param.maxPrice}, categoryId=${param.categoryId}, page=${i})} :
+                       @{/list/list(page=${i})}"
                                    th:text="${i + 1}"
                                    th:classappend="${i == secondList.number} ? 'active' : ''"
                                    class="page-link"></a>
@@ -99,12 +105,14 @@
 
                             <!-- 다음 페이지 버튼 -->
                             <a th:if="${secondList.hasNext()}"
-                               th:href="${isFiltered} ? @{/list/price(minPrice=${param.minPrice}, maxPrice=${param.maxPrice}, categoryId=${param.categoryId}, page=${secondList.number + 1})}
-                                    : @{/list/list(page=${secondList.number + 1})}"
+                               th:href="${isPriceFiltered} ?
+                   @{/list/price(minPrice=${param.minPrice}, maxPrice=${param.maxPrice}, categoryId=${param.categoryId}, page=${secondList.number + 1})} :
+                   @{/list/list(page=${secondList.number + 1})}"
                                class="page-link">&gt;</a>
                         </th:block>
                     </div>
                 </div>
+
 
 
 
@@ -113,7 +121,7 @@
     </div>
 
     <script th:inline="javascript">
-        var isLoggedIn = /*[[${session.user != null}]]*/ false;
+        var isLoggedIn = /*[[${user != null and user.userId != null}]]*/ false;
 
         function toggleHeart(button) {
             // 로그인 여부 체크: 로그인 안 되어 있으면 메시지 표시 후 리턴
@@ -198,13 +206,18 @@
 
         function toggleCheckBox() {
             let checkbox = document.getElementById('filter_available_bid');
-            let url = checkbox.checked ? "/list/availableBid?filter=true" : "/list/list";
-
-            window.location.href = url;
+            let params = new URLSearchParams(window.location.search);
+            let page = params.get("page") || 0;
+            if (checkbox.checked) {
+                // 체크한 경우 availableBid 필터 적용 (filter=true)
+                window.location.href = `/list/availableBid?filter=true&page=${page}`;
+            } else {
+                // 체크 해제 시 filter 파라미터 없이 기본 리스트로 이동
+                window.location.href = `/list/list?page=${page}`;
+            }
         }
 
         // 페이지 로드 시 체크박스 상태 유지
-
 
         window.onload = function() {
             let params = new URLSearchParams(window.location.search);

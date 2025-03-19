@@ -1,9 +1,9 @@
 package com.example.ssauc.repositoryTests;
 
+import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.main.entity.Notification;
 import com.example.ssauc.user.main.repository.NotificationRepository;
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.login.repository.UsersRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;

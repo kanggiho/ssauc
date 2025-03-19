@@ -1,5 +1,6 @@
 package com.example.ssauc.user.cash.service;
 
+import com.example.ssauc.common.service.CommonUserService;
 import com.example.ssauc.exception.PortoneVerificationException;
 import com.example.ssauc.user.cash.dto.CalculateDto;
 import com.example.ssauc.user.cash.dto.ChargeDto;
@@ -35,12 +36,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CashServiceImpl implements CashService {
 
+    private final CommonUserService commonUserService;
     private final ChargeRepository chargeRepository;
-
     private final WithdrawRepository withdrawRepository;
-
     private final OrdersRepository ordersRepository;
-
     private final UsersRepository usersRepository;
 
     @Value("${portone.secret.api}")
@@ -52,11 +51,9 @@ public class CashServiceImpl implements CashService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // 세션에서 전달된 userId를 이용하여 DB에서 최신 사용자 정보를 조회합니다.
     @Override
-    public Users getCurrentUser(Long userId) {
-        return usersRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
+    public Users getCurrentUser(String email) {
+        return commonUserService.getCurrentUser(email);
     }
 
     // ===================== 결제 내역 =====================
@@ -449,6 +446,10 @@ public class CashServiceImpl implements CashService {
         int withdrawCount = withdrawRepository.countByUserAndRequestedAtBetween(user, startOfMonth, endOfMonth);
         // 월 3회까지 무료, 초과부터 1,000원 수수료 적용
         long commission = withdrawCount < 3 ? 0 : 1000;
+
+        if (amount <= commission) {
+            throw new IllegalArgumentException("환급 요청 금액이 수수료보다 작거나 같습니다. 환급 요청 금액을 수정해주세요.");
+        }
 
         Withdraw withdraw = Withdraw.builder()
                 .user(user)

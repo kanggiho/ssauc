@@ -26,27 +26,15 @@
             <!-- 쏙머니관리 -->
             <div class="menu-item" tabindex="0" onclick="toggleSubmenu(this, 'pay-submenu')" style="cursor:pointer;">쏙머니관리</div>
             <div class="submenu" id="pay-submenu" style="display: none;">
-                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >회원별 잔액</div>
-                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >출금 내역</div>
-                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >충전내역 조회</div>
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href='/admin/withdraw'" >환급 신청 관리</div>
+                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href='/admin/charge'" >충전 내역 조회</div>
             </div>
 
             <!-- 상품관리 -->
-            <div class="menu-item" tabindex="0" onclick="toggleSubmenu(this, 'product-submenu')" style="cursor:pointer;">상품관리</div>
-            <div class="submenu" id="product-submenu" style="display: none;">
-                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >상품 목록</div>
-                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >상품 검색</div>
-                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >최근 결제상품</div>
-                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >게시물 삭제</div>
-            </div>
+            <div class="menu-item" tabindex="0" onclick="location.href='/admin/product'" style="cursor:pointer;">상품관리</div>
 
             <!-- 회원관리 -->
-            <div class="menu-item" tabindex="0" onclick="toggleSubmenu(this, 'user-submenu')" style="cursor:pointer;">회원관리</div>
-            <div class="submenu" id="user-submenu" style="display: none;">
-                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >회원검색 및 삭제</div>
-                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >신규회원</div>
-                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >정지회원</div>
-            </div>
+            <div class="menu-item" tabindex="0" onclick="location.href='/admin/user'" style="cursor:pointer;">회원관리</div>
 
             <!-- 문의내역관리 -->
             <div class="menu-item" tabindex="0" onclick="location.href='/admin/qna'" style="cursor:pointer;">문의내역관리</div>

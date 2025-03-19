@@ -1,5 +1,6 @@
 package com.example.ssauc.user.history.service;
 
+import com.example.ssauc.common.service.CommonUserService;
 import com.example.ssauc.user.bid.entity.AutoBid;
 import com.example.ssauc.user.bid.entity.Bid;
 import com.example.ssauc.user.bid.entity.ProductReport;
@@ -12,12 +13,14 @@ import com.example.ssauc.user.chat.repository.ReportRepository;
 import com.example.ssauc.user.history.dto.*;
 import com.example.ssauc.user.chat.repository.BanRepository;
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.login.repository.UsersRepository;
+import com.example.ssauc.user.mypage.event.OrderCompletedEvent;
+import com.example.ssauc.user.mypage.event.OrderShippedEvent;
 import com.example.ssauc.user.order.entity.Orders;
 import com.example.ssauc.user.order.repository.OrdersRepository;
 import com.example.ssauc.user.product.entity.Product;
 import com.example.ssauc.user.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,7 +33,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class HistoryService {
 
-    private final UsersRepository usersRepository;
+    private final CommonUserService commonUserService;
     private final ProductRepository productRepository;
     private final OrdersRepository ordersRepository;
     private final BanRepository banRepository;
@@ -38,11 +41,11 @@ public class HistoryService {
     private final AutoBidRepository autoBidRepository;
     private final ReportRepository reportRepository;
     private final ProductReportRepository productReportRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     // 세션에서 전달된 userId를 이용하여 DB에서 최신 사용자 정보를 조회합니다.
-    public Users getCurrentUser(Long userId) {
-        return usersRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
+    public Users getCurrentUser(String email) {
+        return commonUserService.getCurrentUser(email);
     }
 
     // ===================== 차단 관리 =====================
@@ -119,6 +122,7 @@ public class HistoryService {
                 ProductReport pr = productReportOpt.get();
                 return ReportDetailDto.builder()
                         .type("product")
+                        .productId(pr.getProduct().getProductId())
                         .productName(pr.getProduct().getName())
                         .reportReason(pr.getReportReason())
                         .details(pr.getDetails())
@@ -236,6 +240,7 @@ public class HistoryService {
                 .orElseThrow(() -> new RuntimeException("해당 상품의 주문 정보가 없습니다."));
 
         return SoldDetailDto.builder()
+                .productId(product.getProductId())
                 .productName(product.getName())
                 .startPrice(product.getStartPrice())
                 .createdAt(product.getCreatedAt())
@@ -262,6 +267,17 @@ public class HistoryService {
             Orders orders = optionalOrder.get();
             orders.setDeliveryStatus(trackingNumber);
             ordersRepository.save(orders);
+
+            // 운송장 등록 시각
+            LocalDateTime now = LocalDateTime.now();
+
+            // 24시간 내 운송장 등록 이벤트 발행
+            // 주문일과 비교하여 24시간 이내이면 이벤트 발행
+            if(java.time.Duration.between(orders.getOrderDate(), now).toHours() < 24) {
+                eventPublisher.publishEvent(
+                        new OrderShippedEvent(this, orders.getSeller().getUserId(), orders.getOrderDate(), now)
+                );
+            }
             return true;
         }
         return false;
@@ -271,9 +287,10 @@ public class HistoryService {
     // 입찰중 리스트 (Bid 테이블에서 구매자가 입찰한 내역 조회)
     @Transactional(readOnly = true)
     public Page<BuyBidHistoryDto> getBiddingHistoryPage(Users buyer, Pageable pageable) {
-        LocalDateTime now = LocalDateTime.now(); // 현재 시간
-        // BidRepository에서 현재 시간보다 경매 마감 시간이 이후(endAt > now)인 데이터만 조회
-        Page<Bid> bidPage = bidRepository.findByUserAndProductEndAtAfter(buyer, now, pageable);
+        LocalDateTime now = LocalDateTime.now();
+
+        Page<Bid> bidPage = bidRepository.findLatestBidsByUser(buyer, now, pageable);
+
         return bidPage.map(bid -> {
             // 해당 입찰에 대해, 활성화된 AutoBid 엔티티를 조회 (없으면 null)
             AutoBid autoBid = autoBidRepository.findByUserAndProductAndActive(buyer, bid.getProduct(), true);
@@ -335,6 +352,7 @@ public class HistoryService {
                 .orElseThrow(() -> new RuntimeException("해당 상품의 주문 정보가 없습니다."));
         return BoughtDetailDto.builder()
                 .orderId(order.getOrderId())
+                .productId(product.getProductId())
                 .productName(product.getName())
                 .startPrice(product.getStartPrice())
                 .createdAt(product.getCreatedAt())
@@ -364,5 +382,8 @@ public class HistoryService {
         order.setOrderStatus("완료");
         order.setCompletedDate(LocalDateTime.now());
         ordersRepository.save(order);
+
+        // 주문 완료 이벤트 발행 (reputation)
+        eventPublisher.publishEvent(new OrderCompletedEvent(this, order.getBuyer().getUserId(), order.getSeller().getUserId(), order.getCompletedDate()));
     }
 }

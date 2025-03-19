@@ -4,8 +4,8 @@ import com.example.ssauc.user.bid.dto.CarouselImage;
 import com.example.ssauc.user.history.dto.*;
 import com.example.ssauc.user.history.service.HistoryService;
 import com.example.ssauc.user.login.entity.Users;
-
-import jakarta.servlet.http.HttpSession;
+import com.example.ssauc.user.login.util.TokenExtractor;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -32,6 +32,8 @@ public class HistoryController {
 
     private final HistoryService historyService;
 
+    private final TokenExtractor tokenExtractor;
+
     @Value("${smarttracker.apiKey}")
     private String smartTrackerApiKey;
 
@@ -39,13 +41,14 @@ public class HistoryController {
     // 차단 내역 페이지: 로그인한 사용자의 차단 내역 조회
     @GetMapping("/ban")
     public String banPage(@RequestParam(defaultValue = "1") int page,
-                          HttpSession session, Model model) {
-        Users user = (Users) session.getAttribute("user");
+                          HttpServletRequest request, Model model) {
+        Users user = tokenExtractor.getUserFromToken(request);
         if (user == null) {
             return "redirect:/login";
         }
-        Users latestUser = historyService.getCurrentUser(user.getUserId());
+        Users latestUser = historyService.getCurrentUser(user.getEmail());
         model.addAttribute("user", latestUser);
+
         // 페이지 번호는 0부터 시작하므로 (page - 1)로 변환
         Pageable pageable = PageRequest.of(page - 1, 10);
         Page<BanHistoryDto> banPage = historyService.getBanListForUser(latestUser.getUserId(), pageable);
@@ -58,12 +61,12 @@ public class HistoryController {
     // 차단 해제 요청 처리
     @PostMapping("/ban/unban")
     public String unbanUser(@RequestParam("banId") Long banId,
-                            HttpSession session, Model model) {
-        Users user = (Users) session.getAttribute("user");
+                            HttpServletRequest request, Model model) {
+        Users user = tokenExtractor.getUserFromToken(request);
         if (user == null) {
             return "redirect:/login";
         }
-        Users latestUser = historyService.getCurrentUser(user.getUserId());
+        Users latestUser = historyService.getCurrentUser(user.getEmail());
         model.addAttribute("user", latestUser);
 
         historyService.unbanUser(banId, latestUser.getUserId());
@@ -75,12 +78,12 @@ public class HistoryController {
     @GetMapping("/report")
     public String reportPage(@RequestParam(value = "filter", required = false, defaultValue = "product") String filter,
                              @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-                             HttpSession session, Model model) {
-        Users user = (Users) session.getAttribute("user");
-        if(user == null){
+                             HttpServletRequest request, Model model) {
+        Users user = tokenExtractor.getUserFromToken(request);
+        if (user == null) {
             return "redirect:/login";
         }
-        Users latestUser = historyService.getCurrentUser(user.getUserId());
+        Users latestUser = historyService.getCurrentUser(user.getEmail());
         model.addAttribute("user", latestUser);
 
         int pageSize = 10;
@@ -104,13 +107,12 @@ public class HistoryController {
     @GetMapping("/reported")
     public String reportedPage(@RequestParam("filter") String filter, // 신고 유형
                                @RequestParam("id") Long id,
-                               HttpSession session,
-                               Model model) {
-        Users user = (Users) session.getAttribute("user");
+                               HttpServletRequest request, Model model) {
+        Users user = tokenExtractor.getUserFromToken(request);
         if (user == null) {
             return "redirect:/login";
         }
-        Users latestUser = historyService.getCurrentUser(user.getUserId());
+        Users latestUser = historyService.getCurrentUser(user.getEmail());
         model.addAttribute("user", latestUser);
 
         // 신고 상세 내역 조회 (신고 유형에 따라 다르게 조회)
@@ -125,12 +127,12 @@ public class HistoryController {
     @GetMapping("/sell")
     public String sellPage(@RequestParam(value = "filter", required = false, defaultValue = "ongoing") String filter,
                            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-                           HttpSession session, Model model) {
-        Users user = (Users) session.getAttribute("user");
+                           HttpServletRequest request, Model model) {
+        Users user = tokenExtractor.getUserFromToken(request);
         if (user == null) {
             return "redirect:/login";
         }
-        Users latestUser = historyService.getCurrentUser(user.getUserId());
+        Users latestUser = historyService.getCurrentUser(user.getEmail());
         model.addAttribute("user", latestUser);
 
         int pageSize = 10;
@@ -157,12 +159,13 @@ public class HistoryController {
     }
     // 판매 내역 상세 페이지
     @GetMapping("/sold")
-    public String soldPage(@RequestParam("id") Long productId, HttpSession session, Model model) {
-        Users user = (Users) session.getAttribute("user");
+    public String soldPage(@RequestParam("id") Long productId,
+                           HttpServletRequest request, Model model) {
+        Users user = tokenExtractor.getUserFromToken(request);
         if (user == null) {
             return "redirect:/login";
         }
-        Users latestUser = historyService.getCurrentUser(user.getUserId());
+        Users latestUser = historyService.getCurrentUser(user.getEmail());
         model.addAttribute("user", latestUser);
 
         // 상품 및 주문 상세 정보 조회 (SoldDetailDto를 이용)
@@ -202,12 +205,12 @@ public class HistoryController {
     @GetMapping("/buy")
     public String buyPage(@RequestParam(value = "filter", required = false, defaultValue = "bidding") String filter,
                           @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-                          HttpSession session, Model model) {
-        Users user = (Users) session.getAttribute("user");
+                          HttpServletRequest request, Model model) {
+        Users user = tokenExtractor.getUserFromToken(request);
         if (user == null) {
             return "redirect:/login";
         }
-        Users latestUser = historyService.getCurrentUser(user.getUserId());
+        Users latestUser = historyService.getCurrentUser(user.getEmail());
         model.addAttribute("user", latestUser);
 
         int pageSize = 10;
@@ -233,12 +236,12 @@ public class HistoryController {
     // 구매 내역 상세 페이지
     @GetMapping("/bought")
     public String boughtPage(@RequestParam("id") Long productId,
-                             HttpSession session, Model model) {
-        Users user = (Users) session.getAttribute("user");
+                             HttpServletRequest request, Model model) {
+        Users user = tokenExtractor.getUserFromToken(request);
         if (user == null) {
             return "redirect:/login";
         }
-        Users latestUser = historyService.getCurrentUser(user.getUserId());
+        Users latestUser = historyService.getCurrentUser(user.getEmail());
         model.addAttribute("user", latestUser);
 
         // 구매 내역 상세 조회 (구매자 기준)
@@ -289,12 +292,14 @@ public class HistoryController {
     // 거래 완료 요청 처리
     @PostMapping("/bought/complete")
     @ResponseBody
-    public String completeOrder(@RequestParam("orderId") Long orderId, HttpSession session) {
-        Users user = (Users) session.getAttribute("user");
-        if(user == null) {
-            return "로그인이 필요합니다.";
+    public String completeOrder(@RequestParam("orderId") Long orderId,
+                                HttpServletRequest request) {
+        Users user = tokenExtractor.getUserFromToken(request);
+        if (user == null) {
+            return "redirect:/login";
         }
-        historyService.completeOrder(orderId, user);
+        Users latestUser = historyService.getCurrentUser(user.getEmail());
+        historyService.completeOrder(orderId, latestUser);
         return "완료";
     }
 

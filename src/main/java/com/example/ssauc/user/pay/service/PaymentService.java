@@ -1,18 +1,16 @@
 package com.example.ssauc.user.pay.service;
 
 
+import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.order.dto.OrderRequestDto;
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.login.repository.UsersRepository;
 import com.example.ssauc.user.order.entity.Orders;
 import com.example.ssauc.user.order.repository.OrdersRepository;
 import com.example.ssauc.user.pay.entity.Payment;
 import com.example.ssauc.user.pay.repository.PaymentRepository;
 import com.example.ssauc.user.product.entity.Product;
 import com.example.ssauc.user.product.repository.ProductRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -44,9 +42,14 @@ public class PaymentService {
             Users buyer = usersRepository.findById(dto.getBuyerId()).orElse(null);
             Users seller = usersRepository.findById(dto.getSellerId()).orElse(null);
 
+
+            long fee = dto.getTotalPayment()/21;
+            long realMoney = fee*20;
+
+
             // 금액 업데이트
             usersRepository.minusCash((long) dto.getTotalPayment(),dto.getBuyerId());
-            usersRepository.addCash((long) dto.getTotalPayment(),dto.getSellerId());
+            usersRepository.addCash(realMoney,dto.getSellerId());
 
             // orders 테이블 저장
             Orders orders = Orders.builder()

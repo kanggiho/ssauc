@@ -65,7 +65,7 @@
                     </td>
                     <td>
                         <button class="history-btn" style="cursor: pointer;"
-                                th:onclick="|location.href='mypage/evaluate?orderId=' + ${review.orderId}|">
+                                th:onclick="|location.href='/mypage/evaluate?orderId=' + ${review.orderId} + '&productId=' + ${review.productId}|">
                             리뷰 작성
                         </button>
                     </td>
@@ -78,7 +78,7 @@
             <table class="history-table">
                 <thead>
                 <tr>
-                    <th>리뷰를 준 사람</th>
+                    <th>리뷰를 작성한 사람</th>
                     <th>거래한 상품</th>
                     <th>거래</th>
                     <th>작성된 시간</th>
@@ -89,8 +89,8 @@
                 <tr th:each="review : ${reviewList}"
                     th:with="urlPrefix=${review.transactionType.trim() == '구매' ? '/history/bought?id=' : '/history/sold?id='}">
                     <td>
-                        <img class="historyImage" th:src="${review.profileImageUrl}" alt="프로필 이미지"/>
-                        <span th:text="${review.reviewTarget}">user</span>
+                        <img class="historyImage" th:src="${review.profileImageUrl1}" alt="프로필 이미지"/>
+                        <span th:text="${review.reviewer}">user</span>
                     </td>
                     <td>
                         <img class="historyImage" th:src="${review.productImageUrl}" alt="상품 이미지"/>
@@ -126,8 +126,8 @@
                 <tr th:each="review : ${reviewList}"
                     th:with="urlPrefix=${review.transactionType.trim() == '구매' ? '/history/bought?id=' : '/history/sold?id='}">
                     <td>
-                        <img class="historyImage" th:src="${review.profileImageUrl}" alt="프로필 이미지"/>
-                        <span th:text="${review.reviewTarget}">user</span>
+                        <img class="historyImage" th:src="${review.profileImageUrl2}" alt="프로필 이미지"/>
+                        <span th:text="${review.reviewee}">user</span>
                     </td>
                     <td>
                         <img class="historyImage" th:src="${review.productImageUrl}" alt="상품 이미지"/>

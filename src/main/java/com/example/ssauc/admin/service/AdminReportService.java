@@ -2,9 +2,10 @@ package com.example.ssauc.admin.service;
 
 import com.example.ssauc.admin.repository.AdminReportRepository;
 import com.example.ssauc.user.chat.entity.Report;
-import com.example.ssauc.user.chat.repository.ReportRepository;
 import com.example.ssauc.user.login.repository.UsersRepository;
+import com.example.ssauc.user.mypage.event.UserWarnedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -20,7 +21,9 @@ public class AdminReportService {
     private AdminReportRepository adminReportRepository;
 
     @Autowired
-    private UsersRepository usersRepository;
+    private UsersRepository userRepository;
+
+    ApplicationEventPublisher eventPublisher;
 
     public Page<Report> getReports(int page, String sortField, String sortDir) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortField);
@@ -35,7 +38,7 @@ public class AdminReportService {
 
         Report report = adminReportRepository.findById(reportId).orElse(null);
 
-
+        if(report == null) return false;
 
         int temp = 0;
 
@@ -49,11 +52,15 @@ public class AdminReportService {
 
 
         // report 업데이트
-        int updateReport = adminReportRepository.updateReportByReportId("완료", LocalDateTime.now() ,reportId);
+        int updateReport = adminReportRepository.updateReportByReportId("처리완료", LocalDateTime.now() ,reportId);
 
         // reportedUser 업데이트
-        int updateReportedUser = usersRepository.updateUserByWarningCount(temp,report.getReportedUser().getUserId());
+        int updateReportedUser = userRepository.updateUserByWarningCount(temp,report.getReportedUser().getUserId());
 
+
+        if(action.equals("경고")){
+            eventPublisher.publishEvent(new UserWarnedEvent(this, report.getReportedUser().getUserId()));
+        }
 
         return updateReport == 1 && updateReportedUser == 1;
 
