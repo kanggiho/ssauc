@@ -93,7 +93,7 @@ public class Users {
             this.profileImage = "https://ssg-be-s3-bucket.s3.ap-northeast-2.amazonaws.com/default-profile.png";
         }
         if (this.status == null) {
-            this.status = "active";
+            this.status = "ACTIVE";
         }
         if (this.reputation == null) {
             this.reputation = 30.0;

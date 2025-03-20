@@ -58,7 +58,7 @@ public class UserService {
                 existingUser.setPassword(passwordEncoder.encode(dto.getPassword()));
                 existingUser.setPhone(dto.getPhone());
                 existingUser.setLocation(fullLocation);
-                existingUser.setStatus("active"); // 상태를 active로 전환
+                existingUser.setStatus("ACTIVE"); // 상태를 active로 전환
                 existingUser.setUpdatedAt(LocalDateTime.now());
                 userRepository.save(existingUser);
                 return "회원가입 성공";

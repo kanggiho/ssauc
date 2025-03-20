@@ -3,7 +3,7 @@ package com.example.ssauc.user.search.controller;
 
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.service.JwtService;
-import com.example.ssauc.user.search.documnet.SearchDocument;
+import com.example.ssauc.user.search.document.SearchDocument;
 import com.example.ssauc.user.search.entity.SearchKeyword;
 import com.example.ssauc.user.search.service.SearchLogService;
 import com.example.ssauc.user.search.service.SearchService;

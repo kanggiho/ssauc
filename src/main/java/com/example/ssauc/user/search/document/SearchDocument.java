@@ -1,4 +1,4 @@
-package com.example.ssauc.user.search.documnet;
+package com.example.ssauc.user.search.document;
 
 import lombok.Getter;
 import lombok.Setter;

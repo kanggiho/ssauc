@@ -3,7 +3,7 @@ package com.example.ssauc.user.search.service;
 
 import com.example.ssauc.user.product.entity.Product;
 import com.example.ssauc.user.product.repository.ProductRepository;
-import com.example.ssauc.user.search.documnet.ProductDocument;
+import com.example.ssauc.user.search.document.ProductDocument;
 import com.example.ssauc.user.search.repository.ProductSearchRepository;
 import org.springframework.stereotype.Service;
 

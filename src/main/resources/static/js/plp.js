@@ -96,17 +96,26 @@ document.addEventListener("DOMContentLoaded", function () {
         productGrid.innerHTML = products.map(product => {
             // 남은 시간 계산(예: endAt vs 현재시간)
             let gapText = "⏳ 입찰 마감";
+            let isExpired = false; // 입찰 마감 여부 플래그
+
             if (product.endAt) {
                 const now = new Date();
                 const endTime = new Date(product.endAt);
                 const diffMs = endTime - now;
                 if (diffMs > 0) {
                     // 남아있는 경우
-                    const diffDays = Math.floor(diffMs / (1000*60*60*24));
-                    const diffHours = Math.floor((diffMs / (1000*60*60)) % 24);
+                    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                    const diffHours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
                     gapText = `⏳ ${diffDays}일 ${diffHours}시간`;
+                } else {
+                    isExpired = true; // 입찰 마감됨
                 }
             }
+
+            // ✅ 입찰 마감이거나 판매 완료된 경우
+            const isSoldOut = product.status === "판매완료"; // 판매완료 여부
+            const applyOpacity = isExpired || isSoldOut; // 하나라도 true면 흐리게 처리
+            const imageStyle = applyOpacity ? 'style="filter: opacity(0.3) drop-shadow(0 0 0 #000000);"' : '';
 
             // 상품 가격 (즉시 구매가)
             const displayPrice = (product.price || 0).toLocaleString() + "원";
@@ -117,37 +126,37 @@ document.addEventListener("DOMContentLoaded", function () {
             // 좋아요 수
             const likeCountText = product.likeCount || 0;
 
-            // 판매자 위치
+            // 판매자 위치 (Users 엔티티의 seller 객체에서 가져옴)
             const locationText = product.location ? product.location : "위치정보 없음";
 
             // 좋아요 여부 => 버튼 아이콘
-            // product.liked 가 true면 'bi-heart-fill', false면 'bi-heart'
             const heartClass = product.liked ? 'bi bi-heart-fill' : 'bi bi-heart';
 
-            // 상품 이미지
-            const imageUrl = product.imageUrl ? product.imageUrl : "/img/noimage.png";
-
             return `
-              <div class="col">
-                  <div class="card product-card position-relative">
-                      <!-- 좋아요 버튼 -->
-                      <button class="icon-btn" data-product-id="${product.productId}" onclick="toggleHeart(this)">
-                          <i class="${heartClass}"></i>
-                      </button>
-                      <!-- 상세 페이지 링크 -->
-                      <a href="/bid/bid?productId=${product.productId}">
-                          <img src="${imageUrl}" class="card-img-top" alt="상품이미지">
-                          <div class="card-body">
-                              <p class="product-title">${product.name || '상품명'}</p>
-                              <p class="product-price">${displayPrice}</p>
-                              <p class="product-info">${bidCountText} | ${gapText}</p>
-                              <p class="product-info">${locationText} | ❤️ <span class="like-count">${likeCountText}</span></p>
-                          </div>
-                      </a>
-                  </div>
-              </div>
-            `;
-        }).join("");
+        <div class="col">
+            <div class="card product-card">
+                <button class="icon-btn" data-product-id="${product.productId}" onclick="toggleHeart(this)">
+                    <i class="${heartClass}"></i>
+                </button>
+                <a href="/bid/bid?productId=${product.productId}">
+                    <div class="image-container">
+                        <img class="product-img" ${imageStyle} src="${product.imageUrl}" alt="상품이미지">
+                        ${applyOpacity ? `<div class="overlay-text">⏳ 입찰 마감</div>` : ''}
+                    </div>
+                    <div class="card-body">
+                        <p class="product-title">${product.name || '상품명'}</p>
+                        <p class="product-price">${displayPrice}</p>
+                        <p class="product-info">${bidCountText} | ${gapText}</p>
+                        <p class="product-info">
+                            ${locationText} | ❤️ <span class="like-count">${likeCountText}</span>
+                        </p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    `;
+        }).join('');
+
     }
 
     // -------------------------
