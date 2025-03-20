@@ -3,7 +3,7 @@ package com.example.ssauc.user.search.service;
 
 import com.example.ssauc.common.service.RedisService;
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.search.documnet.RecentSearchDocument;
+import com.example.ssauc.user.search.document.RecentSearchDocument;
 import com.example.ssauc.user.search.entity.SearchKeyword;
 import com.example.ssauc.user.search.entity.UserRecentSearch;
 import com.example.ssauc.user.search.repository.SearchKeywordRepository;
