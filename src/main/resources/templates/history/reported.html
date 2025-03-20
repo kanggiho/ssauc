@@ -34,7 +34,10 @@
           <div th:if="${reportDetail.type == 'user'}">
             <p>
               <strong>신고 대상:</strong>
-              <span th:text="${reportDetail.reportedUserName}">유저 이름</span>
+              <span class="productBid"
+                    th:text="${reportDetail.reportedUserName}"
+                    th:attr="data-sellername=${reportDetail.reportedUserName}"
+                    onclick="handleSellerClick(event)">user</span>
             </p>
           </div>
           <p>

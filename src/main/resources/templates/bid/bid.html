@@ -51,6 +51,11 @@
             margin-bottom: 5px;
         }
 
+        .productBid {
+            cursor: pointer;
+            color: #66a6ff;
+        }
+
     </style>
     <div class="container" layout:fragment="content">
 
@@ -99,7 +104,14 @@
                         <img th:src="${inform.getProfileImage()}" class="rounded-circle" width="50" height="50"
                              alt="판매자 프로필">
                         <div class="ms-3">
-                            <p class="mb-0 fw-bold" th:text="${inform.getUserName()}">기호</p>
+                            <p class="mb-0 fw-bold">
+                                <span class="productBid"
+                                      th:text="${inform.getUserName()}"
+                                      th:attr="data-sellername=${inform.getUserName()}"
+                                      onclick="handleSellerClick(event)"></span>
+                            </p>
+
+
                             <p class="mb-0 text-muted">판매자 점수: <span th:text="${inform.getReputation()}+'점'">100점</span>
                             </p>
                         </div>

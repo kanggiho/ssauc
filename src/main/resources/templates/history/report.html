@@ -84,7 +84,10 @@
                 <tr th:each="report : ${list}">
                     <td>
                         <img class="historyImage" th:src="${report.profileImageUrl}" alt="프로필 이미지"/>
-                        <span th:text="${report.reportedUserName}">user</span>
+                        <span class="productBid"
+                              th:text="${report.reportedUserName}"
+                              th:attr="data-sellername=${report.reportedUserName}"
+                              onclick="handleSellerClick(event)">user</span>
                     </td>
                     <td th:text="${report.reportReason}">사유</td>
                     <td th:text="${#temporals.format(report.reportDate, 'yyyy-MM-dd HH:mm')}">신고 시간</td>
