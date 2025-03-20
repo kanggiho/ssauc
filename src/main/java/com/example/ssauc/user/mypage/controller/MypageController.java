@@ -263,6 +263,13 @@ public class MypageController {
 
         return "/mypage/info";
     }
+
+    // 다른 회원 정보 모달
+    @GetMapping("/info/json")
+    @ResponseBody
+    public ResponseUserInfoDto getUserInfoJson(@RequestParam String userName) {
+        return mypageService.getUserInfoJson(userName);
+    }
   
     // 회원 탈퇴 페이지 진입
     @GetMapping("/withdraw")

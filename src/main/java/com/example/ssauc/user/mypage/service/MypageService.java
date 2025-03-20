@@ -34,4 +34,7 @@ public interface MypageService {
 
     // 회원 정보 페이지 그래프
     List<ReputationGraphDto> getReputationHistory(Users user);
+
+    // userName으로 사용자 정보를 조회하여 ResponseUserInfoDto로 반환
+    ResponseUserInfoDto getUserInfoJson(String userName);
 }
