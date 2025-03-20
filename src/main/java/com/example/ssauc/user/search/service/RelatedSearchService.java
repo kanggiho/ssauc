@@ -1,8 +1,9 @@
 package com.example.ssauc.user.search.service;
 
 
-import com.example.ssauc.user.search.documnet.SearchLogDocument;
+import com.example.ssauc.user.search.document.SearchLogDocument;
 import com.example.ssauc.user.search.repository.SearchLogRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class RelatedSearchService {
 
@@ -35,21 +37,22 @@ public class RelatedSearchService {
 
         // 2) logs마다 keywords를 순회, keyword가 아닌 다른 키워드를 추출
         Map<String, Long> freqMap = new HashMap<>();
-
         for (SearchLogDocument logDoc : logs) {
-            // 예: logDoc.getKeywords() = ["맥북", "애플워치"]
             List<String> keywords = logDoc.getKeywords();
             if (keywords == null) continue;
 
             // 현재 기준 키워드를 제외한 나머지를 freqMap에 카운팅
-            keywords.stream()
-                    .filter(k -> !k.equalsIgnoreCase(keyword)) // 자기 자신 제외
-                    .forEach(k -> freqMap.put(k, freqMap.getOrDefault(k, 0L) + 1));
+            for (String k : keywords) {
+                if (!k.equalsIgnoreCase(keyword)) {
+                    freqMap.put(k, freqMap.getOrDefault(k, 0L) + 1);
+                }
+            }
         }
+        log.debug("연관 검색어 빈도맵: {}", freqMap);
 
         // 3) 빈도수가 높은 상위 10개 추출
         return freqMap.entrySet().stream()
-                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue())) // 내림차순
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
                 .limit(10)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());

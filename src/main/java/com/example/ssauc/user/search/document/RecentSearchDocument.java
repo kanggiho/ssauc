@@ -1,17 +1,14 @@
-package com.example.ssauc.user.search.documnet;
+package com.example.ssauc.user.search.document;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.annotations.Setting;
+import org.springframework.data.elasticsearch.annotations.*;
 
 import java.time.LocalDateTime;
 
 @Data
 @Document(indexName = "recent_search")
-@Setting(settingPath = "/elasticsearch/mappings/recent_search.json")
+@Mapping(mappingPath = "elasticsearch/mappings/recent_mapping.json")
 public class RecentSearchDocument {
 
     @Id

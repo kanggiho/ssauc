@@ -3,9 +3,10 @@ package com.example.ssauc.user.search.service;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import com.example.ssauc.user.product.entity.Product;
-import com.example.ssauc.user.search.documnet.ProductDocument;
+import com.example.ssauc.user.search.document.ProductDocument;
 import com.example.ssauc.user.search.repository.ProductSearchRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductSearchService {
@@ -54,10 +56,13 @@ public class ProductSearchService {
                 .build();
 
         SearchHits<ProductDocument> hits = elasticsearchOperations.search(query, ProductDocument.class);
-        return hits.stream()
+        log.debug("자동완성 쿼리 결과 건수: {}", hits.getTotalHits());
+        List<String> suggestions = hits.stream()
                 .map(hit -> hit.getContent().getName())
                 .distinct()
                 .collect(Collectors.toList());
+        log.debug("자동완성 결과: {}", suggestions);
+        return suggestions;
     }
 
     /**

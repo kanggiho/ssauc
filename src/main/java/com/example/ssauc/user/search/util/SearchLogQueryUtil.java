@@ -1,7 +1,7 @@
 package com.example.ssauc.user.search.util;
 
 
-import com.example.ssauc.user.search.documnet.RecentSearchDocument;
+import com.example.ssauc.user.search.document.RecentSearchDocument;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.Criteria;
