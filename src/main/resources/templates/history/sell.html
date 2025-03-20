@@ -85,7 +85,10 @@
                     </td>
                     <td>
                         <img class="historyImage" th:src="${item.profileImageUrl}" alt="프로필 이미지"/>
-                        <span th:text="${item.buyerName}">user</span>
+                        <span class="productBid"
+                              th:text="${item.buyerName}"
+                              th:attr="data-sellername=${item.buyerName}"
+                              onclick="handleSellerClick(event)">user</span>
                     </td>
                     <td th:text="${item.totalPrice}">20000</td>
                     <td th:text="${#temporals.format(item.orderDate, 'yyyy-MM-dd HH:mm')}">2025-02-04 10:20:00</td>

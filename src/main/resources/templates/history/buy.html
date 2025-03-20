@@ -54,7 +54,9 @@
                     </td>
                     <td>
                         <img class="historyImage" th:src="${bid.profileImageUrl}" alt="프로필 이미지"/>
-                        <span th:text="${bid.sellerName}">user</span>
+                        <span th:text="${bid.sellerName}"
+                              th:attr="data-sellername=${bid.sellerName}"
+                              onclick="handleSellerClick(event)">user</span>
                     </td>
                     <td th:text="${bid.tempPrice}">현재가</td>
                     <td th:text="${bid.bidPrice}">10000</td>
@@ -73,7 +75,10 @@
                     <th>상품 이름</th>
                     <th>판매자</th>
                     <th>구매 가격</th>
-                    <th>구매 시간</th>
+                    <span class="productBid"
+                          th:text="${order.sellerName}"
+                          th:attr="data-sellername=${order.sellerName}"
+                          onclick="handleSellerClick(event)">user</span>     <th>구매 시간</th>
                     <th>거래 완료 시간</th>
                     <th>조치</th>
                 </tr>
@@ -86,7 +91,10 @@
                     </td>
                     <td>
                         <img class="historyImage" th:src="${order.profileImageUrl}" alt="프로필 이미지"/>
-                        <span th:text="${order.sellerName}">user</span>
+                        <span class="productBid"
+                              th:text="${order.sellerName}"
+                              th:attr="data-sellername=${order.sellerName}"
+                              onclick="handleSellerClick(event)">user</span>
                     </td>
                     <td th:text="${order.totalPrice}">50,000 원</td>
                     <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm:ss')}">2025-02-05 14:30:00</td>

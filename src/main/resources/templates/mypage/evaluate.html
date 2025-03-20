@@ -12,7 +12,13 @@
 
 <div class="evaluation-container" layout:fragment="content">
     <!-- 상대방 이름과 상품명은 컨트롤러에서 모델로 전달 -->
-    <h2 class="evaluation-title" th:text="${otherUserName} + '님과의 거래는 어땠나요?'">어땠나요?</h2>
+    <h2 class="evaluation-title">
+        <span class="productBid"
+              th:text="${otherUserName}"
+              th:attr="data-sellername=${otherUserName}"
+              onclick="handleSellerClick(event)"></span>
+        <span th:text="'님과의 거래는 어땠나요?'"></span>
+    </h2>
     <p class="product-name">
         상품명:
         <span class="productBid"

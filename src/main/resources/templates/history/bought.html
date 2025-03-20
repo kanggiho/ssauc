@@ -117,7 +117,13 @@
                       th:text="${boughtDetail.dealType == 0 ? '🧑🏻 직거래' : (boughtDetail.dealType == 1 ? '🚚 택배거래' : '🧑🏻🚚 직거래, 택배거래')}">거래 방식</span>
               </p>
               <hr/>
-              <p><strong>판매자:</strong> <span th:text="${boughtDetail.sellerName}">판매자123</span></p>
+              <p>
+                <strong>판매자:</strong>
+                <span class="productBid"
+                      th:text="${boughtDetail.sellerName}"
+                      th:attr="data-sellername=${boughtDetail.sellerName}"
+                      onclick="handleSellerClick(event)">user</span>
+              </p>
               <p><strong>구매가:</strong> <span th:text="${boughtDetail.totalPrice}">50,000 원</span></p>
               <p><strong>구매 시간:</strong> <span
                       th:text="${#temporals.format(boughtDetail.orderDate, 'yyyy-MM-dd HH:mm:ss')}">2025-02-06 16:45:00</span>
