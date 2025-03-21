@@ -15,8 +15,9 @@ import java.util.Optional;
 
 public interface BidRepository extends JpaRepository<Bid, Long> {
 
-    @Query("SELECT b.user.userId FROM Bid b WHERE b.bidPrice = (SELECT MAX(b2.bidPrice) FROM Bid b2)")
-    Long findUserIdWithHighestBidPrice();
+    @Query("SELECT b.user.userId FROM Bid b WHERE b.bidPrice = (SELECT MAX(b2.bidPrice) FROM Bid b2 WHERE b2.product.productId = :productId) AND b.product.productId = :productId")
+    Long findUserIdWithHighestBidPrice(@Param("productId") Long productId);
+
 
     Optional<Bid> findTopByProductOrderByBidTimeDesc(Product product);
 
