@@ -184,58 +184,69 @@ public class BidService {
         return true;
     }
 
+
     @Transactional
     public void processAutoBidding(Long productId) {
+        // 1) 해당 상품을 비관적 락으로 조회 (다른 트랜잭션에서 동시에 변경하지 못하게)
         Product product = pdpRepository.findProductForUpdate(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
         Long currentPrice = product.getTempPrice(); // 현재가
-        Long minIncrement = (long) product.getMinIncrement();
+        Long minIncrement = (long) product.getMinIncrement(); // 최소 증가 금액
 
-        // 1) 해당 상품의 active=true인 자동입찰 목록 조회
+        // 2) 해당 상품의 active=true인 자동입찰 목록 조회
         List<AutoBid> autoBidders = autoBidRepository.findByProductAndActiveIsTrue(product);
         if (autoBidders.isEmpty()) {
             return; // 자동입찰자가 없으면 로직 종료
         }
 
-        // 2) maxBidAmount 기준 내림차순 정렬
+        // 3) 자동입찰자들을 maxBidAmount 기준 내림차순 정렬
         autoBidders.sort((a, b) -> b.getMaxBidAmount().compareTo(a.getMaxBidAmount()));
 
-        // 3) 1등(최대금액) / 2등(두 번째로 높은 금액) 찾기
+        // 4) 최고 자동입찰자(1등)와 해당 사용자가 설정한 최대 자동입찰 금액
         AutoBid topBidder = autoBidders.get(0);
         Long topMax = topBidder.getMaxBidAmount();
 
-
+        // 5) 가장 최근의 입찰 내역 조회
         Bid lastBid = bidRepository.findTopByProductOrderByBidTimeDesc(product).orElse(null);
+
+        // ★ 추가된 부분: 단일 자동입찰자인 경우,
+        // 만약 이미 입찰 내역이 있다면(즉, lastBid가 null이 아니라면) 추가 입찰을 진행하지 않음.
+        if (autoBidders.size() == 1 && lastBid != null) {
+            // 단일 자동입찰자인데 이미 입찰한 상태라면 더 이상 입찰하지 않음
+            return;
+        }
+
+        // 6) 이미 최고입찰자인 경우에는 자동입찰 진행하지 않음 (경쟁 입찰자가 있는 경우만 진행)
         if (lastBid != null && lastBid.getUser().getUserId().equals(topBidder.getUser().getUserId())) {
-            // 이미 최고입찰자인 경우 자동입찰 진행하지 않음
-//            System.out.println("==============================================");
-//            System.out.println("1번 실행됨");
-//            System.out.println("==============================================");
             return;
         }
 
         Long secondMax;
+        // 7) 경쟁자가 두 명 이상일 경우,
+        // 두 번째 최고 자동입찰 금액과 현재가 중 더 큰 값을 2등으로 간주
         if (autoBidders.size() >= 2) {
-            secondMax = Math.max(autoBidders.get(1).getMaxBidAmount(), pdpRepository.findById(productId).orElseThrow().getTempPrice());
+            // 상품의 최신 현재가를 다시 조회 (변경되었을 가능성 고려)
+            Long updatedCurrentPrice = pdpRepository.findById(productId)
+                    .orElseThrow(() -> new EntityNotFoundException("Product not found")).getTempPrice();
+            secondMax = Math.max(autoBidders.get(1).getMaxBidAmount(), updatedCurrentPrice);
         } else {
-            // 자동입찰자가 1명뿐이면 2등이 없으니, '현재가' 정도로 처리
+            // 단일 자동입찰자일 경우, 경쟁자가 없으므로 현재가를 2등으로 간주
             secondMax = currentPrice;
         }
 
-        // 4) 새 가격 계산:
-        //    "2등 + minIncrement"가 1등의 maxBid를 넘으면 안 되므로
-        Long desiredPrice = secondMax + minIncrement; // 2등보다 500원 더 높게
+        // 8) 새 입찰 가격 계산: 2등 가격에 최소 증가분을 더함
+        Long desiredPrice = secondMax + minIncrement;
+        // 1등의 최대 자동입찰 금액을 초과하면 1등의 한도까지만 입찰
         if (desiredPrice > topMax) {
-            desiredPrice = topMax;  // 1등이 지불할 최대치까지만
+            desiredPrice = topMax;
         }
 
-        // 5) desiredPrice가 현재가보다 높다면 그만큼만 올린다.
-        //    (경쟁자가 없을 때는 currentPrice가 이미 secondMax, 결국 + 500 해서 올림 or 그냥 유지)
+        // 9) 계산된 새 가격이 현재가보다 높을 경우에만 입찰 진행
         if (desiredPrice > currentPrice) {
-            // DB에 반영
+            // 상품의 현재가를 새 입찰가로 업데이트
             pdpRepository.updateProductField(desiredPrice, productId);
 
-            // Bid 테이블에도 기록
+            // 새 입찰 내역 생성 및 저장
             Bid newBid = Bid.builder()
                     .product(product)
                     .user(topBidder.getUser())
@@ -243,12 +254,15 @@ public class BidService {
                     .bidTime(LocalDateTime.now())
                     .build();
             bidRepository.save(newBid);
+
+            // 입찰 시 추가 시간을 부여하는 로직 실행
             setAdditionalTime(productId);
 
+            // 초과 입찰 알림 실행
             overBidNotice(productId, topBidder.getUser().getUserId());
-
         }
     }
+
 
 
     // 스케줄러 메서드: 매 분 0초마다 자동입찰 로직 실행
@@ -309,8 +323,8 @@ public class BidService {
 
 
 
-    public String getHighestBidUser() {
-        Long tempUserId = bidRepository.findUserIdWithHighestBidPrice();
+    public String getHighestBidUser(Long productId) {
+        Long tempUserId = bidRepository.findUserIdWithHighestBidPrice(productId);
 
         if (tempUserId == null) {
             return "입찰자 없음";
