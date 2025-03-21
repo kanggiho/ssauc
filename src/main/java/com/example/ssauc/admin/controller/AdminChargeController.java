@@ -46,7 +46,7 @@ public class AdminChargeController {
         model.addAttribute("chargeList", chargeList);
         model.addAttribute("currentSort", sort);
         model.addAttribute("keyword", keyword);
-        return "/admin/admincharge";
+        return "admin/admincharge";
     }
 
     @GetMapping("/export")

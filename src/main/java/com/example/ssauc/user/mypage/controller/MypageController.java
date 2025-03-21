@@ -65,7 +65,7 @@ public class MypageController {
         Page<SellHistoryOngoingDto> sellPage = historyService.getOngoingSellHistoryPage(latestUser, sellPageable);
         model.addAttribute("sellList", sellPage.getContent());
 
-        return "/mypage/mypage";
+        return "mypage/mypage";
     }
 
     // 프로필 수정 페이지 (개별 주소 필드 분리)
@@ -195,7 +195,7 @@ public class MypageController {
         }
         model.addAttribute("currentPage", page);
         model.addAttribute("filter", filter);
-        return "/mypage/evaluation";
+        return "mypage/evaluation";
     }
 
     // 리뷰 작성 페이지
@@ -215,7 +215,7 @@ public class MypageController {
         model.addAttribute("productName", evaluationDto.getProductName());
         model.addAttribute("otherUserName", evaluationDto.getOtherUserName());
 
-        return "/mypage/evaluate";
+        return "mypage/evaluate";
     }
 
     // 리뷰 제출 처리 - JSON POST 요청을 받음
@@ -259,7 +259,7 @@ public class MypageController {
         }
         model.addAttribute("reviewType", reviewType);
 
-        return "/mypage/evaluated";
+        return "mypage/evaluated";
     }
 
 
@@ -276,7 +276,7 @@ public class MypageController {
         List<ReputationGraphDto> reputationData = mypageService.getReputationHistory(userInfo);
         model.addAttribute("reputationData", reputationData);
 
-        return "/mypage/info";
+        return "mypage/info";
     }
 
     // 다른 회원 정보 모달
@@ -294,7 +294,7 @@ public class MypageController {
             return "redirect:/login";
         }
         model.addAttribute("user", user);
-        return "/mypage/withdraw";
+        return "mypage/withdraw";
     }
 
     // 회원 탈퇴 처리 (토큰 쿠키 삭제)

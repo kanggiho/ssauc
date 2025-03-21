@@ -42,7 +42,7 @@ public class AdminQnaController {
         Page<Board> boardList = adminQnaService.getBoards(page, sortField, sortDir);
         model.addAttribute("boardList", boardList);
         model.addAttribute("currentSort", sort); // 현재 정렬 상태 전달
-        return "/admin/adminqna";
+        return "admin/adminqna";
     }
 
     @GetMapping("/detail")
@@ -62,7 +62,7 @@ public class AdminQnaController {
             model.addAttribute("isReply", false);
         }
 
-        return "/admin/adminqnadetail";
+        return "admin/adminqnadetail";
     }
 
     @PostMapping("/result")

@@ -138,7 +138,7 @@ public class CashController {
         model.addAttribute("startDate", startDateStr);
         model.addAttribute("endDate", endDateStr);
 
-        return "/cash/cash";
+        return "cash/cash";
     }
 
 

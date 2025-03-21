@@ -69,7 +69,7 @@ public class ReportController {
         model.addAttribute("product", product);
         model.addAttribute("reportedUser", user);
 
-        return "/chat/report";
+        return "chat/report";
     }
 
     @ResponseBody
