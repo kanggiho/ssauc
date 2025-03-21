@@ -14,7 +14,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 클라이언트가 WebSocket 핸드셰이크 하는 엔드포인트
         registry.addEndpoint("/ws-stomp")
-                .setAllowedOrigins("http://localhost:3000", "http://localhost:7777")  // 실제 운영 시에는 특정 도메인만 허용 권장
+                .setAllowedOrigins("*")  // 실제 운영 시에는 특정 도메인만 허용 권장
                 .withSockJS();           // SockJS fallback
     }
 
