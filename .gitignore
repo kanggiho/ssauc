@@ -38,7 +38,6 @@ out/
 
 /logs/
 
-application.yml
 
 firebase-service-account.json
 # Elastic Beanstalk Files
