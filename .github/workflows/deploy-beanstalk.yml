@@ -14,6 +14,9 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
+      - name: Create Firebase service account file
+        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > src/main/resources/firebase-service-account.json
+
       # 2) Java(Gradle) 환경 세팅
       - name: Set up JDK
         uses: actions/setup-java@v3
