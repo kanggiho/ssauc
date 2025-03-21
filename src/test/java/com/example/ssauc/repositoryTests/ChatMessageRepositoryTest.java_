@@ -1,7 +1,9 @@
 package com.example.ssauc.repositoryTests;
 
 
+import com.example.ssauc.user.chat.entity.ChatMessage;
 import com.example.ssauc.user.chat.entity.ChatRoom;
+import com.example.ssauc.user.chat.repository.ChatMessageRepository;
 import com.example.ssauc.user.chat.repository.ChatRoomRepository;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.repository.UsersRepository;
@@ -15,8 +17,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class ChatParticipantRepositoryTest {
+class ChatMessageRepositoryTest {
 
+    @Autowired
+    private ChatMessageRepository chatMessageRepository;
 
     @Autowired
     private UsersRepository usersRepository;
@@ -25,11 +29,11 @@ class ChatParticipantRepositoryTest {
     private ChatRoomRepository chatRoomRepository;
 
     @Test
-    void testSaveAndFindChatParticipant() {
+    void testSaveAndFindChatMessage() {
         // Given
-        Users user = usersRepository.save(Users.builder()
-                .userName("participantUser")
-                .email("participant@example.com")
+        Users sender = usersRepository.save(Users.builder()
+                .userName("senderUser")
+                .email("sender@example.com")
                 .password("securepassword")
                 .createdAt(LocalDateTime.now())
                 .build());
@@ -38,18 +42,20 @@ class ChatParticipantRepositoryTest {
                 .createdAt(LocalDateTime.now())
                 .build());
 
-        ChatParticipant participant = ChatParticipant.builder()
-                .user(user)
+        ChatMessage message = ChatMessage.builder()
+                .sender(sender)
                 .chatRoom(chatRoom)
-                .joinedAt(LocalDateTime.now())
+                .message("Hello, world!")
+                .sentAt(LocalDateTime.now())
                 .build();
 
         // When
-        ChatParticipant savedParticipant = chatParticipantRepository.save(participant);
-        ChatParticipant foundParticipant = chatParticipantRepository.findById(savedParticipant.getParticipantId()).orElse(null);
+        ChatMessage savedMessage = chatMessageRepository.save(message);
+        ChatMessage foundMessage = chatMessageRepository.findById(savedMessage.getMessageId()).orElse(null);
 
         // Then
-        assertThat(foundParticipant).isNotNull();
-        assertThat(foundParticipant.getUser().getUserId()).isEqualTo(user.getUserId());
+        assertThat(foundMessage).isNotNull();
+        assertThat(foundMessage.getMessage()).isEqualTo("Hello, world!");
+        assertThat(foundMessage.getSender().getUserId()).isEqualTo(sender.getUserId());
     }
 }

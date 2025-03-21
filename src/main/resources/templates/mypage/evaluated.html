@@ -21,7 +21,13 @@
 
         <!-- 리뷰 상세 정보 영역 -->
         <div class="review-detail">
-            <p class="reviewee" th:text="'받은 사람: ' + ${review.revieweeName}"></p>
+            <p class="reviewee">
+                받은 사람:
+                <span class="productBid"
+                      th:text="${review.revieweeName}"
+                      th:attr="data-sellername=${review.revieweeName}"
+                      onclick="handleSellerClick(event)"></span>
+            </p>
             <p class="product-name">
                 거래한 상품:
                 <span class="productBid"
@@ -72,7 +78,13 @@
                 <hr>
                 <!-- 작성자 및 작성일 -->
                 <div class="review-date">
-                    <p class="reviewer" th:text="'작성한 사람: ' + ${review.reviewerName}"></p>
+                    <p class="reviewer">
+                        작성한 사람:
+                        <span class="productBid"
+                              th:text="${review.reviewerName}"
+                              th:attr="data-sellername=${review.reviewerName}"
+                              onclick="handleSellerClick(event)"></span>
+                    </p>
                     <p th:text="'작성일: ' + ${#temporals.format(review.createdAt, 'yyyy-MM-dd')}"></p>
                 </div>
             </div>

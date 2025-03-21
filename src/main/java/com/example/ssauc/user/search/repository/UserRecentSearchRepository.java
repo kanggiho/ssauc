@@ -10,7 +10,9 @@ import java.util.Optional;
 
 public interface UserRecentSearchRepository extends JpaRepository<UserRecentSearch, Long> {
   List<UserRecentSearch> findTop10ByUserOrderBySearchedAtDesc(Users user);
-  List<UserRecentSearch> findTop10BySessionIdOrderBySearchedAtDesc(String sessionId);
+  // 동일 키워드에 해당하는 모든 레코드를 삭제하는 메서드
+  void deleteByUserAndKeyword(Users user, String keyword);
   Optional<UserRecentSearch> findByUserAndKeyword(Users user, String keyword);
-  Optional<UserRecentSearch> findBySessionIdAndKeyword(String sessionId, String keyword);
+  // 기존 단일 검색어 조회 (원하는 경우 유지)
+  List<UserRecentSearch> findAllByUserAndKeyword(Users user, String keyword);
 }

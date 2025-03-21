@@ -1,8 +1,7 @@
 package com.example.ssauc.user.search.service;
 
 
-import com.example.ssauc.user.search.documnet.SearchDocument;
-import com.example.ssauc.user.search.repository.ProductClickRepository;
+import com.example.ssauc.user.search.document.SearchDocument;
 import com.example.ssauc.user.search.repository.SearchKeywordRepository;
 import com.example.ssauc.user.search.repository.UserRecentSearchRepository;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -22,16 +21,13 @@ public class SearchService {
     private final ElasticsearchOperations elasticsearchOperations;
     private final SearchKeywordRepository searchKeywordRepository;
     private final UserRecentSearchRepository userRecentSearchRepository;
-    private final ProductClickRepository productClickRepository;
 
     public SearchService(ElasticsearchOperations elasticsearchOperations,
                          SearchKeywordRepository searchKeywordRepository,
-                         UserRecentSearchRepository userRecentSearchRepository,
-                         ProductClickRepository productClickRepository) {
+                         UserRecentSearchRepository userRecentSearchRepository) {
         this.elasticsearchOperations = elasticsearchOperations;
         this.searchKeywordRepository = searchKeywordRepository;
         this.userRecentSearchRepository = userRecentSearchRepository;
-        this.productClickRepository = productClickRepository;
     }
 
     // ✅ Elasticsearch를 이용한 키워드 검색 기능

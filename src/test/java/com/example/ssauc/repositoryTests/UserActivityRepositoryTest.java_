@@ -30,7 +30,6 @@ public class UserActivityRepositoryTest {
 
         UserActivity activity = UserActivity.builder()
                 .user(savedUser)
-                .avgResponseTime(120L)
                 .monthlyTradeCount(10L)
                 .lastUpdated(LocalDateTime.now())
                 .build();

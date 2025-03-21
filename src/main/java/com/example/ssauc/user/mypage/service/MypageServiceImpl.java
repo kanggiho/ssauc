@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,6 +44,29 @@ public class MypageServiceImpl implements MypageService {
     public Users getUserInfo(String email) {
         return usersRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    // userName으로 사용자 정보를 조회하여 DTO로 변환
+    @Override
+    public ResponseUserInfoDto getUserInfoJson(String userName) {
+        Users user = usersRepository.findByUserName(userName)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH");
+
+        String formattedCreatedAt = user.getCreatedAt().format(formatter);
+        String formattedLastLogin = user.getLastLogin().format(formatter2);
+
+        return ResponseUserInfoDto.builder()
+                .userName(user.getUserName())
+                .profileImage(user.getProfileImage())
+                .reputation(user.getReputation())
+                .location(user.getLocation())
+                .createdAt(formattedCreatedAt)
+                .lastLogin(formattedLastLogin)
+                .reviewSummary(user.getReviewSummary())
+                .build();
     }
 
     @Override

@@ -21,6 +21,10 @@
             font-size: 1rem;
             color: #000;
         }
+        .productBid {
+            cursor: pointer;
+            color: #66a6ff;
+        }
 
     </style>
 </head>
@@ -42,7 +46,12 @@
                 <!-- 상품 이름과 가격 -->
                 <h4 class="product-name" th:text="${product.getName()}">상품 이름</h4>
                 <p class="product-other">가격 : <span th:text="${T(java.lang.String).format('%,d 원', product.getPrice())}">0</span></p>
-                <p class="product-other">신고 대상자 : <span th:text="${product.getSeller().userName}"></span></p>
+                <p class="product-other">신고 대상자 :
+                    <span class="productBid"
+                          th:text="${product.getSeller().userName}"
+                          th:attr="data-sellername=${product.getSeller().userName}"
+                          onclick="handleSellerClick(event)">user</span>
+                </p>
             </div>
         </div>
     </div>

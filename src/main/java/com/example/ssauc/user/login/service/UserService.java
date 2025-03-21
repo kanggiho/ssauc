@@ -25,8 +25,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public Users getCurrentUser(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("사용자 정보가 없습니다."));
+        return userRepository.findByEmail(email).orElse(null);
     }
 
     public String register(UserRegistrationDTO dto) {
@@ -59,7 +58,7 @@ public class UserService {
                 existingUser.setPassword(passwordEncoder.encode(dto.getPassword()));
                 existingUser.setPhone(dto.getPhone());
                 existingUser.setLocation(fullLocation);
-                existingUser.setStatus("active"); // 상태를 active로 전환
+                existingUser.setStatus("ACTIVE"); // 상태를 active로 전환
                 existingUser.setUpdatedAt(LocalDateTime.now());
                 userRepository.save(existingUser);
                 return "회원가입 성공";

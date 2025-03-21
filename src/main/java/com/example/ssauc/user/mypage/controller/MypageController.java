@@ -2,6 +2,9 @@ package com.example.ssauc.user.mypage.controller;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.example.ssauc.user.history.dto.BuyBidHistoryDto;
+import com.example.ssauc.user.history.dto.SellHistoryOngoingDto;
+import com.example.ssauc.user.history.service.HistoryService;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.util.TokenExtractor;
 import com.example.ssauc.user.mypage.dto.*;
@@ -34,7 +37,7 @@ import java.util.Map;
 public class MypageController {
 
     private final MypageService mypageService;
-
+    private final HistoryService historyService;
     private final TokenExtractor tokenExtractor;
     private final UserProfileService userProfileService;
     private final AmazonS3 amazonS3;
@@ -50,7 +53,19 @@ public class MypageController {
         }
         Users latestUser = mypageService.getCurrentUser(user.getEmail());
         model.addAttribute("user", latestUser);
-        return "/mypage/mypage";
+
+        // 입찰중
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(0, pageSize, Sort.by(Sort.Direction.DESC, "product.endAt"));
+        Page<BuyBidHistoryDto> biddingPage = historyService.getBiddingHistoryPage(latestUser, pageable);
+        model.addAttribute("bidList", biddingPage.getContent());
+
+        // 판매중
+        Pageable sellPageable = PageRequest.of(0, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<SellHistoryOngoingDto> sellPage = historyService.getOngoingSellHistoryPage(latestUser, sellPageable);
+        model.addAttribute("sellList", sellPage.getContent());
+
+        return "mypage/mypage";
     }
 
     // 프로필 수정 페이지 (개별 주소 필드 분리)
@@ -180,7 +195,7 @@ public class MypageController {
         }
         model.addAttribute("currentPage", page);
         model.addAttribute("filter", filter);
-        return "/mypage/evaluation";
+        return "mypage/evaluation";
     }
 
     // 리뷰 작성 페이지
@@ -200,7 +215,7 @@ public class MypageController {
         model.addAttribute("productName", evaluationDto.getProductName());
         model.addAttribute("otherUserName", evaluationDto.getOtherUserName());
 
-        return "/mypage/evaluate";
+        return "mypage/evaluate";
     }
 
     // 리뷰 제출 처리 - JSON POST 요청을 받음
@@ -244,7 +259,7 @@ public class MypageController {
         }
         model.addAttribute("reviewType", reviewType);
 
-        return "/mypage/evaluated";
+        return "mypage/evaluated";
     }
 
 
@@ -261,7 +276,14 @@ public class MypageController {
         List<ReputationGraphDto> reputationData = mypageService.getReputationHistory(userInfo);
         model.addAttribute("reputationData", reputationData);
 
-        return "/mypage/info";
+        return "mypage/info";
+    }
+
+    // 다른 회원 정보 모달
+    @GetMapping("/info/json")
+    @ResponseBody
+    public ResponseUserInfoDto getUserInfoJson(@RequestParam String userName) {
+        return mypageService.getUserInfoJson(userName);
     }
   
     // 회원 탈퇴 페이지 진입
@@ -272,7 +294,7 @@ public class MypageController {
             return "redirect:/login";
         }
         model.addAttribute("user", user);
-        return "/mypage/withdraw";
+        return "mypage/withdraw";
     }
 
     // 회원 탈퇴 처리 (토큰 쿠키 삭제)

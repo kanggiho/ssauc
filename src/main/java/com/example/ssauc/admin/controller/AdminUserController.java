@@ -54,7 +54,7 @@ public class AdminUserController {
         model.addAttribute("usersList", usersList);
         model.addAttribute("currentSort", sort);
         model.addAttribute("keyword", keyword); // 검색어 유지
-        return "/admin/adminuser";
+        return "admin/adminuser";
     }
 
 
@@ -63,7 +63,7 @@ public class AdminUserController {
         // userId를 이용해 신고 내역 정보를 조회
         Users user = adminUserService.findUsersById(userId);
         model.addAttribute("user", user);
-        return "/admin/adminuserdetail";
+        return "admin/adminuserdetail";
     }
 
     @PostMapping("/result")

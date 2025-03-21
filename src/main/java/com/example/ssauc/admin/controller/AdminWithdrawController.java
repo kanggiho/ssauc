@@ -46,7 +46,7 @@ public class AdminWithdrawController {
         model.addAttribute("withdrawList", withdrawList);
         model.addAttribute("currentSort", sort);
         model.addAttribute("keyword", keyword);
-        return "/admin/adminwithdraw";
+        return "admin/adminwithdraw";
     }
 
     @PostMapping("/process")

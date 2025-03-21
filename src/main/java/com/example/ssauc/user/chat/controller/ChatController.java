@@ -49,7 +49,7 @@ public class ChatController {
         // 3) chat.html(또는 chat/chat.html) 템플릿으로 이동
         //   만약 resources/templates/chat/chat.html 파일이라면 "chat/chat" 식으로 반환
         //   만약 templates 폴더 직속에 chat.html이 있다면 "chat"만 반환
-        return "/chat/chat";
+        return "chat/chat";
         // 또는 "chat/chat" (본인 프로젝트 구조에 맞춰서)
     }
 
@@ -57,6 +57,6 @@ public class ChatController {
     public String openMyChatPage(@RequestParam Long userId, Model model) {
         // userId를 Thymeleaf로 넘겨도 되지만, JS에서 URL로 받는다고 했으므로 생략 가능
         model.addAttribute("userId", userId);
-        return "/chat/mychat"; // resources/templates/mychat.html
+        return "chat/mychat"; // resources/templates/mychat.html
     }
 }

@@ -3,12 +3,14 @@ package com.example.ssauc.user.search.service;
 
 import com.example.ssauc.common.service.RedisService;
 import com.example.ssauc.user.login.entity.Users;
-import com.example.ssauc.user.search.documnet.RecentSearchDocument;
+import com.example.ssauc.user.search.document.RecentSearchDocument;
 import com.example.ssauc.user.search.entity.SearchKeyword;
 import com.example.ssauc.user.search.entity.UserRecentSearch;
 import com.example.ssauc.user.search.repository.SearchKeywordRepository;
 import com.example.ssauc.user.search.repository.UserRecentSearchRepository;
 import com.example.ssauc.user.search.util.SearchLogQueryUtil;
+import org.springframework.data.elasticsearch.core.query.Criteria;
+import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -57,11 +60,15 @@ public class SearchLogService {
         logger.info("인기 검색어 DB 업데이트 완료: {}", sk);
 
         // 2) 사용자별 최근 검색어 저장
-        var existing = userRecentSearchRepository.findByUserAndKeyword(user, keyword);
+        Optional<UserRecentSearch> existing = userRecentSearchRepository.findByUserAndKeyword(user, keyword);
         if (existing.isPresent()) {
-            existing.get().setSearchedAt(LocalDateTime.now());
-            logger.info("기존 사용자 검색어 갱신: {}", existing.get());
+            // 이미 존재하면 타임스탬프만 업데이트
+            UserRecentSearch urs = existing.get();
+            urs.setSearchedAt(LocalDateTime.now());
+            userRecentSearchRepository.save(urs);
+            logger.info("기존 사용자 검색어 갱신: {}", urs);
         } else {
+            // 없으면 새로 저장
             UserRecentSearch urs = new UserRecentSearch();
             urs.setUser(user);
             urs.setKeyword(keyword);
@@ -123,8 +130,26 @@ public class SearchLogService {
      */
     @Transactional
     public void deleteUserRecentSearch(Users user, String keyword) {
-        userRecentSearchRepository.findByUserAndKeyword(user, keyword)
-                .ifPresent(userRecentSearchRepository::delete);
-        // ES에서 삭제할 경우 별도 구현 가능 (여기서는 생략)
+        // 1. MySQL 삭제: 동일 키워드의 모든 레코드를 삭제하도록 합니다.
+        userRecentSearchRepository.deleteByUserAndKeyword(user, keyword);
+        logger.info("MySQL: 사용자 {}의 최근 검색어 '{}' 삭제 완료", user.getUserId(), keyword);
+
+        // 2. Elasticsearch 삭제:
+        // Elasticsearch에서 userId와 keyword가 일치하는 RecentSearchDocument들을 삭제합니다.
+        try {
+            Criteria criteria = Criteria.where("userId").is(String.valueOf(user.getUserId()))
+                    .and(Criteria.where("keyword").is(keyword));
+            CriteriaQuery query = new CriteriaQuery(criteria);
+            // delete(query, DocumentClass.class, IndexCoordinates) 메서드로 조건에 맞는 모든 문서를 삭제합니다.
+            esOps.delete(query, RecentSearchDocument.class, IndexCoordinates.of("recent_search"));
+            logger.info("Elasticsearch: 사용자 {}의 최근 검색어 '{}' 삭제 완료", user.getUserId(), keyword);
+        } catch (Exception e) {
+            logger.error("Elasticsearch 삭제 오류: {}", e.getMessage());
+        }
+
+        // 3. Redis 삭제:
+        // recentSearchService.deleteRecentSearch(String userId, String keyword) 메서드를 호출합니다.
+        recentSearchService.deleteRecentSearch(String.valueOf(user.getUserId()), keyword);
+        logger.info("Redis: 사용자 {}의 최근 검색어 '{}' 삭제 요청 완료", user.getUserId(), keyword);
     }
 }

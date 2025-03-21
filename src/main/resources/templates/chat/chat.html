@@ -85,7 +85,7 @@
         // 4. STOMP 연결
         let stompClient = null;
         function connectStomp() {
-            const socket = new SockJS('/ws-stomp');
+            const socket = new SockJS(window.location.origin + '/ws-stomp');
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function (frame) {
                 console.log("STOMP Connected:", frame);

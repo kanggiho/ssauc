@@ -2,7 +2,7 @@ package com.example.ssauc.user.search.controller;
 
 
 import com.example.ssauc.user.product.entity.Product;
-import com.example.ssauc.user.search.documnet.ProductDocument;
+import com.example.ssauc.user.search.document.ProductDocument;
 import com.example.ssauc.user.search.service.ProductIndexService;
 import com.example.ssauc.user.search.service.ProductSearchService;
 import lombok.RequiredArgsConstructor;

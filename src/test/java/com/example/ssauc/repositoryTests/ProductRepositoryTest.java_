@@ -58,7 +58,7 @@ public class ProductRepositoryTest {
         product.setStatus("Available");
         product.setCreatedAt(LocalDateTime.now());
         product.setEndAt(LocalDateTime.now());
-        product.setViewCount(0);
+        product.setViewCount(0L);
         product.setMinIncrement(500);
         product.setDealType(2);
 

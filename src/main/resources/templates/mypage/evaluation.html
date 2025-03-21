@@ -52,7 +52,10 @@
                     th:with="urlPrefix=${review.transactionType.trim() == '구매' ? '/history/bought?id=' : '/history/sold?id='}">
                     <td>
                         <img class="historyImage" th:src="${review.profileImageUrl}" alt="프로필 이미지"/>
-                        <span th:text="${review.reviewTarget}">user</span>
+                        <span class="productBid"
+                              th:text="${review.reviewTarget}"
+                              th:attr="data-sellername=${review.reviewTarget}"
+                              onclick="handleSellerClick(event)">user</span>
                     </td>
                     <td>
                         <img class="historyImage" th:src="${review.productImageUrl}" alt="상품 이미지"/>
@@ -90,7 +93,10 @@
                     th:with="urlPrefix=${review.transactionType.trim() == '구매' ? '/history/bought?id=' : '/history/sold?id='}">
                     <td>
                         <img class="historyImage" th:src="${review.profileImageUrl1}" alt="프로필 이미지"/>
-                        <span th:text="${review.reviewer}">user</span>
+                        <span class="productBid"
+                              th:text="${review.reviewer}"
+                              th:attr="data-sellername=${review.reviewer}"
+                              onclick="handleSellerClick(event)">user</span>
                     </td>
                     <td>
                         <img class="historyImage" th:src="${review.productImageUrl}" alt="상품 이미지"/>
@@ -127,7 +133,11 @@
                     th:with="urlPrefix=${review.transactionType.trim() == '구매' ? '/history/bought?id=' : '/history/sold?id='}">
                     <td>
                         <img class="historyImage" th:src="${review.profileImageUrl2}" alt="프로필 이미지"/>
-                        <span th:text="${review.reviewee}">user</span>
+                        <span class="productBid"
+                              th:text="${review.reviewee}"
+                              th:attr="data-sellername=${review.reviewee}"
+                              onclick="handleSellerClick(event)">user</span>
+
                     </td>
                     <td>
                         <img class="historyImage" th:src="${review.productImageUrl}" alt="상품 이미지"/>

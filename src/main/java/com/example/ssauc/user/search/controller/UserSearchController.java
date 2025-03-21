@@ -85,7 +85,8 @@ public class UserSearchController {
                         p.getLikeCount(),
                         (p.getImageUrl() != null) ? p.getImageUrl() : "/img/noimage.png",
                         p.getViewCount(),
-                        p.getStatus()
+                        p.getStatus(),
+                        (p.getSeller() != null && p.getSeller().getLocation() != null) ? p.getSeller().getLocation() : "위치정보 없음"
                 ))
                 .collect(Collectors.toList());
 

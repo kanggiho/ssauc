@@ -32,7 +32,10 @@
             <tr th:each="ban : ${banList}">
                 <td>
                     <img class="historyImage" th:src="${ban.profileImage}" alt="프로필 이미지"/>
-                    <span th:text="${ban.blockedUserName}">user</span>
+                    <span class="productBid"
+                          th:text="${ban.blockedUserName}"
+                          th:attr="data-sellername=${ban.blockedUserName}"
+                          onclick="handleSellerClick(event)">user</span>
                 </td>
                 <td th:text="${#temporals.format(ban.blockedAt, 'yyyy-MM-dd HH:mm')}">차단시간</td>
                 <td>
