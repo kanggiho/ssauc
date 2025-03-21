@@ -64,7 +64,7 @@ public class BidController {
 
         Product product = bidService.getProduct(productId);
 
-        String tempMaxBidUser = bidService.getHighestBidUser();
+        String tempMaxBidUser = bidService.getHighestBidUser(productId);
 
 
 
