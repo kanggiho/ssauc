@@ -48,7 +48,7 @@ public class AdminProductController {
         model.addAttribute("productList", productList);
         model.addAttribute("currentSort", sort);
         model.addAttribute("keyword", keyword); // 검색어 유지
-        return "/admin/adminproduct";
+        return "admin/adminproduct";
     }
 
 
@@ -57,7 +57,7 @@ public class AdminProductController {
         // productId를 이용해 신고 내역 정보를 조회
         Product product = adminProductService.findProductById(productId);
         model.addAttribute("product", product);
-        return "/admin/adminproductdetail";
+        return "admin/adminproductdetail";
     }
 
     @PostMapping("/result")

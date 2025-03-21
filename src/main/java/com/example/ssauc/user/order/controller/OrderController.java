@@ -52,6 +52,6 @@ public class OrderController {
 
         model.addAttribute("userCash", buyer.getCash());
 
-        return "/order/order";
+        return "order/order";
     }
 }

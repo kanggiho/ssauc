@@ -38,7 +38,7 @@ public class AdminReportController {
         Page<Report> reportList = adminReportService.getReports(page, sortField, sortDir);
         model.addAttribute("reportList", reportList);
         model.addAttribute("currentSort", sort); // 현재 정렬 상태 전달
-        return "/admin/adminreport";
+        return "admin/adminreport";
     }
 
     @GetMapping("/detail")
@@ -46,7 +46,7 @@ public class AdminReportController {
         // reportId를 이용해 신고 내역 정보를 조회
         Report report = adminReportService.findReportById(reportId);
         model.addAttribute("report", report);
-        return "/admin/adminreportdetail";
+        return "admin/adminreportdetail";
     }
 
     @PostMapping("/result")

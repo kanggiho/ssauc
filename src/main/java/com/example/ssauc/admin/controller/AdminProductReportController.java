@@ -40,7 +40,7 @@ public class AdminProductReportController {
         Page<ProductReport> productReportList = adminProductReportService.getReports(page, sortField, sortDir);
         model.addAttribute("productReportList", productReportList);
         model.addAttribute("currentSort", sort); // 현재 정렬 상태 전달
-        return "/admin/adminproductreport";
+        return "admin/adminproductreport";
     }
 
     @GetMapping("/detail")
@@ -48,7 +48,7 @@ public class AdminProductReportController {
         // reportId를 이용해 신고 내역 정보를 조회
         ProductReport productReport = adminProductReportService.findProductReportById(reportId);
         model.addAttribute("productReport", productReport);
-        return "/admin/adminproductreportdetail";
+        return "admin/adminproductreportdetail";
     }
 
     @PostMapping("/result")

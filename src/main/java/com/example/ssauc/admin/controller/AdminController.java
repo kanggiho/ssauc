@@ -26,7 +26,7 @@ public class AdminController {
 
     @GetMapping
     public String index() {
-        return "/admin/admin";
+        return "admin/admin";
     }
 
     @GetMapping("/home")
@@ -36,7 +36,7 @@ public class AdminController {
         model.addAttribute("adminName", admin.getAdminName());
 
 
-        return "/admin/adminhome";
+        return "admin/adminhome";
     }
 
     //관리자 로그인 처리 (POST)
@@ -54,7 +54,7 @@ public class AdminController {
         Admin admin = adminService.checkAddress(adminId, adminPw);
         if (admin == null) {
             model.addAttribute("loginError", "아이디 또는 비밀번호가 올바르지 않습니다.");
-            return "/admin/admin";
+            return "admin/admin";
         }
 
         // Google Authenticator 미등록이면 등록 처리
@@ -65,7 +65,7 @@ public class AdminController {
             log.info("Generated QR URL: {}", qrUrl);
             session.setAttribute("tempAdmin", admin);
             model.addAttribute("qrUrl", qrUrl);
-            return "/admin/enroll";
+            return "admin/enroll";
         } else {
             // 이미 등록되어 있으면 2FA 페이지로 이동
             session.setAttribute("tempAdmin", admin);
@@ -105,7 +105,7 @@ public class AdminController {
             return "redirect:/admin/home";
         } else {
             model.addAttribute("error", "인증 코드가 올바르지 않습니다.");
-            return "/admin/enroll";
+            return "admin/enroll";
         }
     }
 
@@ -113,7 +113,7 @@ public class AdminController {
     //2FA 코드 입력 페이지
     @GetMapping("/two-factor")
     public String twoFactor() {
-        return "/admin/twoFactor";
+        return "admin/twoFactor";
     }
 
 
@@ -135,7 +135,7 @@ public class AdminController {
             return "redirect:/admin/home";
         } else {
             model.addAttribute("error", "인증 코드가 올바르지 않습니다.");
-            return "/admin/twoFactor";
+            return "admin/twoFactor";
         }
     }
 

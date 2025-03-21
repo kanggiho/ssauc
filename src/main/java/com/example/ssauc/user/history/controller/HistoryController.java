@@ -100,7 +100,7 @@ public class HistoryController {
         }
         model.addAttribute("filter", filter);
         model.addAttribute("currentPage", page);
-        return "/history/report";
+        return "history/report";
     }
 
     // 신고 상세 내역
@@ -119,7 +119,7 @@ public class HistoryController {
         ReportDetailDto reportDetail = historyService.getReportDetail(filter, id);
         model.addAttribute("reportDetail", reportDetail);
 
-        return "/history/reported";
+        return "history/reported";
     }
 
     // ===================== 판매 내역 =====================
@@ -155,7 +155,7 @@ public class HistoryController {
         }
         model.addAttribute("currentPage", page);
         model.addAttribute("filter", filter);
-        return "/history/sell";
+        return "history/sell";
     }
     // 판매 내역 상세 페이지
     @GetMapping("/sold")
@@ -186,7 +186,7 @@ public class HistoryController {
         }
         model.addAttribute("carouselImages", carouselImages);
 
-        return "/history/sold";
+        return "history/sold";
     }
 
     // 운송장 번호 등록
@@ -230,7 +230,7 @@ public class HistoryController {
         }
         model.addAttribute("currentPage", page);
         model.addAttribute("filter", filter);
-        return "/history/buy";
+        return "history/buy";
     }
 
     // 구매 내역 상세 페이지
@@ -262,7 +262,7 @@ public class HistoryController {
         }
         model.addAttribute("carouselImages", carouselImages);
         model.addAttribute("apiKey", smartTrackerApiKey);
-        return "/history/bought";
+        return "history/bought";
     }
 
     // 배송 조회 프록시 (클라이언트에서 호출)
