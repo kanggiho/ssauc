@@ -2,6 +2,9 @@ package com.example.ssauc.user.mypage.controller;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.example.ssauc.user.history.dto.BuyBidHistoryDto;
+import com.example.ssauc.user.history.dto.SellHistoryOngoingDto;
+import com.example.ssauc.user.history.service.HistoryService;
 import com.example.ssauc.user.login.entity.Users;
 import com.example.ssauc.user.login.util.TokenExtractor;
 import com.example.ssauc.user.mypage.dto.*;
@@ -34,7 +37,7 @@ import java.util.Map;
 public class MypageController {
 
     private final MypageService mypageService;
-
+    private final HistoryService historyService;
     private final TokenExtractor tokenExtractor;
     private final UserProfileService userProfileService;
     private final AmazonS3 amazonS3;
@@ -50,6 +53,18 @@ public class MypageController {
         }
         Users latestUser = mypageService.getCurrentUser(user.getEmail());
         model.addAttribute("user", latestUser);
+
+        // 입찰중
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(0, pageSize, Sort.by(Sort.Direction.DESC, "product.endAt"));
+        Page<BuyBidHistoryDto> biddingPage = historyService.getBiddingHistoryPage(latestUser, pageable);
+        model.addAttribute("bidList", biddingPage.getContent());
+
+        // 판매중
+        Pageable sellPageable = PageRequest.of(0, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<SellHistoryOngoingDto> sellPage = historyService.getOngoingSellHistoryPage(latestUser, sellPageable);
+        model.addAttribute("sellList", sellPage.getContent());
+
         return "/mypage/mypage";
     }
 

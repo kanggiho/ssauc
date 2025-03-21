@@ -69,12 +69,53 @@
         <!-- 판매 현황 섹션 -->
         <section class="transaction-status">
             <h3>판매 현황 ></h3>
-            <div class="status-box"></div>
+            <div class="status-box" style="height: 200px; overflow-y: auto;">
+                <table class="history-table" style="width: 100%; table-layout: fixed;">
+                    <thead>
+                    <tr>
+                        <th style="width: 25%;">상품 이름</th>
+                        <th style="width: 25%;">현재가</th>
+                        <th style="width: 25%;">즉시 구매가</th>
+                        <th style="width: 25%;">경매 마감 시간</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${sellList}">
+                        <td class="productBid" th:onclick="|location.href='/bid/bid?productId=' + ${item.productId}|">
+                            <span th:text="${item.productName}">상품 A</span>
+                        </td>
+                        <td th:text="${item.tempPrice}">10000</td>
+                        <td th:text="${item.price}">15000</td>
+                        <td th:text="${#temporals.format(item.endAt, 'yyyy-MM-dd HH:mm')}">2025-02-06 14:30</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
         <!-- 구매 현황 섹션 -->
         <section class="transaction-status">
             <h3>구매 현황 ></h3>
-            <div class="status-box"></div>
+            <div class="status-box" style="height: 200px; overflow-y: auto;">
+                <table class="history-table" style="width: 100%; table-layout: fixed;">
+                    <thead>
+                    <tr>
+                        <th style="width: 25%;">상품 이름</th>
+                        <th style="width: 25%;">현재가</th>
+                        <th style="width: 25%;">내 입찰가</th>
+                        <th style="width: 25%;">경매 마감 시간</th>
+                    </thead>
+                    <tbody>
+                    <tr th:each="bid : ${bidList}">
+                        <td class="productBid" th:onclick="|location.href='/bid/bid?productId=' + ${bid.productId}|">
+                            <span th:text="${bid.productName}">상품 이름</span>
+                        </td>
+                        <td th:text="${bid.tempPrice}">현재가</td>
+                        <td th:text="${bid.bidPrice}">내 입찰가</td>
+                        <td th:text="${#temporals.format(bid.endAt, 'yyyy-MM-dd HH:mm:ss')}">경매 마감 시간</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
     </main>
 </div>
