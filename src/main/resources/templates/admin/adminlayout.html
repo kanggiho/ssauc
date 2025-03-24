@@ -42,10 +42,10 @@
             <!-- 검색관리 -->
             <div class="menu-item" tabindex="0" onclick="toggleSubmenu(this, 'search-submenu')" style="cursor:pointer;">검색관리</div>
             <div class="submenu" id="search-submenu" style="display: none;">
-                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >검색어 분석기</div>
-                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >형태소 사전</div>
-                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >유사어 사전</div>
-                <div class="submenu-item" tabindex="0" onclick="activateSubmenu(this); location.href=''" >금칙어 사전</div>
+                <div class="submenu-item" tabindex="0" onclick="location.href='/admin/search/analyze'" style="cursor:pointer;">검색어 분석기</div>
+                <div class="submenu-item" tabindex="0" onclick="location.href='/admin/search/morph'" style="cursor:pointer;">형태소 사전</div>
+                <div class="submenu-item" tabindex="0" onclick="location.href='/admin/search/synonym'" style="cursor:pointer;">유사어 사전</div>
+                <div class="submenu-item" tabindex="0" onclick="location.href='/admin/search/forbidden'" style="cursor:pointer;">금칙어 사전</div>
             </div>
 
             <!-- 신고내역관리 -->

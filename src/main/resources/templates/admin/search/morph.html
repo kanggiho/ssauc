@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{admin/layout}"
+      xmlns:layout="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8" />
+  <title>형태소 사전 관리</title>
+  <link rel="stylesheet" th:href="@{/css/admin-search.css}" />
+  <script th:src="@{/js/admin-search-morph.js}" defer></script>
+</head>
+<body>
+<div class="admin-container">
+  <h1>형태소 사전 관리</h1>
+  <form id="morphForm">
+    <input type="hidden" id="morphId" value="" />
+    <label for="morphWord">단어:</label>
+    <input type="text" id="morphWord" placeholder="단어 입력" required />
+
+    <label for="morphAnalysis">분석 결과:</label>
+    <textarea id="morphAnalysis" placeholder="형태소 분석 결과 (예: 어근, 접사 등)" required></textarea>
+
+    <button type="submit">저장</button>
+  </form>
+  <h2>등록된 형태소 사전 목록</h2>
+  <ul id="morphList"></ul>
+</div>
+</body>
+</html>

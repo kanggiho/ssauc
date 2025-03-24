@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{admin/layout}">
+<head>
+  <meta charset="UTF-8" />
+  <title>금칙어 사전 관리</title>
+  <link rel="stylesheet" th:href="@{/css/admin-search.css}" />
+  <script th:src="@{/js/admin-search-forbidden.js}" defer></script>
+</head>
+<body>
+<div class="admin-container">
+  <h1>금칙어 사전 관리</h1>
+  <form id="forbiddenForm">
+    <input type="hidden" id="forbiddenId" value="" />
+    <label for="forbiddenWord">금칙어:</label>
+    <input type="text" id="forbiddenWord" placeholder="금칙어 입력" required />
+
+    <label for="forbiddenReason">사유:</label>
+    <textarea id="forbiddenReason" placeholder="금칙어 사용 금지 사유를 입력하세요" required></textarea>
+
+    <button type="submit">저장</button>
+  </form>
+  <h2>등록된 금칙어 목록</h2>
+  <ul id="forbiddenEntries"></ul>
+</div>
+</body>
+</html>

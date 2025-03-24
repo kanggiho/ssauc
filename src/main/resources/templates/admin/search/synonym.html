@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{admin/layout}">
+<head>
+  <meta charset="UTF-8" />
+  <title>유사어 사전 관리</title>
+  <link rel="stylesheet" th:href="@{/css/admin-search.css}" />
+  <script th:src="@{/js/admin-search-synonym.js}" defer></script>
+</head>
+<body>
+<div class="admin-container">
+  <h1>유사어 사전 관리</h1>
+  <form id="synonymForm">
+    <input type="hidden" id="synonymId" value="" />
+    <label for="synonymWord">단어:</label>
+    <input type="text" id="synonymWord" placeholder="단어 입력" required />
+
+    <label for="synonymList">유사어 (쉼표로 구분):</label>
+    <input type="text" id="synonymList" placeholder="예: 단어1, 단어2, 단어3" required />
+
+    <button type="submit">저장</button>
+  </form>
+  <h2>등록된 유사어 사전 목록</h2>
+  <ul id="synonymEntries"></ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{admin/layout}"
+      xmlns:layout="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8" />
+  <title>검색어 분석기</title>
+  <link rel="stylesheet" th:href="@{/css/admin-search.css}" />
+  <script th:src="@{/js/admin-search-analyze.js}" defer></script>
+</head>
+<body>
+<div class="admin-container">
+  <h1>검색어 분석기</h1>
+  <form id="analyzeForm">
+    <label for="text">분석할 텍스트:</label>
+    <textarea id="text" name="text" placeholder="분석할 검색어를 입력하세요" required></textarea>
+
+    <button type="submit">분석하기</button>
+  </form>
+  <div id="analyzeResult" class="result"></div>
+</div>
+</body>
+</html>

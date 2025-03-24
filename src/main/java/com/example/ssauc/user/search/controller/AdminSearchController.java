@@ -33,8 +33,9 @@ public class AdminSearchController {
     }
 
     @GetMapping("/analyze")
-    public String analyze(@RequestParam String analyzer,
-                          @RequestParam String text) {
+    public String analyze(
+            @RequestParam(value = "analyzer", defaultValue = "nori_analyzer") String analyzer,
+            @RequestParam String text) {
         return productSearchService.analyzeKeyword(analyzer, text);
     }
 
