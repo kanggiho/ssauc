@@ -29,7 +29,7 @@ public class CustomOAuth2FailureHandler extends SimpleUrlAuthenticationFailureHa
         if (exception instanceof OAuth2AuthenticationException oauthEx) {
             OAuth2Error error = oauthEx.getError();
             String desc = error.getDescription(); // ex: "inactive|email@domain.com|닉네임"
-            if (desc != null && desc.startsWith("inactive|")) {
+            if (desc != null && desc.startsWith("INACTIVE|")) {
                 String[] parts = desc.split("\\|");
                 if (parts.length >= 3) {
                     String email = parts[1];
