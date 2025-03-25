@@ -51,7 +51,7 @@ public class UserService {
                 return "해당 이메일은 가입이 불가합니다.";
             }
             // 3-2. inactive 상태인 경우 -> 재가입(reactivation) 처리
-            else if("inactive".equalsIgnoreCase(existingUser.getStatus())){
+            else if("INACTIVE".equalsIgnoreCase(existingUser.getStatus())){
                 // ※ 재가입의 경우에는 이메일이 일치하면 기존 레코드 업데이트로 처리하므로,
                 // 닉네임과 휴대폰 번호 중복 여부는 체크하지 않고 그대로 업데이트합니다.
                 existingUser.setUserName(dto.getUserName());

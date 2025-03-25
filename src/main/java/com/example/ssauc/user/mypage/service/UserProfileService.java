@@ -82,7 +82,7 @@ public class UserProfileService {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
         // inactive로 전환
-        user.setStatus("inactive");
+        user.setStatus("INACTIVE");
         user.setUpdatedAt(LocalDateTime.now());
         usersRepository.save(user);
     }

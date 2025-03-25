@@ -48,9 +48,9 @@ public class UserController {
         Optional<Users> existingUserOpt = userRepository.findByEmail(email);
         if(existingUserOpt.isPresent()){
             Users user = existingUserOpt.get();
-            if("blocked".equalsIgnoreCase(user.getStatus())){
+            if("BLOCKED".equalsIgnoreCase(user.getStatus())){
                 return ResponseEntity.badRequest().body("해당 이메일은 가입이 불가합니다.");
-            } else if("inactive".equalsIgnoreCase(user.getStatus())){
+            } else if("INACTIVE".equalsIgnoreCase(user.getStatus())){
                 return ResponseEntity.ok("사용 가능한 이메일입니다.");
             } else {
                 return ResponseEntity.badRequest().body("이미 사용 중인 이메일입니다.");
@@ -77,7 +77,7 @@ public class UserController {
                 return ResponseEntity.ok("사용 가능한 닉네임입니다.");
             }
             // inactive 상태라면 재가입 가능 (이메일과는 다를 수 있으나, 보통 재가입 시에는 이메일로 구분하므로 우선 available 처리)
-            else if("inactive".equalsIgnoreCase(user.getStatus())){
+            else if("INACTIVE".equalsIgnoreCase(user.getStatus())){
                 return ResponseEntity.ok("사용 가능한 닉네임입니다.");
             } else {
                 return ResponseEntity.badRequest().body("이미 사용 중인 닉네임입니다.");
@@ -98,7 +98,7 @@ public class UserController {
             Users user = userOpt.get();
             if(email != null && email.equalsIgnoreCase(user.getEmail())){
                 return ResponseEntity.ok("사용 가능한 휴대폰 번호입니다.");
-            } else if("inactive".equalsIgnoreCase(user.getStatus())){
+            } else if("INACTIVE".equalsIgnoreCase(user.getStatus())){
                 return ResponseEntity.ok("사용 가능한 휴대폰 번호입니다.");
             } else {
                 return ResponseEntity.badRequest().body("이미 사용 중인 휴대폰 번호입니다.");
